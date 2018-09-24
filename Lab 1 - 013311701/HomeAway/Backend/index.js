@@ -229,6 +229,58 @@ app.get('/profile-details', function(req, res){
 
 });
 
+//Update Profile data
+
+app.post('/update-profile', function(req, res){
+
+    console.log('Inside Update Profile POST!');
+    console.log('Request Body: ', req.body);
+
+    pool.getConnection(function(err, conn){
+
+        if(err){
+
+            console.log('Error in creating connection!');
+            res.writeHead(400, {
+                'Content-type': 'text/plain'
+            });
+            res.end('Error in creating connection!');
+
+        }
+        else{
+
+            var sql = 'UPDATE userdetails set ' + 
+            'Firstname = ' + mysql.escape(req.body.Firstname) + ','
+            'Lastname = ' + mysql.escape(req.body.Lastname) + ','
+            'Email = ' + mysql.escape(req.body.Email) + ','
+            'Phonenumber = ' + mysql.escape(req.body.Phonenumber) + ','
+            'Aboutme= ' + mysql.escape(req.body.Aboutme) + ','
+            'Country = ' + mysql.escape(req.body.Country) + ','
+            'City = ' + mysql.escape(req.body.City) + ','
+            'Gender = ' + mysql.escape(req.body.Gender) + 'WHERE ProfileId = ' + req.session.user.ProfileId;
+
+            conn.query(sql, function(err, result){
+                if(err){
+                    res.writeHead(400, {
+                        'Content-type': 'text/plain'
+                    });
+                    res.end('Error in updating profile data');
+
+                }
+                else{
+                    console.log('Profile data update complete!');
+                    res.writeHead(200, {
+                        'Content-type': 'text/plain'
+                    });
+                    res.end('Profile data update complete!');
+                }
+            });
+
+        }
+    });
+
+});
+
 
 //Post-Property
 app.post('/add-property', function (req, res) {
@@ -309,4 +361,4 @@ app.get('/test-db', function (req, res) {
 
 });
 
-app.listen(3001);
+app.listen(3002);

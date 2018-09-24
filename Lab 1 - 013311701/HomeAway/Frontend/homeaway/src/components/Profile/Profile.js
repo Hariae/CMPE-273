@@ -19,14 +19,15 @@ class Profile extends Component {
             Gender: ""
         }
 
-        
-
+        //Bind
+        this.handleChange = this.handleChange.bind(this);
+        this.saveChanges = this.saveChanges.bind(this);
     }
 
     componentDidMount() {
 
         axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3001/profile-details')
+        axios.get('http://localhost:3002/profile-details')
             .then(response => {
                 if (response.status === 200) {
                     //console.log('Status: '. response.status);
@@ -56,6 +57,42 @@ class Profile extends Component {
             });
     }
 
+    handleChange = (e) => {
+        const target = e.target;
+        const name = target.name;
+        const value = target.value;
+
+        this.setState({
+            [name]: value
+        });
+    }
+
+    saveChanges = (e) => {
+        e.preventDefault();
+        axios.defaults.withCredentials = true;
+
+        const data = {
+            Firstname: this.state.Firstname,
+            Lastname: this.state.Lastname,
+            Email: this.state.Email,
+            PhoneNumber: this.state.PhoneNumber,
+            Aboutme: this.state.Aboutme,
+            Country: this.state.Country,
+            City: this.state.City,
+            Gender: this.state.Gender
+
+        }
+
+        console.log('Data: ',data);
+        axios.post('http://localhost:3002/update-profile', data)
+            .then(response => {
+                if (response.status === 200) {
+                    console.log('');
+                }
+            });
+
+    }
+
     render() {
 
         let redrirectVar = null;
@@ -81,31 +118,31 @@ class Profile extends Component {
                                 </div>
                                 <div className="profile-form-content">
                                     <div className="form-group">
-                                        <input type="text" name="firstname" id="firstname" className="form-control form-control-lg" placeholder="First name" vaue={this.state.Firstname}/>
+                                        <input type="text" name="Firstname" id="firstname" className="form-control form-control-lg" placeholder="First name" onChange={this.handleChange} value={this.state.Firstname} />
                                     </div>
                                     <div className="form-group">
-                                        <input type="text" name="lastname" id="lastname" className="form-control form-control-lg" placeholder="Last name" value={this.state.Lastname}/>
+                                        <input type="text" name="Lastname" id="lastname" className="form-control form-control-lg" placeholder="Last name" onChange={this.handleChange} value={this.state.Lastname} />
                                     </div>
                                     <div className="form-group">
-                                        <input type="text" name="email" id="email" className="form-control form-control-lg" placeholder="Email address" value={this.state.Email}/>
+                                        <input type="text" name="Email" id="email" className="form-control form-control-lg" placeholder="Email address" onChange={this.handleChange} value={this.state.Email} />
                                     </div>
                                     <div className="form-group">
-                                        <input type="text" name="phonenumber" id="phonenumber" className="form-control form-control-lg" placeholder="Phone Number" value={this.state.PhoneNumber}/>
+                                        <input type="text" name="Phonenumber" id="phonenumber" className="form-control form-control-lg" placeholder="Phone Number" onChange={this.handleChange} value={this.state.PhoneNumber} />
                                     </div>
                                     <div className="form-group">
-                                        <textarea type="text" name="aboutme" id="aboutme" className="form-control form-control-lg" placeholder="About me" value={this.state.Aboutme} />
+                                        <textarea type="text" name="Aboutme" id="aboutme" className="form-control form-control-lg" placeholder="About me" onChange={this.handleChange} value={this.state.Aboutme} />
                                     </div>
                                     <div className="form-group">
-                                        <input type="text" name="country" id="country" className="form-control form-control-lg" placeholder="Country" value={this.state.Country}/>
+                                        <input type="text" name="Country" id="country" className="form-control form-control-lg" placeholder="Country" onChange={this.handleChange} value={this.state.Country} />
                                     </div>
                                     <div className="form-group">
-                                        <input type="text" name="city" id="city" className="form-control form-control-lg" placeholder="City" value={this.state.City}/>
+                                        <input type="text" name="City" id="city" className="form-control form-control-lg" placeholder="City" onChange={this.handleChange} value={this.state.City} />
                                     </div>
                                     <div className="form-group">
-                                        <input type="text" name="gender" id="gender" className="form-control form-control-lg" placeholder="Gender" value={this.state.Gender}/>
+                                        <input type="text" name="Gender" id="gender" className="form-control form-control-lg" placeholder="Gender" onChange={this.handleChange} value={this.state.Gender} />
                                     </div>
                                     <div className="form-group">
-                                        <button className="btn btn-lg btn-primary">Save Changes</button>
+                                        <button className="btn btn-lg btn-primary" onClick={this.saveChanges}>Save Changes</button>
                                     </div>
                                 </div>
 

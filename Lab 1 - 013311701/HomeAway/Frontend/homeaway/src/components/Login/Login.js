@@ -46,7 +46,7 @@ class Login extends Component {
 
         axios.defaults.withCredentials = true;
 
-        axios.post('http://localhost:3001/login', data)
+        axios.post('http://localhost:3002/login', data)
             .then((response) => {
                 if (response.status === 200) {
                     this.setState({
