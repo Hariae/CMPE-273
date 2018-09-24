@@ -55,7 +55,7 @@ class Calculator extends Component{
             <div className="center-content">
                 <div className="calc-content">
                     <div className="form-group">                        
-                        <table className="table table-light table-bordered">
+                        <table className="table table-dark table-bordered">
                             <tbody>
                                 <tr>
                                     <td colSpan="4">
