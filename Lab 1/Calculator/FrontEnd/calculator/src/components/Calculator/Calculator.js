@@ -49,13 +49,12 @@ class Calculator extends Component{
     }
 
 
-
     render(){
         return(
             <div className="center-content">
                 <div className="calc-content">
                     <div className="form-group">                        
-                        <table className="table table-dark table-bordered">
+                        <table className="table table-light table-bordered">
                             <tbody>
                                 <tr>
                                     <td colSpan="4">
