@@ -1,0 +1,446 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.header-bar span{
+  padding: 0 1%;
+}
+
+.header-bar-tabs{
+  padding-left: 30% !important;
+}
+
+.header-bar .lyp-btn{
+  background-color: white;
+  border: 1px solid lightgray;
+  border-radius: 25px;
+  color: #0067db;
+}
+
+.userName-dropdown{
+
+  border-style: none;
+  color:  #0067db;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+
+/*Custom Styling*/
+
+
+.header-bar{
+  padding: 14px 0px;
+  background-color: white;
+}
+
+.fill-graywhite{
+  background-color: whitesmoke;
+}
+
+.flt-left{
+  float:left;
+}
+
+.flt-right{
+  float:right;
+}
+
+.login-container{
+  padding: 25px;
+}
+
+.login-form-container{
+  background-color: white; 
+}
+
+.login-form-control{
+  padding-bottom: 10px;
+}
+
+
+.login-form-heading{
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    color: #666;
+    font-size: 22px;
+    font-weight: 300;
+}
+
+.btn-login{
+  background-color: #e57c00;
+    border-color: #e57c00;
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+hr{
+  color: gray;
+  width: 100%;
+  background-color: gray;
+}
+
+.pad-top-10{
+  padding-top:10px;
+}
+
+.pad-bot-10{
+  padding-bottom: 10px;
+}
+
+.pad-top-20{
+  padding-top: 20px;
+}
+
+.pad-left-25{
+  padding-left: 25px;
+}
+
+.mar-right-50{
+  margin-right: 50px;
+}
+.wid-50{
+  width: 50%;
+}
+
+.fb-btn{
+  background-color: #2f4f88;
+  color: white;
+    font-size: 20px;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.google-logo, .fb-logo{
+  height: 18px;
+  width: 18px;
+}
+
+.google-btn{
+  color: gray;
+  font-size: 20px;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.headline-text{
+  font-size:40px;
+  
+}
+
+.center-content{
+  text-align: center;
+}
+
+.clear{
+  clear: both;
+  display: block;
+}
+
+.vl{
+  border-left: 5px solid gray;
+  height: 100px;
+}
+
+DatePicker:focus{
+  border-color: #2a6ebb;
+}
+
+.Hero-Image{
+  background-image: url('http://csvcus.homeaway.com/rsrcs/stab-cms-resources/0.10.30/images/homepage/jumbotron/ptaHpNextHeroImage/large.jpg');
+  background-size: cover;
+  background-position: 50%;
+}
+
+.jumbotron-content{
+  color: white;
+  padding-top:10%;
+  padding-left:10%;
+  padding-bottom:5%;
+}
+
+.home-page-list{
+  list-style-type: none;
+  display: inline;
+
+}
+
+.value-props-item{
+  width:33%;
+  text-align: center;
+  float: left;
+}
+
+.value-props-title, .value-props-content{
+  display: block;
+}
+
+.home-page-list-content{
+  width:100%;
+  color: white;
+  padding-bottom:5%;
+}
+
+.search-tab{
+  width:75%;
+}
+
+.recent-activity{
+  background-color: white;
+  padding-top:5%;
+}
+
+.recent-activity-card{
+  width:500px;
+  color:white;
+  float:left;
+}
+
+.recent-activity-content{
+  background-color: white;
+}
+
+.card-img{
+  width:100%;
+}
+
+.card-button{
+  
+   border-radius: 1px;
+    width:250px;
+    margin-left: 20%;
+}
+
+.carousel-img{
+  width:1100px;
+  height: 500px;
+}
+ 
+
+.lyp-content{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.lyp-container{
+  position: relative;
+    text-align: center;
+    color: white;
+}
+
+.footer-container{
+  background-color: #323f4d;
+
+}
+
+.external-links{
+  padding-left:5%;
+}
+
+.external-links-headline-text{
+  color: white;
+}
+
+
+.external-link-buttons{
+  /* display: inline; */
+  background-color: #a0a9b2;
+  color: #323f4d;
+  padding-right: 1%;
+  padding-left: 1%;  
+  width:250px;
+  height:60px;
+}
+
+.divider{
+  width:50px;
+  display: inline-block;
+  height: auto;
+  padding-top:75px;
+}
+
+.lyp-nav-btn{
+  width:300px;
+  height: 60px;
+  font-size:30px;
+  color:lightgrey;
+  border-radius: 35px;
+}
+
+.add-property-content{
+  background-color:Honeydew;
+}
+
+.menu-bar-ver{
+  /* width: 25%; */
+  /* background-color: #a0a9b2; */
+  padding-top: 5%;
+  padding-left: 5%;  
+}
+
+.menu-bar-ver li{
+  list-style: none;
+  padding-top: 10%;  
+}
+
+.menu-bar-ver li a{
+  color: black;
+  font-size: 20px;
+}
+
+.menu-bar-hor{
+  /* width: 75%; */
+  background-color: white;
+   margin-top:5%;
+  
+}
+
+.pad-top-20-pc{
+  padding-top : 20%;
+}
+
+
+.add-property-form{
+  padding-top: 5%;
+  padding-left: 10%;
+}
+
+.add-property-form .form-control{
+  width: 75%;
+}
+
+textarea{
+  height: 150px;
+}
+
+.location-form-btn{
+  margin-right: 25%;
+}
+
+.location-form, .details-form, .photos-form, .pricing-form{
+  display: none;
+}
+
+
+.show-form{
+  display: block !important;
+}
+
+.photo-upload-btn{
+  border-color: #d7d8da;
+  color: #2a6ebb;
+  background-color: white;
+}
+
+.photo-upload-btn-container{
+  border-style: dashed;
+  border-color: gray;
+  border-width: 1px;
+  padding: 10%;
+}
+
+.photos-form-btn{
+  background-color: #ff8a00;
+  border-color: #ff8a00;
+  color: white;
+}
+
+.property-image{
+  width: 200px;
+  height: 150px;
+}
+
+.search-tab-display-property{  
+  padding : 5%;
+  padding-left: 7%;
+}
+
+.property-content-image, .property-content-desc{
+  padding: 2%;
+}
+
+.pricing-content{
+  padding-top: 1%;
+}
+
+.display-properties-container{
+  padding: 1% 0;  
+}
+
+.display-properties-container:hover{
+  box-shadow: 10px 10px 5px grey;  
+}
+
+.property-content:hover{
+  border-style: none !important;
+}
+
+.property-display-img{
+  width: 560px;
+  height: 430px;
+}
+
+.property-display-img-content, .property-display-details-content{
+  padding: 2%;
+}
+
+.property-display-pricing-content{
+  /* background-color: yellow; */
+  padding-left: 5%;  
+  padding-top : 2%;
+  
+}
+
+.profile-content .headline-text{
+  padding: 5% 0;
+}
+
+.profile-heading img{
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+.profile-form-content input{
+  width: 50%;
+}
+
+.display-price{
+  padding: 5%;
+}
+
+.display-price h4{
+  display: inline;
+}
+
+.blue-text{
+  color: #0067db;
+}
+
+.book-btn{
+  border-radius: 25px;
+}
