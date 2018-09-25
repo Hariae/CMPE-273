@@ -345,7 +345,7 @@ class AddProperty extends Component {
                                                 <option value="AUD">Australian Dollar (AUD)</option>
                                                 <option value="EUR">Euros (EUR)</option>
                                                 <option value="GBP">Great British Pound (GBP)</option>
-                                                <option value="USD">US Dollar (USD)</option>
+                                                <option value="$">US Dollar (USD)</option>
                                                 <option value="CAD">Canadian Dollar (CAD)</option>
                                                 <option value="NZD">New Zealand Dollar (NZD)</option>
                                                 <option value="BRL">Brazil Real (BRL)</option>

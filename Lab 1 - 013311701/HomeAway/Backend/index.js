@@ -51,43 +51,43 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-var locationDetails = {
-    country: "",
-    streetAddress: "",
-    unitNumber: "",
-    city: "",
-    state: "",
-    zipCode: ""
-};
+// var locationDetails = {
+//     country: "",
+//     streetAddress: "",
+//     unitNumber: "",
+//     city: "",
+//     state: "",
+//     zipCode: ""
+// };
 
-var details = {
-    propertyType: "",
-    bedrooms: "",
-    accomodates: "",
-    bathrooms: ""
-};
+// var details = {
+//     propertyType: "",
+//     bedrooms: "",
+//     accomodates: "",
+//     bathrooms: ""
+// };
 
-var photos = [{
-    photo: ""
-}];
+// var photos = [{
+//     photo: ""
+// }];
 
-var pricingDetails = {
-    startDate: "",
-    endDate: "",
-    currency: "",
-    baserate: "",
-    minStay: ""
-}
+// var pricingDetails = {
+//     startDate: "",
+//     endDate: "",
+//     currency: "",
+//     baserate: "",
+//     minStay: ""
+// }
 
 
-var PropertyDetails = {
+// var PropertyDetails = {
 
-    LocationDetails: locationDetails,
-    Details: details,
-    Photos: photos,
-    PricingDetails: pricingDetails
+//     LocationDetails: locationDetails,
+//     Details: details,
+//     Photos: photos,
+//     PricingDetails: pricingDetails
 
-};
+// };
 
 var PropertyRepo = [];
 
@@ -191,7 +191,7 @@ app.post('/signup', function (req, res) {
 
 //Profile Details
 app.get('/profile-details', function(req, res){
-
+    
     console.log('Inside Profile Details GET!');
     console.log('Request Body:', req.body);
 
@@ -250,14 +250,15 @@ app.post('/update-profile', function(req, res){
         else{
 
             var sql = 'UPDATE userdetails set ' + 
-            'Firstname = ' + mysql.escape(req.body.Firstname) + ','
-            'Lastname = ' + mysql.escape(req.body.Lastname) + ','
-            'Email = ' + mysql.escape(req.body.Email) + ','
-            'Phonenumber = ' + mysql.escape(req.body.Phonenumber) + ','
-            'Aboutme= ' + mysql.escape(req.body.Aboutme) + ','
-            'Country = ' + mysql.escape(req.body.Country) + ','
-            'City = ' + mysql.escape(req.body.City) + ','
-            'Gender = ' + mysql.escape(req.body.Gender) + 'WHERE ProfileId = ' + req.session.user.ProfileId;
+            'Firstname = ' + mysql.escape(req.body.Firstname) + ',' +
+            'Lastname = ' + mysql.escape(req.body.Lastname) + ',' +
+            'Email = ' + mysql.escape(req.body.Email) + ',' +
+            'Phonenumber = ' + mysql.escape(req.body.Phonenumber) + ',' +
+            'Aboutme= ' + mysql.escape(req.body.Aboutme) + ',' +
+            'Country = ' + mysql.escape(req.body.Country) + ',' +
+            'City = ' + mysql.escape(req.body.City) + ',' +
+            'Gender = ' + mysql.escape(req.body.Gender) + 
+            ' WHERE ProfileId = ' + req.session.user.ProfileId;
 
             conn.query(sql, function(err, result){
                 if(err){
@@ -287,27 +288,105 @@ app.post('/add-property', function (req, res) {
 
     console.log('Inside Add Property POST!');
     console.log('Request Body: ', req.body);
-
-
-    //if(req.session.user){       
-
     const newProperty = req.body;
-    PropertyRepo.push(newProperty);
-    console.log(PropertyRepo);
-    //}
 
+    pool.getConnection(function(err, conn){
+
+        if(err){
+            console.log('Error in creating connection!');
+            res.writeHead(400, {
+                'Content-type': 'text/plain'
+            });
+            res.end('Error in creating connection!');
+        }
+        else{
+
+
+            var sql = 'INSERT into propertydetails values(NULL,' + 
+            mysql.escape(newProperty.LocationDetails.country) + ',' + 
+            mysql.escape(newProperty.LocationDetails.streetAddress) + ',' + 
+            mysql.escape(newProperty.LocationDetails.unitNumber) + ',' + 
+            mysql.escape(newProperty.LocationDetails.city) + ',' + 
+            mysql.escape(newProperty.LocationDetails.state) + ',' + 
+            mysql.escape(newProperty.LocationDetails.zipCode) + ',' + 
+            mysql.escape(newProperty.Details.headline) + ',' + 
+            mysql.escape(newProperty.Details.description) + ',' + 
+            mysql.escape(newProperty.Details.propertyType) + ',' + 
+            mysql.escape(newProperty.Details.bedrooms) + ',' + 
+            mysql.escape(newProperty.Details.accomodates) + ',' + 
+            mysql.escape(newProperty.Details.bathrooms) + ',' + 
+            mysql.escape("photos") + ',' +
+            mysql.escape(newProperty.PricingDetails.availabilityStartDate) + ',' + 
+            mysql.escape(newProperty.PricingDetails.availabilityEndDate) + ',' +             
+            mysql.escape(newProperty.PricingDetails.currency + newProperty.PricingDetails.baserate) + ',' + 
+            mysql.escape(newProperty.PricingDetails.minStay) + ');';
+            
+            
+
+            conn.query(sql, function(err, result){
+
+                if(err){
+                    res.writeHead(400, {
+                        'Content-type': 'text/plain'
+                    });
+                    res.end('Error in Posting property data');
+                }
+                else{
+                    
+                    console.log('Property listing complete!');
+                    res.writeHead(200, {
+                        'Content-type': 'text/plain'
+                    });
+                    res.end('Property listing complete!');
+                }
+
+            });
+
+        }
+
+    });
 });
 
 //Search
 app.get('/search', function (req, res) {
 
     console.log('Inside Search Method GET!');
-    //console.log('Request Body: ', req.body);
-    res.writeHead(200, {
-        'Content-type': 'application/json'
+    console.log('Request Body: ', req.body);
+    
+    pool.getConnection(function(err, conn){
+        if(err){
+            console.log('Error in creating connection!');
+            res.writeHead(400, {
+                'Content-type': 'text/plain'
+            });
+            res.end('Error in creating connection!');
+        }
+        else{
+
+            //Search Properties Query
+            var sql = 'SELECT * from propertydetails;';
+
+            conn.query(sql, function(err, result){
+
+                if(err){
+                    res.writeHead(400, {
+                        'Content-type': 'text/plain'
+                    });
+                    res.end('Error in Retrieving property data');
+
+                }
+                else{
+
+                    res.writeHead(200, {
+                        'Content-type': 'application/json'
+                    });
+                    console.log(JSON.stringify(result));
+                    res.end(JSON.stringify(result));
+                }
+            });
+        }
     });
-    console.log(JSON.stringify(PropertyRepo));
-    res.end(JSON.stringify(PropertyRepo));
+    
 });
 
 
@@ -361,4 +440,4 @@ app.get('/test-db', function (req, res) {
 
 });
 
-app.listen(3002);
+app.listen(3001);

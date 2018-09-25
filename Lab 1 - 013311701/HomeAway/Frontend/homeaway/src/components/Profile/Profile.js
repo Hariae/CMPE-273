@@ -12,7 +12,7 @@ class Profile extends Component {
             Firstname: "",
             Lastname: "",
             Email: "",
-            PhoneNumber: "",
+            Phonenumber: "",
             Aboutme: "",
             Country: "",
             City: "",
@@ -27,7 +27,7 @@ class Profile extends Component {
     componentDidMount() {
 
         axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3002/profile-details')
+        axios.get('http://localhost:3001/profile-details')
             .then(response => {
                 if (response.status === 200) {
                     //console.log('Status: '. response.status);
@@ -36,7 +36,7 @@ class Profile extends Component {
                         Firstname: "",
                         Lastname: "",
                         Email: "",
-                        PhoneNumber: "",
+                        Phonenumber: "",
                         Aboutme: "",
                         Country: "",
                         City: "",
@@ -47,7 +47,7 @@ class Profile extends Component {
                         Firstname: data.Firstname,
                         Lastname: data.Lastname,
                         Email: data.Email,
-                        PhoneNumber: data.PhoneNumber,
+                        Phonenumber: data.Phonenumber,
                         Aboutme: data.Aboutme,
                         Country: data.Country,
                         City: data.City,
@@ -75,7 +75,7 @@ class Profile extends Component {
             Firstname: this.state.Firstname,
             Lastname: this.state.Lastname,
             Email: this.state.Email,
-            PhoneNumber: this.state.PhoneNumber,
+            Phonenumber: this.state.Phonenumber,
             Aboutme: this.state.Aboutme,
             Country: this.state.Country,
             City: this.state.City,
@@ -84,7 +84,7 @@ class Profile extends Component {
         }
 
         console.log('Data: ',data);
-        axios.post('http://localhost:3002/update-profile', data)
+        axios.post('http://localhost:3001/update-profile', data)
             .then(response => {
                 if (response.status === 200) {
                     console.log('');
@@ -127,7 +127,7 @@ class Profile extends Component {
                                         <input type="text" name="Email" id="email" className="form-control form-control-lg" placeholder="Email address" onChange={this.handleChange} value={this.state.Email} />
                                     </div>
                                     <div className="form-group">
-                                        <input type="text" name="Phonenumber" id="phonenumber" className="form-control form-control-lg" placeholder="Phone Number" onChange={this.handleChange} value={this.state.PhoneNumber} />
+                                        <input type="text" name="Phonenumber" id="phonenumber" className="form-control form-control-lg" placeholder="Phone Number" onChange={this.handleChange} value={this.state.Phonenumber} />
                                     </div>
                                     <div className="form-group">
                                         <textarea type="text" name="Aboutme" id="aboutme" className="form-control form-control-lg" placeholder="About me" onChange={this.handleChange} value={this.state.Aboutme} />

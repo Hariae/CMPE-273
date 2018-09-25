@@ -58,10 +58,10 @@ class DisplayProperties extends Component {
                 console.log(response.data);
                 this.setState({
                     Properties: response.data
-                })
-                this.setState({
-                    propertyDetails: this.state.Properties[0]
-                })
+                });
+                // this.setState({
+                //     propertyDetails: this.state.Properties[0]
+                // });
 
                 console.log('Proper', this.state.Properties[0]);
                 console.log('Proper', this.state.propertyDetails);
@@ -96,14 +96,14 @@ class DisplayProperties extends Component {
                         </div>
                         <div className="property-content-desc col-9 hidden-xs">
                             <div>
-                                <h2><strong>{property.Details.headline}</strong></h2>
-                                <div>Property Type : {property.Details.propertyType}</div>
-                                <div>{property.Details.bedrooms} BR</div>
-                                <div>{property.Details.bathrooms} BA</div>
-                                <div>Sleeps {property.Details.accomodates}</div>
+                                <h2><strong>{property.Headline}</strong></h2>
+                                <div>Property Type : {property.Propertytype}</div>
+                                <div>{property.Bedrooms} BR</div>
+                                <div>{property.Bathrooms} BA</div>
+                                <div>Sleeps {property.Accomodates}</div>
                             </div>
                             <div className="pricing-content">
-                                <h5><strong>${property.PricingDetails.baserate}</strong> per night</h5>
+                                <h5><strong>{property.Baserate}</strong> per night</h5>
                             </div>
                         </div>
 
