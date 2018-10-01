@@ -6,6 +6,7 @@ import moment from 'moment';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import Header from '../Header/Header';
+import { Link } from 'react-router-dom';
 
 class DisplayProperties extends Component {
 
@@ -33,7 +34,7 @@ class DisplayProperties extends Component {
                     bathrooms: ""
                 },
                 Photos: {
-
+                    photos: ""
                 },
                 PricingDetails: {
                     availabilityStartDate: "",
@@ -43,7 +44,10 @@ class DisplayProperties extends Component {
                     minStay: ""
 
                 },
-            }
+            },
+            displayProperty: false,
+            propertyId: "",
+            Photos: []
         }
 
         this.handleArrivalDateChange = this.handleArrivalDateChange.bind(this);
@@ -53,18 +57,28 @@ class DisplayProperties extends Component {
     componentWillMount() {
 
         var data = {};
+        axios.defaults.withCredentials = true;
         axios.get('http://localhost:3001/search', data)
             .then(response => {
                 console.log(response.data);
                 this.setState({
                     Properties: response.data
                 });
-                // this.setState({
-                //     propertyDetails: this.state.Properties[0]
-                // });
-
-                console.log('Proper', this.state.Properties[0]);
-                console.log('Proper', this.state.propertyDetails);
+                
+                var imageArr = [];
+                for (let i = 0; i < this.state.Properties.length; i++) {
+                    axios.post('http://localhost:3001/download-file/' + this.state.Properties[i].Photos.split(',')[0])
+                        .then(response => {
+                            //console.log("Imgae Res : ", response);
+                            let imagePreview = 'data:image/jpg;base64, ' + response.data;
+                            imageArr.push(imagePreview);
+                            const propertyArr = this.state.Properties.slice();
+                            propertyArr[i].Photos = imagePreview;
+                            this.setState({
+                                Properties: propertyArr
+                            });
+                        });
+                }                
             });
     }
 
@@ -80,6 +94,7 @@ class DisplayProperties extends Component {
         })
     }
 
+
     render() {
 
         let redrirectVar = null;
@@ -87,28 +102,33 @@ class DisplayProperties extends Component {
             redrirectVar = <Redirect to="/login" />
         }
 
+        // if(this.state.displayProperty){
+        //     redrirectVar = <Redirect to={"/property-display/" + this.state.propertyId} />
+        // }
+
         let propertyList = this.state.Properties.map(function (property, index) {
             return (
                 <div className="container display-properties-container" key={index}>
-                    <div className="property-content row border">
-                        <div className="property-content-image col-3">
-                            <img className="property-image" src="https://odis.homeaway.com/odis/listing/2d64bce1-3b15-4171-8f2f-ae6558097d1c.c10.jpg" alt="property-image" />
-                        </div>
-                        <div className="property-content-desc col-9 hidden-xs">
-                            <div>
-                                <h2><strong>{property.Headline}</strong></h2>
-                                <div>Property Type : {property.Propertytype}</div>
-                                <div>{property.Bedrooms} BR</div>
-                                <div>{property.Bathrooms} BA</div>
-                                <div>Sleeps {property.Accomodates}</div>
+                    <Link to={'/property-display/' + property.PropertyId}>
+                        <div className="property-content row border">
+                            <div className="property-content-image col-3">
+                                <img className="property-image" src={property.Photos} alt="property-image" />
                             </div>
-                            <div className="pricing-content">
-                                <h5><strong>{property.Baserate}</strong> per night</h5>
+                            <div className="property-content-desc col-9 hidden-xs">
+                                <div>
+                                    <h2><strong>{property.Headline}</strong></h2>
+                                    <div>Property Type : {property.Propertytype}</div>
+                                    <div>{property.Bedrooms} BR</div>
+                                    <div>{property.Bathrooms} BA</div>
+                                    <div>Sleeps {property.Accomodates}</div>
+                                </div>
+                                <div className="pricing-content">
+                                    <h5><strong>{property.Baserate}</strong> per night</h5>
+                                </div>
                             </div>
+
                         </div>
-
-                    </div>
-
+                    </Link>
                 </div>
             )
         })

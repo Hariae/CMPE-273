@@ -444,3 +444,9 @@ textarea{
 .book-btn{
   border-radius: 25px;
 }
+
+.display-properties-container a{
+
+  text-decoration: none !important;
+  color: none;
+}

@@ -30,7 +30,7 @@ class AddProperty extends Component {
             bedrooms: "",
             accomodates: "",
             bathrooms: "",
-            photos: [],
+            photos: "",
             photoThumbnail: [],
             availabilityStartDate: moment(),
             availabilityEndDate: moment(),
@@ -117,37 +117,49 @@ class AddProperty extends Component {
         const value = target.value;
 
         if (name === "photos") {
-            console.log('Files : ', target.files);
-
-            this.setState({
-                photos: this.state.photos.push(...target.files)
-            });
-
-            var photos = this.state.photos;
+            console.log('Files : ', target.files);        
+            // this.setState({
+            //     photos: this.state.photos.push(...target.files)
+            // });            
+            
+            //var photos = this.state.photos;
+            var photos = target.files;
             console.log('photos:', photos);
             let data = new FormData();
             for (var i = 0; i < photos.length; i++) {
                 data.append('photos', photos[i]);
             }
-            
 
+            axios.defaults.withCredentials = true;
             axios.post('http://localhost:3001/upload-file', data)
                 .then(response => {
+                    var imagePreviewArr = [];
+                    var photoArr = "";
+
+                    if (response.status === 200) {
+                        for (var i = 0; i < photos.length; i++) {
+                            photoArr = photoArr.length == 0 ? photos[i].name : photoArr + ','+ photos[i].name;
+                            axios.defaults.withCredentials = true;
+                            axios.post('http://localhost:3001/download-file/' + photos[i].name)
+                                .then(response => {
+                                    //console.log("Imgae Res : ", response);
+                                    let imagePreview = 'data:image/jpg;base64, ' + response.data;
+                                    imagePreviewArr.push(imagePreview);
+                                    
+
+                                    this.setState({
+                                        photoThumbnail: imagePreviewArr,
+                                        photos: photoArr
+                                    });                                
+                                    
+                                });
+                        }
+
+
+                        console.log('Photos: ', this.state.photos);
+                    }
+
                 });
-
-            for (var i = 0; i < photos.length; i++) {
-
-
-                axios.post('http://localhost:3001/download-file/' + photos[i].name)
-                    .then(response => {
-                        console.log("Imgae Res : ", response);
-                        let imagePreview = 'data:image/jpg;base64, ' + response.data;
-                        this.setState({
-                            photoThumbnail: this.state.photoThumbnail.push(imagePreview)
-                        });
-
-                    });
-            }
         }
         else {
             this.setState({
@@ -196,7 +208,7 @@ class AddProperty extends Component {
             PricingDetails: pricingDetails
         }
 
-
+        axios.defaults.withCredentials = true;
         axios.post('http://localhost:3001/add-property', data)
             .then(response => {
 
@@ -216,6 +228,14 @@ class AddProperty extends Component {
         if (!cookie.load('cookie')) {
             redrirectVar = <Redirect to="/login" />
         }
+
+        let photoThumbnails = this.state.photoThumbnail.map(function (thumbnail, index) {
+            return (
+                <img src={thumbnail} className="img-thumbnail" alt="thumbnail" width="304" height="236" key={index}></img>
+            )
+        })
+        console.log('PhotoThumbnail inside return: ', this.state.photoThumbnail);
+
 
         return (
             <div>
@@ -315,8 +335,7 @@ class AddProperty extends Component {
                                             </div>
                                         </div>
                                         <div className="pad-top-10 pad-bot-10">
-                                            <img src="https://roselanevillas.com/wp-content/uploads/2014/05/OTM-Skelton-2075-e1496338253946.jpg" className="img-thumbnail" alt="thumbnail" width="304" height="236"></img>
-                                            <img src="https://roselanevillas.com/wp-content/uploads/2014/05/OTM-Skelton-2075-e1496338253946.jpg" className="img-thumbnail" alt="thumbnail" width="304" height="236"></img>
+                                            {photoThumbnails}
                                         </div>
                                         <div className="form-group flt-right">
                                             <button className="btn photos-form-btn btn-primary btn-lg" onClick={this.handlePricingClick}>Next</button>

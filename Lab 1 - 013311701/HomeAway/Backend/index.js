@@ -51,51 +51,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// var locationDetails = {
-//     country: "",
-//     streetAddress: "",
-//     unitNumber: "",
-//     city: "",
-//     state: "",
-//     zipCode: ""
-// };
-
-// var details = {
-//     propertyType: "",
-//     bedrooms: "",
-//     accomodates: "",
-//     bathrooms: ""
-// };
-
-// var photos = [{
-//     photo: ""
-// }];
-
-// var pricingDetails = {
-//     startDate: "",
-//     endDate: "",
-//     currency: "",
-//     baserate: "",
-//     minStay: ""
-// }
-
-
-// var PropertyDetails = {
-
-//     LocationDetails: locationDetails,
-//     Details: details,
-//     Photos: photos,
-//     PricingDetails: pricingDetails
-
-// };
-
-var PropertyRepo = [];
-
-
 //Login validation
-
-
-
 app.post('/login', function (req, res) {
 
     console.log('Inside login POST');
@@ -188,15 +144,25 @@ app.post('/signup', function (req, res) {
     });
 });
 
+//Logout
+
+app.post('/logout', function (req, res) {
+    res.clearCookie('cookie');
+    res.writeHead(200, {
+        'Content-type': 'text/plain'
+    });
+    res.end('/login');
+
+});
 
 //Profile Details
-app.get('/profile-details', function(req, res){
-    
+app.get('/profile-details', function (req, res) {
+
     console.log('Inside Profile Details GET!');
     console.log('Request Body:', req.body);
 
-    pool.getConnection(function(err, conn){
-        if(err){
+    pool.getConnection(function (err, conn) {
+        if (err) {
             console.log('Error in creating connection!');
             res.writeHead(400, {
                 'Content-type': 'text/plain'
@@ -204,24 +170,24 @@ app.get('/profile-details', function(req, res){
             res.end('Error in creating connection!');
 
         }
-        else{
+        else {
 
             //Profile Details query
             var sql = 'SELECT * from userdetails where ProfileId = ' + mysql.escape(req.session.user.ProfileId);
 
-            conn.query(sql, function(err, result){
-                if(err){
+            conn.query(sql, function (err, result) {
+                if (err) {
                     res.writeHead(400, {
                         'Content-type': 'text/plain'
                     });
-                    res.end('Error in retrieving profile data');                                        
+                    res.end('Error in retrieving profile data');
                 }
-                else{
+                else {
                     console.log('Profile Data: ', result);
                     res.writeHead(200, {
                         'Content-type': 'application/json'
                     });
-                    res.end(JSON.stringify(result[0]));  
+                    res.end(JSON.stringify(result[0]));
                 }
             });
         }
@@ -231,14 +197,14 @@ app.get('/profile-details', function(req, res){
 
 //Update Profile data
 
-app.post('/update-profile', function(req, res){
+app.post('/update-profile', function (req, res) {
 
     console.log('Inside Update Profile POST!');
     console.log('Request Body: ', req.body);
 
-    pool.getConnection(function(err, conn){
+    pool.getConnection(function (err, conn) {
 
-        if(err){
+        if (err) {
 
             console.log('Error in creating connection!');
             res.writeHead(400, {
@@ -247,28 +213,28 @@ app.post('/update-profile', function(req, res){
             res.end('Error in creating connection!');
 
         }
-        else{
+        else {
 
-            var sql = 'UPDATE userdetails set ' + 
-            'Firstname = ' + mysql.escape(req.body.Firstname) + ',' +
-            'Lastname = ' + mysql.escape(req.body.Lastname) + ',' +
-            'Email = ' + mysql.escape(req.body.Email) + ',' +
-            'Phonenumber = ' + mysql.escape(req.body.Phonenumber) + ',' +
-            'Aboutme= ' + mysql.escape(req.body.Aboutme) + ',' +
-            'Country = ' + mysql.escape(req.body.Country) + ',' +
-            'City = ' + mysql.escape(req.body.City) + ',' +
-            'Gender = ' + mysql.escape(req.body.Gender) + 
-            ' WHERE ProfileId = ' + req.session.user.ProfileId;
+            var sql = 'UPDATE userdetails set ' +
+                'Firstname = ' + mysql.escape(req.body.Firstname) + ',' +
+                'Lastname = ' + mysql.escape(req.body.Lastname) + ',' +
+                'Email = ' + mysql.escape(req.body.Email) + ',' +
+                'Phonenumber = ' + mysql.escape(req.body.Phonenumber) + ',' +
+                'Aboutme= ' + mysql.escape(req.body.Aboutme) + ',' +
+                'Country = ' + mysql.escape(req.body.Country) + ',' +
+                'City = ' + mysql.escape(req.body.City) + ',' +
+                'Gender = ' + mysql.escape(req.body.Gender) +
+                ' WHERE ProfileId = ' + req.session.user.ProfileId;
 
-            conn.query(sql, function(err, result){
-                if(err){
+            conn.query(sql, function (err, result) {
+                if (err) {
                     res.writeHead(400, {
                         'Content-type': 'text/plain'
                     });
                     res.end('Error in updating profile data');
 
                 }
-                else{
+                else {
                     console.log('Profile data update complete!');
                     res.writeHead(200, {
                         'Content-type': 'text/plain'
@@ -289,50 +255,51 @@ app.post('/add-property', function (req, res) {
     console.log('Inside Add Property POST!');
     console.log('Request Body: ', req.body);
     const newProperty = req.body;
+    const userSession = req.session.user;
 
-    pool.getConnection(function(err, conn){
+    pool.getConnection(function (err, conn) {
 
-        if(err){
+        if (err) {
             console.log('Error in creating connection!');
             res.writeHead(400, {
                 'Content-type': 'text/plain'
             });
             res.end('Error in creating connection!');
         }
-        else{
+        else {
 
+            //session = session.ProfileId;
+            var sql = 'INSERT into propertydetails values(NULL,' +
+                mysql.escape(newProperty.LocationDetails.country) + ',' +
+                mysql.escape(newProperty.LocationDetails.streetAddress) + ',' +
+                mysql.escape(newProperty.LocationDetails.unitNumber) + ',' +
+                mysql.escape(newProperty.LocationDetails.city) + ',' +
+                mysql.escape(newProperty.LocationDetails.state) + ',' +
+                mysql.escape(newProperty.LocationDetails.zipCode) + ',' +
+                mysql.escape(newProperty.Details.headline) + ',' +
+                mysql.escape(newProperty.Details.description) + ',' +
+                mysql.escape(newProperty.Details.propertyType) + ',' +
+                mysql.escape(newProperty.Details.bedrooms) + ',' +
+                mysql.escape(newProperty.Details.accomodates) + ',' +
+                mysql.escape(newProperty.Details.bathrooms) + ',' +
+                mysql.escape(newProperty.Photos.photos) + ',' +
+                mysql.escape(newProperty.PricingDetails.availabilityStartDate) + ',' +
+                mysql.escape(newProperty.PricingDetails.availabilityEndDate) + ',' +
+                mysql.escape(newProperty.PricingDetails.currency + newProperty.PricingDetails.baserate) + ',' +
+                mysql.escape(newProperty.PricingDetails.minStay) + ',' +
+                mysql.escape(userSession.ProfileId) + ',' +
+                mysql.escape(userSession.Firstname + ' ' + userSession.Lastname) + ');';
 
-            var sql = 'INSERT into propertydetails values(NULL,' + 
-            mysql.escape(newProperty.LocationDetails.country) + ',' + 
-            mysql.escape(newProperty.LocationDetails.streetAddress) + ',' + 
-            mysql.escape(newProperty.LocationDetails.unitNumber) + ',' + 
-            mysql.escape(newProperty.LocationDetails.city) + ',' + 
-            mysql.escape(newProperty.LocationDetails.state) + ',' + 
-            mysql.escape(newProperty.LocationDetails.zipCode) + ',' + 
-            mysql.escape(newProperty.Details.headline) + ',' + 
-            mysql.escape(newProperty.Details.description) + ',' + 
-            mysql.escape(newProperty.Details.propertyType) + ',' + 
-            mysql.escape(newProperty.Details.bedrooms) + ',' + 
-            mysql.escape(newProperty.Details.accomodates) + ',' + 
-            mysql.escape(newProperty.Details.bathrooms) + ',' + 
-            mysql.escape("photos") + ',' +
-            mysql.escape(newProperty.PricingDetails.availabilityStartDate) + ',' + 
-            mysql.escape(newProperty.PricingDetails.availabilityEndDate) + ',' +             
-            mysql.escape(newProperty.PricingDetails.currency + newProperty.PricingDetails.baserate) + ',' + 
-            mysql.escape(newProperty.PricingDetails.minStay) + ');';
-            
-            
+            conn.query(sql, function (err, result) {
 
-            conn.query(sql, function(err, result){
-
-                if(err){
+                if (err) {
                     res.writeHead(400, {
                         'Content-type': 'text/plain'
                     });
                     res.end('Error in Posting property data');
                 }
-                else{
-                    
+                else {
+
                     console.log('Property listing complete!');
                     res.writeHead(200, {
                         'Content-type': 'text/plain'
@@ -352,30 +319,30 @@ app.get('/search', function (req, res) {
 
     console.log('Inside Search Method GET!');
     console.log('Request Body: ', req.body);
-    
-    pool.getConnection(function(err, conn){
-        if(err){
+
+    pool.getConnection(function (err, conn) {
+        if (err) {
             console.log('Error in creating connection!');
             res.writeHead(400, {
                 'Content-type': 'text/plain'
             });
             res.end('Error in creating connection!');
         }
-        else{
+        else {
 
-            //Search Properties Query
+            //Search Properties Query            
             var sql = 'SELECT * from propertydetails;';
 
-            conn.query(sql, function(err, result){
+            conn.query(sql, function (err, result) {
 
-                if(err){
+                if (err) {
                     res.writeHead(400, {
                         'Content-type': 'text/plain'
                     });
                     res.end('Error in Retrieving property data');
 
                 }
-                else{
+                else {
 
                     res.writeHead(200, {
                         'Content-type': 'application/json'
@@ -386,7 +353,99 @@ app.get('/search', function (req, res) {
             });
         }
     });
-    
+
+});
+
+//Get Property Details
+
+app.post('/property-details', function (req, res) {
+
+    console.log('Inside Property Details Method GET!');
+    console.log('Request Body: ', req.body);
+
+    pool.getConnection(function (err, conn) {
+        if (err) {
+
+            console.log('Error in creating connection!');
+            res.writeHead(400, {
+                'Content-type': 'text/plain'
+            });
+            res.end('Error in creating connection!');
+
+        }
+        else {
+
+            var sql = 'SELECT * from propertydetails WHERE PropertyId = ' + req.body.PropertyId;
+            conn.query(sql, function (err, result) {
+                if (err) {
+                    res.writeHead(400, {
+                        'Content-type': 'text/plain'
+                    });
+                    res.end('Error in Retrieving property');
+
+                }
+                else {
+                    res.writeHead(200, {
+                        'Content-type': 'application/json'
+                    });
+                    console.log(JSON.stringify(result[0]));
+                    res.end(JSON.stringify(result[0]));
+                }
+            });
+        }
+    });
+
+});
+
+//submit Booking
+
+app.post('/submit-booking', function (req, res) {
+
+    console.log('Inside Submit Booking POST!');
+    console.log('Request Body: ', req.body);
+    const bookingDetails = req.body;
+
+    if (req.session.user) {
+        const userSession = req.session.user;
+
+        pool.getConnection(function (err, conn) {
+            if (err) {
+                console.log('Error in creating connection!');
+                res.writeHead(400, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Error in creating connection!');
+            }
+            else {
+                var sql = 'insert into bookingdetails VALUES (NULL,' +
+                    mysql.escape(bookingDetails.PropertyId) + ',' +
+                    mysql.escape(userSession.ProfileId) + ',' +
+                    mysql.escape(userSession.Firstname + ' ' + userSession.Lastname) + ',' +
+                    mysql.escape(bookingDetails.Bookingstartdate) + ',' +
+                    mysql.escape(bookingDetails.Bookingenddate) + ',' +
+                    mysql.escape(bookingDetails.Guests) + ',' +
+                    mysql.escape(bookingDetails.Totalcost) + ');';
+                conn.query(sql, function (err, result) {
+
+                    if (err) {
+                        res.writeHead(400, {
+                            'Content-type': 'text/plain'
+                        });
+                        res.end('Error in Booking  property');
+                    }
+                    else {
+                        res.writeHead(200, {
+                            'Content-type': 'text/plain'
+                        });
+                        console.log('Booking Successful!');
+                        res.end('Booking Successful!');
+
+                    }
+                });
+            }
+        });
+    }
+
 });
 
 

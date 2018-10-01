@@ -6,10 +6,11 @@ import Home from './Home/Home';
 import Signup from './Signup/Signup';
 import ListProperty from './ListProperty/ListProperty';
 import AddProperty from './ListProperty/AddProperty';
-import OwnerDashboard from './ListProperty/OwnerDashboard';
 import DisplayProperties from './DisplayProperties/DisplayProperties';
 import PropertyDisplay from './DisplayProperties/PropertyDisplay';
 import Profile from './Profile/Profile';
+import MyTrips from './MyTrips/MyTrips';
+import OwnerDashboard from './OwnerDashboard/OwnerDashboard';
 
 class Main extends Component{
 
@@ -22,11 +23,12 @@ class Main extends Component{
                 <Route path="/login" component={Login} />               
                 <Route path="/sign-up" component={Signup} />
                 <Route path="/list-property" component={ListProperty} />
-                <Route path="/add-property" component={AddProperty} />
-                <Route path="/owner-dashboard" component={OwnerDashboard} />
+                <Route path="/add-property" component={AddProperty} />                
                 <Route path="/display-properties" component={DisplayProperties} />
                 <Route path="/property-display/:id" component={PropertyDisplay} />
                 <Route path="/profile" component={Profile} />
+                <Route path="/owner-dashboard" component={OwnerDashboard} />
+                <Route path="/mytrips" component={MyTrips} />
             </div>
         )
     }
