@@ -28,7 +28,7 @@ class Main extends Component{
                 <Route path="/property-display/:id" component={PropertyDisplay} />
                 <Route path="/profile" component={Profile} />
                 <Route path="/owner-dashboard" component={OwnerDashboard} />
-                <Route path="/mytrips" component={MyTrips} />
+                <Route path="/my-trips" component={MyTrips} />
             </div>
         )
     }

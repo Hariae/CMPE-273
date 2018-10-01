@@ -16,6 +16,7 @@ class PropertyDisplay extends Component {
             arrivalDate: moment(),
             departureDate: moment(),
             propertyDetails: {},
+            photos : [],
             bookingStartDate: "",
             bokingEndDate: "",
             guests: 2,
@@ -42,7 +43,28 @@ class PropertyDisplay extends Component {
                     console.log('Result: ', response.data);
                     this.setState({
                         propertyDetails: response.data
-                    });                    
+                    });
+
+                    var imageArr = [];
+                    var photoList = this.state.propertyDetails.Photos.split(',');
+                    for (let i = 0; i < photoList.length; i++) {
+                        axios.post('http://localhost:3001/download-file/' + photoList[i])
+                            .then(response => {
+                                //console.log("Imgae Res : ", response);
+                                let imagePreview = 'data:image/jpg;base64, ' + response.data;
+                                imageArr.push(imagePreview);
+                                const photoArr = this.state.photos.slice();
+                                photoArr[i] = imagePreview;
+                                this.setState({
+                                    photos: photoArr
+                                });
+
+                                console.log('PhotoArr: ', photoArr);
+                                console.log('Photo State: ', this.state.photos);
+                            });
+                    }
+
+
                 }
             });
     }
@@ -57,10 +79,10 @@ class PropertyDisplay extends Component {
             Guests: this.state.guests,
             Totalcost: e.target.value
         }
-         
+
         axios.post('http://localhost:3001/submit-booking', data)
-            .then( response=>{
-                if(response.status === 200){
+            .then(response => {
+                if (response.status === 200) {
                     console.log('Booking Successful!');
                 }
             });
@@ -109,17 +131,17 @@ class PropertyDisplay extends Component {
 
         var totalCost = 0;
 
-                    if (this.state.propertyDetails.Baserate) {
+        if (this.state.propertyDetails.Baserate) {
 
 
-                        const startDate = moment(this.state.arrivalDate);
-                        const timeEnd = moment(this.state.departureDate);
-                        const diff = timeEnd.diff(startDate);
-                        const diffDuration = moment.duration(diff);
-                        //console.log(diffDuration._data.days * this.state.propertyDetails.Baserate.substring(1));
-                        totalCost = (diffDuration._data.days + 1) * this.state.propertyDetails.Baserate.substring(1);
+            const startDate = moment(this.state.arrivalDate);
+            const timeEnd = moment(this.state.departureDate);
+            const diff = timeEnd.diff(startDate);
+            const diffDuration = moment.duration(diff);
+            //console.log(diffDuration._data.days * this.state.propertyDetails.Baserate.substring(1));
+            totalCost = (diffDuration._data.days + 1) * this.state.propertyDetails.Baserate.substring(1);
 
-                    }
+        }
 
 
 
@@ -148,7 +170,7 @@ class PropertyDisplay extends Component {
                 <div className=" container property-display-content border">
                     <div className="row">
                         <div className="property-display-img-content col-6">
-                            <img className="property-display-img" src="https://odis.homeaway.com/odis/listing/2d64bce1-3b15-4171-8f2f-ae6558097d1c.c10.jpg" alt="property-image" />
+                            <img className="property-display-img" src={this.state.photos[1]} alt="property-image" />
                         </div>
                         <div className="property-display-pricing-content col-5 border">
                             <div className="display-price">
@@ -188,7 +210,7 @@ class PropertyDisplay extends Component {
                         <div className="property-display-details-content col-6">
                             <div className="details-content-headline-text"><h4><strong>{this.state.propertyDetails.Headline}</strong></h4></div>
                             <div>
-                                <p>{this.state.propertyDetails.Streetaddress}</p>
+                                <p>{this.state.propertyDetails.Streetaddress}, {this.state.propertyDetails.City} {this.state.propertyDetails.State}</p>
                             </div>
                             <div className="details-table">
                                 <table className="table table-hover">

@@ -148,10 +148,11 @@ app.post('/signup', function (req, res) {
 
 app.post('/logout', function (req, res) {
     res.clearCookie('cookie');
+    req.session.user = undefined;
     res.writeHead(200, {
         'Content-type': 'text/plain'
     });
-    res.end('/login');
+    res.end('Back to login!');
 
 });
 
@@ -470,32 +471,89 @@ app.post('/download-file/:file(*)', (req, res) => {
     res.end(base64img);
 });
 
-app.get('/test-db', function (req, res) {
+//Trip - details
 
-    var con = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "test"
-    });
+app.get('/trip-details', function (req, res) {
 
-    con.connect(function (err) {
+    console.log('Inside Trip Details GET!');
+    const userSession = req.session.user;
+
+    pool.getConnection(function (err, conn) {
+
         if (err) {
-            throw err;
+            console.log('Error in creating connection!');
+            res.writeHead(400, {
+                'Content-type': 'text/plain'
+            });
+            res.end('Error in creating connection!');
+
         }
+        else {
+            var sql = 'SELECT * from bookingdetails where TravelerId = ' + mysql.escape(userSession.ProfileId);
+            conn.query(sql, function (err, result) {
+                if (err) {
+                    res.writeHead(400, {
+                        'Content-type': 'text/plain'
+                    });
+                    console.log('Error in Getting Trip Details');
+                    res.end('Error in Getting Trip Details');
+                }
+                else {
 
-        console.log('connected');
-
+                    res.writeHead(200, {
+                        'Content-type': 'application/json'
+                    });
+                    console.log(JSON.stringify(result));
+                    res.end(JSON.stringify(result));
+                }
+            });
+        }
     });
 
-    var sql = "insert into test values(2, 'HARI', 'LN',24)";
-    con.query(sql, function (err, result) {
-        console.log(result);
+
+});
+
+//owner dashboard details
+
+app.get('/owner-dashboard-details', function (req, res) {
+
+    console.log('Inside Owner Dashboard Details GET!');
+    const userSession = req.session.user;
+
+    pool.getConnection(function (err, conn) {
+
+        if (err) {
+            console.log('Error in creating connection!');
+            res.writeHead(400, {
+                'Content-type': 'text/plain'
+            });
+            res.end('Error in creating connection!');
+
+        }
+        else {
+            var sql = 'SELECT * from bookingdetails where PropertyId in (SELECT PropertyId from propertydetails where OwnerId = ' + mysql.escape(userSession.ProfileId) + ')';
+            conn.query(sql, function (err, result) {
+                if (err) {
+                    res.writeHead(400, {
+                        'Content-type': 'text/plain'
+                    });
+                    console.log('Error in Getting Dahsboard Details');
+                    res.end('Error in Getting Dahsboard Details');
+                }
+                else {
+
+                    res.writeHead(200, {
+                        'Content-type': 'application/json'
+                    });
+                    console.log(JSON.stringify(result));
+                    res.end(JSON.stringify(result));
+                }
+            });
+        }
     });
-    sql = "insert into test values(2, 'HARI', 'LN',24)";
-    con.query(sql, function (err, result) {
-        console.log(result);
-    });
+
+
+
 
 });
 

@@ -450,3 +450,33 @@ textarea{
   text-decoration: none !important;
   color: none;
 }
+
+.trip-details-content{
+  padding: 5% 1% 5% 5%;  
+  background-color: white;
+}
+
+.trip-details-container{
+  padding: 10px; 
+  color:  #333;
+}
+
+.trip-main-details{
+  padding-bottom:2%;
+}
+
+.trips-table{
+  padding-left: 0px;
+}
+
+.my-trips-container, .dashboard-container{
+  background-color: whitesmoke;
+}
+
+.trip-banner, .owner-dashboard-banner{
+  padding: 3%;
+}
+
+.trip-details-container:hover{
+  box-shadow: 10px 10px 5px grey;  
+}

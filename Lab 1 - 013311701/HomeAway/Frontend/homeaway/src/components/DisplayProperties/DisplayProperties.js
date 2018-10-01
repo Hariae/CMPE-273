@@ -117,6 +117,7 @@ class DisplayProperties extends Component {
                             <div className="property-content-desc col-9 hidden-xs">
                                 <div>
                                     <h2><strong>{property.Headline}</strong></h2>
+                                    <div>{property.Streetaddress}, {property.City} {property.State}</div>                                    
                                     <div>Property Type : {property.Propertytype}</div>
                                     <div>{property.Bedrooms} BR</div>
                                     <div>{property.Bathrooms} BA</div>
