@@ -88,6 +88,11 @@ app.post('/login', function (req, res) {
                         httpOnly: false,
                         path: '/'
                     });
+                    res.cookie('Accounttype', result[0].Accounttype, {
+                        maxAge: 360000,
+                        httpOnly: false,
+                        path: '/'
+                    });
                     req.session.user = result[0];
                     res.writeHead(200, {
                         'Content-type': 'text/plain'
@@ -106,12 +111,8 @@ app.post('/signup', function (req, res) {
     console.log('Request Body: ', req.body);
 
     //User creation query
-    var sql = 'INSERT into userdetails (Username, Password, Firstname, Lastname, Email) VALUES(' +
-        mysql.escape(req.body.Email) + ',' +
-        mysql.escape(req.body.Password) + ',' +
-        mysql.escape(req.body.FirstName) + ',' +
-        mysql.escape(req.body.LastName) + ',' +
-        mysql.escape(req.body.Email) + ');';
+
+    var presql = 'SELECT ProfileId from userdetails where Username = ' + mysql.escape(req.body.Email);
 
     pool.getConnection(function (err, conn) {
 
@@ -124,7 +125,7 @@ app.post('/signup', function (req, res) {
         }
         else {
 
-            conn.query(sql, function (err, result) {
+            conn.query(presql, function (err, result) {
                 if (err) {
                     res.writeHead(400, {
                         'Content-type': 'text/plain'
@@ -132,14 +133,37 @@ app.post('/signup', function (req, res) {
                     res.end('Error in adding an user');
                 }
                 else {
-                    res.writeHead(200, {
-                        'Content-type': 'text/plain'
+                    if (result[0]) {                        
+                        var sql = 'UPDATE userdetails set Accounttype = 3';
+                    }
+                    else{
+                        var sql = 'INSERT into userdetails (Username, Password, Firstname, Lastname, Email, Accounttype) VALUES(' +
+                        mysql.escape(req.body.Email) + ',' +
+                        mysql.escape(req.body.Password) + ',' +
+                        mysql.escape(req.body.FirstName) + ',' +
+                        mysql.escape(req.body.LastName) + ',' +
+                        mysql.escape(req.body.Email) + ',' +
+                        mysql.escape(req.body.Accounttype) + ');';
+                    }
+                    
+
+                    conn.query(sql, function (err, result) {
+                        if (err) {
+                            res.writeHead(400, {
+                                'Content-type': 'text/plain'
+                            });
+                            res.end('Error in adding an user');
+                        }
+                        else {
+                            res.writeHead(200, {
+                                'Content-type': 'text/plain'
+                            });
+                            res.end('Adding a user successful!');
+                        }
                     });
-                    res.end('Adding a user successful!');
                 }
             });
 
-            conn.release();
         }
     });
 });
@@ -284,8 +308,8 @@ app.post('/add-property', function (req, res) {
                 mysql.escape(newProperty.Details.accomodates) + ',' +
                 mysql.escape(newProperty.Details.bathrooms) + ',' +
                 mysql.escape(newProperty.Photos.photos) + ',' +
-                mysql.escape(newProperty.PricingDetails.availabilityStartDate) + ',' +
-                mysql.escape(newProperty.PricingDetails.availabilityEndDate) + ',' +
+                mysql.escape(new Date(newProperty.PricingDetails.availabilityStartDate)) + ',' +
+                mysql.escape(new Date(newProperty.PricingDetails.availabilityEndDate)) + ',' +
                 mysql.escape(newProperty.PricingDetails.currency + newProperty.PricingDetails.baserate) + ',' +
                 mysql.escape(newProperty.PricingDetails.minStay) + ',' +
                 mysql.escape(userSession.ProfileId) + ',' +
@@ -316,10 +340,12 @@ app.post('/add-property', function (req, res) {
 });
 
 //Search
-app.get('/search', function (req, res) {
+app.post('/search', function (req, res) {
 
     console.log('Inside Search Method GET!');
     console.log('Request Body: ', req.body);
+
+    const searchProperties = req.body;
 
     pool.getConnection(function (err, conn) {
         if (err) {
@@ -332,7 +358,10 @@ app.get('/search', function (req, res) {
         else {
 
             //Search Properties Query            
-            var sql = 'SELECT * from propertydetails;';
+            var sql = 'SELECT * from propertydetails WHERE ' +
+                'City = ' + mysql.escape(searchProperties.searchText) +
+                ' AND DATE(Availabilitystartdate) BETWEEN ' + mysql.escape(new Date(searchProperties.startDate).toISOString().substring(0, 10)) + ' AND \'2020-01-01\'' +
+                ' AND DATE(Availabilityenddate) BETWEEN ' + mysql.escape(new Date(searchProperties.endDate).toISOString().substring(0, 10)) + ' AND \'2020-01-01\';';
 
             conn.query(sql, function (err, result) {
 

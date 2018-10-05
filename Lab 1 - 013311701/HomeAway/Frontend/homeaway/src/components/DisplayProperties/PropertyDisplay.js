@@ -16,7 +16,7 @@ class PropertyDisplay extends Component {
             arrivalDate: moment(),
             departureDate: moment(),
             propertyDetails: {},
-            photos : [],
+            photos: [],
             bookingStartDate: "",
             bokingEndDate: "",
             guests: 2,
@@ -143,6 +143,22 @@ class PropertyDisplay extends Component {
 
         }
 
+        let carousalBlock = this.state.photos.map(function (item, index) {
+
+            return (
+                <div className={index == 0 ? "carousel-item active" : "carousel-item"} key={index}>
+                    <img className=" carousel-img property-display-img" src={item} alt="property-image" />
+                </div>
+            )
+        });
+
+        let carousalIndicator = this.state.photos.map(function (item, index) {
+
+            return (                
+                    <li data-target="#myCarousel" data-slide-to={index} className={index == 0 ? "active" : ""} key={index}></li>     
+            )
+        });
+
 
 
         return (
@@ -170,7 +186,24 @@ class PropertyDisplay extends Component {
                 <div className=" container property-display-content border">
                     <div className="row">
                         <div className="property-display-img-content col-6">
-                            <img className="property-display-img" src={this.state.photos[1]} alt="property-image" />
+                            <div id="myCarousel" className="carousel slide" data-ride="carousel">
+
+
+                                <ul className="carousel-indicators">
+                                    {carousalIndicator}
+                                </ul>
+
+                                <div className="carousel-inner">
+                                    {carousalBlock}
+                                </div>
+
+                                <a className="carousel-control-prev" href="#myCarousel" data-slide="prev">
+                                    <span className="carousel-control-prev-icon"></span>
+                                </a>
+                                <a className="carousel-control-next" href="#myCarousel" data-slide="next">
+                                    <span className="carousel-control-next-icon"></span>
+                                </a>
+                            </div>
                         </div>
                         <div className="property-display-pricing-content col-5 border">
                             <div className="display-price">

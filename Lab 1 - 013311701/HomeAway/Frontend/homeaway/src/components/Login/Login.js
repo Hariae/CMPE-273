@@ -82,6 +82,9 @@ class Login extends Component {
                                 <p>Log in to HomeAway</p>
                                 <p>Need an account? <a href="/sign-up">Sign Up</a></p>
                             </div>
+                            <div>                                
+                                <p>Need an Owner account? <a href="/owner-sign-up">Owner Sign Up</a></p>
+                            </div>
                             <div className="login-form-container col-lg-4 col-md-4 col-sm-12 offset-lg-4 offset-md-4 border">
                                 <div className="login-form-heading input-group pad-top-10 input-group-lg">
                                     Account login

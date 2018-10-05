@@ -10,8 +10,9 @@ import { Link } from 'react-router-dom';
 
 class DisplayProperties extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);        
+
         this.state = {
             arrivalDate: moment(),
             departureDate: moment(),
@@ -43,28 +44,39 @@ class DisplayProperties extends Component {
                     baserate: "",
                     minStay: ""
 
-                },
+                }
             },
             displayProperty: false,
             propertyId: "",
             Photos: []
         }
 
+        
+
+        //Bind
         this.handleArrivalDateChange = this.handleArrivalDateChange.bind(this);
         this.handleDepartureDateChange = this.handleDepartureDateChange.bind(this);
     }
 
-    componentWillMount() {
 
-        var data = {};
+
+    componentDidMount() {
+
+        var data = {
+            searchText : this.props.searchText,
+            startDate : this.props.startDate,
+            endDate : this.props.endDate
+        };
+       
+
         axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3001/search', data)
+        axios.post('http://localhost:3001/search', data)
             .then(response => {
                 console.log(response.data);
                 this.setState({
                     Properties: response.data
                 });
-                
+
                 var imageArr = [];
                 for (let i = 0; i < this.state.Properties.length; i++) {
                     axios.post('http://localhost:3001/download-file/' + this.state.Properties[i].Photos.split(',')[0])
@@ -78,7 +90,7 @@ class DisplayProperties extends Component {
                                 Properties: propertyArr
                             });
                         });
-                }                
+                }
             });
     }
 
@@ -102,9 +114,9 @@ class DisplayProperties extends Component {
             redrirectVar = <Redirect to="/login" />
         }
 
-        // if(this.state.displayProperty){
-        //     redrirectVar = <Redirect to={"/property-display/" + this.state.propertyId} />
-        // }
+
+
+
 
         let propertyList = this.state.Properties.map(function (property, index) {
             return (
@@ -117,11 +129,12 @@ class DisplayProperties extends Component {
                             <div className="property-content-desc col-9 hidden-xs">
                                 <div>
                                     <h2><strong>{property.Headline}</strong></h2>
-                                    <div>{property.Streetaddress}, {property.City} {property.State}</div>                                    
+                                    <div>{property.Streetaddress}, {property.City} {property.State}</div>
                                     <div>Property Type : {property.Propertytype}</div>
                                     <div>{property.Bedrooms} BR</div>
                                     <div>{property.Bathrooms} BA</div>
                                     <div>Sleeps {property.Accomodates}</div>
+
                                 </div>
                                 <div className="pricing-content">
                                     <h5><strong>{property.Baserate}</strong> per night</h5>
@@ -142,18 +155,17 @@ class DisplayProperties extends Component {
                 <div className="cotainer">
                     {redrirectVar}
                     <div className="form-group row search-tab container search-tab-display-property">
-
                         <span className="col-lg-4 col-md-12 col-sm-12 col-xs-12 pad-bot-10">
-                            <input type="textbox" className="form-control form-control-lg" placeholder="Search"></input>
+                            <input type="textbox" className="form-control form-control-lg" placeholder="Search" value={this.props.searchText} onChange={this.props.handleInputChange}></input>
                         </span>
                         <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                            <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.state.arrivalDate} onChange={this.handleArrivalDateChange} />
+                            <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.props.startDate} onChange={this.props.handleStartDateChange} />
                         </span>
                         <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                            <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.state.departureDate} onChange={this.handleDepartureDateChange} />
+                            <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.props.endDate} onChange={this.props.handleEndDateChange} />
                         </span>
                         <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                            <input type="textbox" className="form-control form-control-lg" placeholder="2 guests"></input>
+                            <input type="textbox" className="form-control form-control-lg" placeholder="2 guests" value={this.props.guests} onChange={this.props.handleInputChange}></input>
                         </span>
                         <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
                             <a href="/display-properties" className="btn btn-primary btn-lg" style={{ width: "100%" }}>Search</a>
@@ -161,7 +173,7 @@ class DisplayProperties extends Component {
                     </div>
                     <div className="property-listing-content">
                         {propertyList}
-                    </div>
+                    </div>                    
                     <div className="container center-content pad-top-20-pc">
                         <div>
                             Use of this Web site constitutes acceptance of the HomeAway.com Terms and conditions and Privacy policy.

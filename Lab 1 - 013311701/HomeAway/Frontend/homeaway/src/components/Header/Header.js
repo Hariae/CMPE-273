@@ -25,6 +25,17 @@ class Header extends Component {
     render() {
 
         let loggedInUserContent = null;
+        let ownerContent = null;
+        let travelerContent = null
+
+        if(cookie.load('Accounttype') >= 2){
+            ownerContent = <a className="dropdown-item blue-text" href="/owner-dashboard">Owner Dashboard</a>
+        }
+
+        if(cookie.load('Accounttype') == 1 || cookie.load('Accounttype') == 3){
+            travelerContent = <a className="dropdown-item blue-text" href="/my-trips">My Trips</a>
+        }
+
         let username = cookie.load('cookie');
         if (cookie.load('cookie')) {
             loggedInUserContent = <span className="header-bar-tabs">
@@ -33,11 +44,12 @@ class Header extends Component {
                     <a className="btn dropdown-toggle userName-dropdown" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {username}
                     </a>
+                    {this.props.name}
 
                     <div className="dropdown-menu" aria-labelledby="dropdownMenuLink">
                         <a className="dropdown-item blue-text" href="/profile">Profile</a>
-                        <a className="dropdown-item blue-text" href="/my-trips">My Trips</a>
-                        <a className="dropdown-item blue-text" href="/owner-dashboard">Owner Dashboard</a>
+                        {travelerContent}
+                        {ownerContent}                        
                         <a className="dropdown-item blue-text" href="/login" onClick={this.handleLogout}>Logout</a>
                     </div>
                 </span>

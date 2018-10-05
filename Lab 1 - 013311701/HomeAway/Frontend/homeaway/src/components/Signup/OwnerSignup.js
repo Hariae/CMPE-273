@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Redirect } from 'react-router';
 import Header from '../Header/Header';
 
-class Signup extends Component {
+class OwnerSignup extends Component {
 
     constructor() {
         super();
@@ -57,7 +57,7 @@ class Signup extends Component {
             LastName: this.state.LastName,
             Email: this.state.Email,
             Password: this.state.Password,
-            Accounttype: 1
+            Accounttype: 2
         }
 
         e.preventDefault();
@@ -133,4 +133,4 @@ class Signup extends Component {
 }
 
 
-export default Signup;
+export default OwnerSignup;

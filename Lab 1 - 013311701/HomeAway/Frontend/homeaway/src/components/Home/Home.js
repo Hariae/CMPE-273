@@ -5,33 +5,47 @@ import moment from 'moment';
 import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
 import Header from '../Header/Header';
+import DisplayProperties from '../DisplayProperties/DisplayProperties';
 
 class Home extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            arrivalDate: moment(),
-            departureDate: moment()
-        }
+        
+        // this.state = {
+        //     arrivalDate: moment(),
+        //     departureDate: moment(),
+        //     searchText: "",
+                 
+        // }
 
-        this.handleArrivalDateChange = this.handleArrivalDateChange.bind(this);
-        this.handleDepartureDateChange = this.handleDepartureDateChange.bind(this);
+        // this.handleArrivalDateChange = this.handleArrivalDateChange.bind(this);
+        // this.handleDepartureDateChange = this.handleDepartureDateChange.bind(this);
+        // this.handleInputChange = this.handleInputChange.bind(this);        
     }
 
-    handleArrivalDateChange(date){
-        this.setState({
-            arrivalDate: date
-        })
-    }
+    // handleArrivalDateChange(date){
+    //     this.setState({
+    //         arrivalDate: date
+    //     })
+    // }
 
-    handleDepartureDateChange(date){
-        this.setState({
-            departureDate: date
-        })
-    }
+    // handleDepartureDateChange(date){
+    //     this.setState({
+    //         departureDate: date
+    //     })
+    // }
 
+    // handleInputChange = (event) =>{
+    //     console.log("event",event.target.value)
+        
+    //     this.setState({
+    //         searchText: event.target.value                        
+    //     });
+    //     console.log("VALUE " + this.state.searchText);       
+    // }
 
+    
 
 
 
@@ -42,9 +56,14 @@ class Home extends Component {
             redrirectVar = <Redirect to="/login" />
         }
 
+        
+        if(this.props.isSearch){
+            redrirectVar = <Redirect to="/display-properties" />
+        }
+        
         return (
             <div className="home-container">
-                <Header/>
+                <Header />
                 {redrirectVar}
                 <div className="content">
                     <div className="home-page-content">
@@ -59,22 +78,23 @@ class Home extends Component {
                                 <div className="form-group row search-tab">
 
                                     <span className="col-lg-4 col-md-12 col-sm-12 col-xs-12 pad-bot-10">
-                                        <input type="textbox" className="form-control form-control-lg" placeholder="Search"></input>
+                                        <input type="textbox" className="form-control form-control-lg" name="searchText" placeholder="Search" onChange={this.props.handleInputChange}></input>
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                                        <DatePicker className="form-control form-control-lg"  dateFormat="MM/DD/YY" selected={this.state.arrivalDate} onChange={this.handleArrivalDateChange}/>                                        
+                                        <DatePicker className="form-control form-control-lg"  dateFormat="MM/DD/YY" selected={this.props.startDate} onChange={this.props.handleStartDateChange}/>                                        
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                                        <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.state.departureDate} onChange={this.handleDepartureDateChange}/>
+                                        <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.props.endDate} onChange={this.props.handleEndDateChange}/>
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                                        <input type="textbox" className="form-control form-control-lg" placeholder="2 guests"></input>
+                                        <input type="textbox" className="form-control form-control-lg" name="guests" placeholder="2 guests" onChange={this.props.handleInputChange}></input>
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
-                                        <a href="/display-properties" className="btn btn-primary btn-lg" style={{ width: "100%" }}>Search</a>
+                                        <button className="btn btn-primary btn-lg" style={{ width: "100%" }} onClick={this.props.searchClick}>Search</button>
                                     </span>
                                 </div>
-                            </div>
+                            </div>                            
+                            
 
 
                             <div className="home-page-list-content hidden-xs">
