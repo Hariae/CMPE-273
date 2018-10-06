@@ -83,21 +83,34 @@ app.post('/login', function (req, res) {
                 }
                 else {
                     console.log(result);
-                    res.cookie('cookie', result[0].Firstname, {
-                        maxAge: 360000,
-                        httpOnly: false,
-                        path: '/'
-                    });
-                    res.cookie('Accounttype', result[0].Accounttype, {
-                        maxAge: 360000,
-                        httpOnly: false,
-                        path: '/'
-                    });
-                    req.session.user = result[0];
-                    res.writeHead(200, {
-                        'Content-type': 'text/plain'
-                    })
-                    res.end('Login successful!');
+                    if(result.length == 0){
+                        res.writeHead(400, {
+                            'Content-type': 'text/plain'
+                        })
+                        //res.status(500).send({ error: "Invalid Credentials!" });
+                        console.log('Invalid Credentials!');
+                        res.end('Invalid Credentials!');
+
+                    }
+                    else{
+                        res.cookie('cookie', result[0].Firstname, {
+                            maxAge: 360000,
+                            httpOnly: false,
+                            path: '/'
+                        });
+                        res.cookie('Accounttype', result[0].Accounttype, {
+                            maxAge: 360000,
+                            httpOnly: false,
+                            path: '/'
+                        });
+                        req.session.user = result[0];
+                        res.writeHead(200, {
+                            'Content-type': 'text/plain'
+                        })
+                        console.log('Login successful!');
+                        res.end('Login successful!');
+                    }
+                    
                 }
             });
         }
@@ -481,7 +494,7 @@ app.post('/submit-booking', function (req, res) {
 
 //uplaod-file 
 
-app.post('/upload-file', upload.any(), (req, res) => {
+app.post('/upload-file', upload.array('photos', 5), (req, res) => {
     console.log('req.body', req.body);
     res.end();
 });

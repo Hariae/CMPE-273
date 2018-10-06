@@ -13,7 +13,8 @@ class Signup extends Component {
             LastName: "",
             Email: "",
             Password: "",
-            isNewUserCreated: false
+            isNewUserCreated: false,
+            validationError: false
         }
 
         //bind
@@ -52,31 +53,42 @@ class Signup extends Component {
 
     signup = (e) => {
 
-        var data = {
-            FirstName: this.state.FirstName,
-            LastName: this.state.LastName,
-            Email: this.state.Email,
-            Password: this.state.Password,
-            Accounttype: 1
+        if (this.state.FirstName == "" || this.state.LastName == "" || this.state.Email == "" || this.state.Password == "") {
+            this.setState({
+                validationError: true
+            });
+            console.log("vali", this.state.validationError)
         }
 
-        e.preventDefault();
+        if (!this.state.validationError) {
 
-        axios.defaults.withCredentials = true;
 
-        axios.post('http://localhost:3001/signup', data)
-            .then((response) => {
-                if (response.status === 200) {
-                    this.setState({
-                        isNewUserCreated: true
-                    })
-                }
-                else {
-                    this.setState({
-                        isNewUserCreated: false
-                    })
-                }
-            });
+            var data = {
+                FirstName: this.state.FirstName,
+                LastName: this.state.LastName,
+                Email: this.state.Email,
+                Password: this.state.Password,
+                Accounttype: 1
+            }
+
+            e.preventDefault();
+
+            axios.defaults.withCredentials = true;
+
+            axios.post('http://localhost:3001/signup', data)
+                .then((response) => {
+                    if (response.status === 200) {
+                        this.setState({
+                            isNewUserCreated: true
+                        })
+                    }
+                    else {
+                        this.setState({
+                            isNewUserCreated: false
+                        })
+                    }
+                });
+        }
     }
 
     render() {
@@ -84,6 +96,16 @@ class Signup extends Component {
         if (this.state.isNewUserCreated === true) {
             redirectVar = <Redirect to="/login" />
         }
+
+        let errorAlert = null;
+        if(this.state.validationError){
+            errorAlert = <div>
+            <div className="alert alert-danger" role="alert">
+                <strong>Error!</strong> Fill all the fields to proceed!
+            </div>
+        </div>
+        }
+
         return (
             <div>
                 <Header />

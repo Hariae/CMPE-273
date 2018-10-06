@@ -13,7 +13,8 @@ class Login extends Component {
         this.state = {
             Email: "",
             Password: "",
-            isAuthenticated: false
+            isValidationFailure: true,
+
         }
 
 
@@ -50,15 +51,20 @@ class Login extends Component {
             .then((response) => {
                 if (response.status === 200) {
                     this.setState({
-                        isAuthenticated: true
+                        isValidationFailure: true
                     })
                 }
-                else {
+                
+            })
+            .catch((err) => {
+                if(err.response.status === 400){
                     this.setState({
-                        isAuthenticated: false
+                        isValidationFailure: false
                     })
+                    console.log("Error messagw", err.response.status);
                 }
             });
+
     }
 
 
@@ -68,6 +74,16 @@ class Login extends Component {
         let redrirectVar = null;
         if (cookie.load('cookie')) {
             redrirectVar = <Redirect to="/home" />
+        }
+
+        let errorPanel = null;
+        if (!this.state.isValidationFailure) {
+            errorPanel = <div>
+                <div className="alert alert-danger" role="alert">
+                    <strong>Validation Error!</strong> Username and Password doesn't match!
+                </div>
+            </div>
+
         }
 
         return (
@@ -82,7 +98,7 @@ class Login extends Component {
                                 <p>Log in to HomeAway</p>
                                 <p>Need an account? <a href="/sign-up">Sign Up</a></p>
                             </div>
-                            <div>                                
+                            <div>
                                 <p>Need an Owner account? <a href="/owner-sign-up">Owner Sign Up</a></p>
                             </div>
                             <div className="login-form-container col-lg-4 col-md-4 col-sm-12 offset-lg-4 offset-md-4 border">
@@ -90,6 +106,7 @@ class Login extends Component {
                                     Account login
                             </div>
                                 <hr />
+                                {errorPanel}
                                 <div className="form-group login-form-control">
                                     <input type="text" name="email" id="email" className="form-control form-control-lg" placeholder="Email Address" onChange={this.emailChangeHandler} required />
                                 </div>

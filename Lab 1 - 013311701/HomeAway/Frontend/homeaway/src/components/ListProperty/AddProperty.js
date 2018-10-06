@@ -330,7 +330,10 @@ class AddProperty extends Component {
                                         </div>
                                         <div className="container photo-upload-btn-container">
                                             <div className="center-content">
+                                            <button className="btn btn-lg photo-upload-btn">
                                                 <input type="file" name="photos" className="btn btn-lg photo-upload-btn" onChange={this.handleInputChange} multiple className="btn btn-lg photo-upload-btn" />
+                                            </button>
+                                            
                                                 <button className="btn btn-lg photo-upload-btn">SELECT PHOTOS TO UPLOAD</button>
                                             </div>
                                         </div>
