@@ -73,6 +73,8 @@ app.post('/login', function (req, res) {
             var sql = 'SELECT * from userdetails WHERE Username = ' + mysql.escape(req.body.Email) +
                 'AND Password = ' + mysql.escape(req.body.Password);
 
+            console.log(sql);
+
             conn.query(sql, function (err, result) {
 
                 if (err) {
@@ -184,6 +186,7 @@ app.post('/signup', function (req, res) {
 //Logout
 
 app.post('/logout', function (req, res) {
+    console.log('POST LOgout!');
     res.clearCookie('cookie');
     req.session.user = undefined;
     res.writeHead(200, {
@@ -212,7 +215,7 @@ app.get('/profile-details', function (req, res) {
 
             //Profile Details query
             var sql = 'SELECT * from userdetails where ProfileId = ' + mysql.escape(req.session.user.ProfileId);
-
+            console.log("ProfileId : ", req.session.user.ProfileId);
             conn.query(sql, function (err, result) {
                 if (err) {
                     res.writeHead(400, {
@@ -390,7 +393,7 @@ app.post('/search', function (req, res) {
                     res.writeHead(200, {
                         'Content-type': 'application/json'
                     });
-                    console.log(JSON.stringify(result));
+                    //console.log(JSON.stringify(result));
                     res.end(JSON.stringify(result));
                 }
             });
@@ -599,4 +602,9 @@ app.get('/owner-dashboard-details', function (req, res) {
 
 });
 
+app.hello = () => {
+    return 'hello';
+} 
+
+module.exports = app;
 app.listen(3001);

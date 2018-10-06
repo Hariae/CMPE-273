@@ -78,13 +78,13 @@ class Home extends Component {
                                 <div className="form-group row search-tab">
 
                                     <span className="col-lg-4 col-md-12 col-sm-12 col-xs-12 pad-bot-10">
-                                        <input type="textbox" className="form-control form-control-lg" name="searchText" placeholder="Search" onChange={this.props.handleInputChange}></input>
+                                        <input type="textbox" className="form-control form-control-lg" name="searchText" placeholder="Search" onChange={this.props.handleInputChange}></input>                                        
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                                        <DatePicker className="form-control form-control-lg"  dateFormat="MM/DD/YY" selected={this.props.startDate} onChange={this.props.handleStartDateChange}/>                                        
+                                        <DatePicker className="form-control form-control-lg"  dateFormat="MM/DD/YY" selected={this.props.startDate} onChange={this.props.handleStartDateChange}/>                                                                                
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                                        <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.props.endDate} onChange={this.props.handleEndDateChange}/>
+                                        <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.props.endDate} onChange={this.props.handleEndDateChange}/>                                        
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
                                         <input type="textbox" className="form-control form-control-lg" name="guests" placeholder="2 guests" onChange={this.props.handleInputChange}></input>

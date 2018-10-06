@@ -56,11 +56,10 @@ class Signup extends Component {
         if (this.state.FirstName == "" || this.state.LastName == "" || this.state.Email == "" || this.state.Password == "") {
             this.setState({
                 validationError: true
-            });
-            console.log("vali", this.state.validationError)
+            });            
         }
 
-        if (!this.state.validationError) {
+        else{
 
 
             var data = {
@@ -117,7 +116,11 @@ class Signup extends Component {
                                 <p>Sign up for HomeAway</p>
                                 <p>Already have an account? <a href="/login">Login</a></p>
                             </div>
+                            
                             <div className="login-form-container col-lg-6 col-md-6 col-sm-12 offset-lg-3 offset-md-3 border">
+                                <div>
+                                    {errorAlert}
+                                </div>
                                 <div className="form-group login-form-control pad-top-20">
                                     <input type="text" name="firstname" id="firstname" className="form-control form-control-lg" placeholder="First Name" onChange={this.firstNameChangeHandler} required />
                                 </div>

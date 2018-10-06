@@ -13,7 +13,8 @@ class OwnerSignup extends Component {
             LastName: "",
             Email: "",
             Password: "",
-            isNewUserCreated: false
+            isNewUserCreated: false,
+            validationError:  false
         }
 
         //bind
@@ -60,23 +61,31 @@ class OwnerSignup extends Component {
             Accounttype: 2
         }
 
-        e.preventDefault();
-
-        axios.defaults.withCredentials = true;
-
-        axios.post('http://localhost:3001/signup', data)
-            .then((response) => {
-                if (response.status === 200) {
-                    this.setState({
-                        isNewUserCreated: true
-                    })
-                }
-                else {
-                    this.setState({
-                        isNewUserCreated: false
-                    })
-                }
+        if (this.state.FirstName == "" || this.state.LastName == "" || this.state.Email == "" || this.state.Password == "") {
+            this.setState({
+                validationError: true
             });
+        }
+        else {
+
+            e.preventDefault();
+
+            axios.defaults.withCredentials = true;
+
+            axios.post('http://localhost:3001/signup', data)
+                .then((response) => {
+                    if (response.status === 200) {
+                        this.setState({
+                            isNewUserCreated: true
+                        })
+                    }
+                    else {
+                        this.setState({
+                            isNewUserCreated: false
+                        })
+                    }
+                });
+        }
     }
 
     render() {
@@ -84,6 +93,16 @@ class OwnerSignup extends Component {
         if (this.state.isNewUserCreated === true) {
             redirectVar = <Redirect to="/login" />
         }
+
+        let errorAlert = null;
+        if(this.state.validationError){
+            errorAlert = <div>
+            <div className="alert alert-danger" role="alert">
+                <strong>Error!</strong> Fill all the fields to proceed!
+            </div>
+        </div>
+        }
+
         return (
             <div>
                 <Header />
@@ -96,6 +115,9 @@ class OwnerSignup extends Component {
                                 <p>Already have an account? <a href="/login">Login</a></p>
                             </div>
                             <div className="login-form-container col-lg-6 col-md-6 col-sm-12 offset-lg-3 offset-md-3 border">
+                                <div>
+                                {errorAlert}
+                                </div>
                                 <div className="form-group login-form-control pad-top-20">
                                     <input type="text" name="firstname" id="firstname" className="form-control form-control-lg" placeholder="First Name" onChange={this.firstNameChangeHandler} required />
                                 </div>

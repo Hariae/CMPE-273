@@ -13,7 +13,8 @@ class Login extends Component {
         this.state = {
             Email: "",
             Password: "",
-            isValidationFailure: true,
+            formValidationFailure: false,
+            isValidationFailure: true
 
         }
 
@@ -45,25 +46,39 @@ class Login extends Component {
             Password: this.state.Password
         }
 
-        axios.defaults.withCredentials = true;
+        if (this.state.Email == "" || this.state.Password == "") {
 
-        axios.post('http://localhost:3001/login', data)
-            .then((response) => {
-                if (response.status === 200) {
-                    this.setState({
-                        isValidationFailure: true
-                    })
-                }
-                
-            })
-            .catch((err) => {
-                if(err.response.status === 400){
-                    this.setState({
-                        isValidationFailure: false
-                    })
-                    console.log("Error messagw", err.response.status);
-                }
+            this.setState({
+                formValidationFailure: true
             });
+
+            console.log('Form Error!');
+
+        }
+        else {
+            axios.defaults.withCredentials = true;
+
+
+
+            axios.post('http://localhost:3001/login', data)
+                .then((response) => {
+                    if (response.status === 200) {
+                        this.setState({
+                            isValidationFailure: true,
+                            formValidationFailure: false
+                        })
+                    }
+
+                })
+                .catch((err) => {
+                    if (err.response.status === 400) {
+                        this.setState({
+                            isValidationFailure: false
+                        })
+                        console.log("Error messagw", err.response.status);
+                    }
+                });
+        }
 
     }
 
@@ -82,6 +97,17 @@ class Login extends Component {
                 <div className="alert alert-danger" role="alert">
                     <strong>Validation Error!</strong> Username and Password doesn't match!
                 </div>
+            </div>
+
+        }
+
+        let formErrorPanel = null;
+        console.log('FormvalidationFailur', this.state.formValidationFailure);
+        if (this.state.formValidationFailure) {
+            formErrorPanel = <div>
+                <div className="alert alert-danger" role="alert">
+                    <strong>Validation Error!</strong> Username and Password are required!
+        </div>
             </div>
 
         }
@@ -107,6 +133,7 @@ class Login extends Component {
                             </div>
                                 <hr />
                                 {errorPanel}
+                                {formErrorPanel}
                                 <div className="form-group login-form-control">
                                     <input type="text" name="email" id="email" className="form-control form-control-lg" placeholder="Email Address" onChange={this.emailChangeHandler} required />
                                 </div>

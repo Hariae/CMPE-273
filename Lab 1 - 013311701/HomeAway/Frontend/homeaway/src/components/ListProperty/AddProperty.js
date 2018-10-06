@@ -36,7 +36,12 @@ class AddProperty extends Component {
             availabilityEndDate: moment(),
             currency: "",
             baserate: "",
-            minStay: ""
+            minStay: "",
+            locationError: false,
+            detailsError: false,
+            photosError: false,
+            pricingError: false,
+            propertyInsertComplete: false
         }
 
 
@@ -61,6 +66,7 @@ class AddProperty extends Component {
 
 
     handleLocationClick = () => {
+
         this.setState({
             locationActive: true,
             detailsActive: false,
@@ -70,33 +76,72 @@ class AddProperty extends Component {
     }
 
     handleDetailsClick = () => {
-        this.setState({
-            locationActive: false,
-            detailsActive: true,
-            photosActive: false,
-            pricingActive: false
 
-        });
+        const validator = this.state.country === "" || this.state.streetAddress === "" || this.state.unitNumber === "" || this.state.city === "" || this.state.state === "" || this.state.zipCode === "";
+
+        console.log(validator);
+        if (validator) {
+
+            this.setState({
+                locationError: true
+            })
+
+        }
+        else {
+            this.setState({
+                locationActive: false,
+                detailsActive: true,
+                photosActive: false,
+                pricingActive: false,
+                locationError: false
+
+            });
+        }
     }
 
     handlePhotosClick = () => {
-        this.setState({
-            locationActive: false,
-            detailsActive: false,
-            photosActive: true,
-            pricingActive: false
 
-        });
+        const validator = this.state.headline === "" || this.state.description === "" || this.state.propertyType === "" || this.state.bedrooms === "" || this.state.accomodates === "" || this.state.bathrooms === "";
+
+        if (validator) {
+            this.setState({
+                detailsError: true
+            })
+        }
+        else {
+            this.setState({
+                locationActive: false,
+                detailsActive: false,
+                photosActive: true,
+                pricingActive: false,
+                detailsError: false
+            });
+        }
+
+
     }
 
     handlePricingClick = () => {
-        this.setState({
-            locationActive: false,
-            detailsActive: false,
-            photosActive: false,
-            pricingActive: true
+        const validator = this.state.photos.length == 0;
 
-        });
+        if (validator) {
+            this.setState({
+                photosError: true
+            })
+
+        }
+        else {
+
+            this.setState({
+                locationActive: false,
+                detailsActive: false,
+                photosActive: false,
+                pricingActive: true,
+                photosError: false
+
+            });
+        }
+
     }
 
     handleAvailabilityStartDateChange(date) {
@@ -117,12 +162,8 @@ class AddProperty extends Component {
         const value = target.value;
 
         if (name === "photos") {
-            console.log('Files : ', target.files);        
-            // this.setState({
-            //     photos: this.state.photos.push(...target.files)
-            // });            
-            
-            //var photos = this.state.photos;
+            console.log('Files : ', target.files);
+
             var photos = target.files;
             console.log('photos:', photos);
             let data = new FormData();
@@ -138,20 +179,20 @@ class AddProperty extends Component {
 
                     if (response.status === 200) {
                         for (var i = 0; i < photos.length; i++) {
-                            photoArr = photoArr.length == 0 ? photos[i].name : photoArr + ','+ photos[i].name;
+                            photoArr = photoArr.length == 0 ? photos[i].name : photoArr + ',' + photos[i].name;
                             axios.defaults.withCredentials = true;
                             axios.post('http://localhost:3001/download-file/' + photos[i].name)
                                 .then(response => {
                                     //console.log("Imgae Res : ", response);
                                     let imagePreview = 'data:image/jpg;base64, ' + response.data;
                                     imagePreviewArr.push(imagePreview);
-                                    
+
 
                                     this.setState({
                                         photoThumbnail: imagePreviewArr,
                                         photos: photoArr
-                                    });                                
-                                    
+                                    });
+
                                 });
                         }
 
@@ -171,52 +212,67 @@ class AddProperty extends Component {
 
     submitPropertyDetails = (e) => {
 
-        e.preventDefault();
+        var validator = this.state.baserate === "" || this.state.minStay === "";
 
-        const locationDetails = {
-            country: this.state.country,
-            streetAddress: this.state.streetAddress,
-            unitNumber: this.state.unitNumber,
-            city: this.state.city,
-            state: this.state.state,
-            zipCode: this.state.zipCode
-        };
 
-        const details = {
-            headline: this.state.headline,
-            description: this.state.description,
-            propertyType: this.state.propertyType,
-            bedrooms: this.state.bedrooms,
-            accomodates: this.state.accomodates,
-            bathrooms: this.state.bathrooms
-        };
-        const photos = {
-            photos: this.state.photos
-        };
-        const pricingDetails = {
-            availabilityStartDate: this.state.availabilityStartDate,
-            availabilityEndDate: this.state.availabilityEndDate,
-            currency: this.state.currency,
-            baserate: this.state.baserate,
-            minStay: this.state.minStay
-        };
-
-        const data = {
-            LocationDetails: locationDetails,
-            Details: details,
-            Photos: photos,
-            PricingDetails: pricingDetails
+        if (validator) {
+            this.setState({
+                pricingError: true
+            })
         }
+        else {
 
-        axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3001/add-property', data)
-            .then(response => {
+            e.preventDefault();
 
-                if (response.status === 200) {
+            const locationDetails = {
+                country: this.state.country,
+                streetAddress: this.state.streetAddress,
+                unitNumber: this.state.unitNumber,
+                city: this.state.city,
+                state: this.state.state,
+                zipCode: this.state.zipCode
+            };
 
-                    console.log('Success!');
-                }
-            });
+            const details = {
+                headline: this.state.headline,
+                description: this.state.description,
+                propertyType: this.state.propertyType,
+                bedrooms: this.state.bedrooms,
+                accomodates: this.state.accomodates,
+                bathrooms: this.state.bathrooms
+            };
+            const photos = {
+                photos: this.state.photos
+            };
+            const pricingDetails = {
+                availabilityStartDate: this.state.availabilityStartDate,
+                availabilityEndDate: this.state.availabilityEndDate,
+                currency: this.state.currency,
+                baserate: this.state.baserate,
+                minStay: this.state.minStay
+            };
+
+            const data = {
+                LocationDetails: locationDetails,
+                Details: details,
+                Photos: photos,
+                PricingDetails: pricingDetails
+            }
+
+            axios.defaults.withCredentials = true;
+            axios.post('http://localhost:3001/add-property', data)
+                .then(response => {
+
+                    if (response.status === 200) {
+                        console.log('Success!');
+                        this.setState({
+                            propertyInsertComplete: true,
+                            pricingError: false
+                        })
+                    }
+                });
+
+        }
 
 
     }
@@ -227,6 +283,50 @@ class AddProperty extends Component {
         let redrirectVar = null;
         if (!cookie.load('cookie')) {
             redrirectVar = <Redirect to="/login" />
+        }
+
+        if(this.state.propertyInsertComplete){
+            redrirectVar = <Redirect to="/" />
+        }
+
+        let locationErrorPane = null;
+
+        if (this.state.locationError) {
+            locationErrorPane = <div>
+                <div className="alert alert-danger" role="alert">
+                    <strong>Error!</strong> All fields are required!
+                </div>
+            </div>
+        }
+
+        let detailsErrorPane = null;
+
+        if (this.state.detailsError) {
+            detailsErrorPane = <div>
+                <div className="alert alert-danger" role="alert">
+                    <strong>Error!</strong> All fields are required!
+                </div>
+            </div>
+        }
+
+        let photosErrorPane = null;
+
+        if (this.state.photosError) {
+            photosErrorPane = <div>
+                <div className="alert alert-danger" role="alert">
+                    <strong>Error!</strong> All fields are required!
+                </div>
+            </div>
+        }
+
+        let pricingErrorPane = null;
+
+        if (this.state.pricingError) {
+            pricingErrorPane = <div>
+                <div className="alert alert-danger" role="alert">
+                    <strong>Error!</strong> All fields are required!
+                </div>
+            </div>
         }
 
         let photoThumbnails = this.state.photoThumbnail.map(function (thumbnail, index) {
@@ -261,6 +361,9 @@ class AddProperty extends Component {
                                             <h4>Location Details</h4>
                                         </div>
                                         <hr />
+                                        <div>
+                                            {locationErrorPane}
+                                        </div>
                                         <div className="details-form-description pad-bot-10">
                                             <p>Fill in the location details of your property</p>
                                         </div>
@@ -292,6 +395,9 @@ class AddProperty extends Component {
                                             <h4>Describe your property</h4>
                                         </div>
                                         <hr />
+                                        <div>
+                                            {detailsErrorPane}
+                                        </div>
                                         <div className="details-form-description pad-bot-10">
                                             <p>Start out with a descriptive headline and a detailed summary of your property</p>
                                         </div>
@@ -321,6 +427,9 @@ class AddProperty extends Component {
                                     </div>
 
                                     <div className={this.state.photosActive ? "photos-form show-form" : "photos-form"}>
+                                        <div>
+                                            {photosErrorPane}
+                                        </div>
                                         <div className="photos-form-headlinetext">
                                             <h4>Add up to 5 photos of your property</h4>
                                         </div>
@@ -330,10 +439,10 @@ class AddProperty extends Component {
                                         </div>
                                         <div className="container photo-upload-btn-container">
                                             <div className="center-content">
-                                            <button className="btn btn-lg photo-upload-btn">
-                                                <input type="file" name="photos" className="btn btn-lg photo-upload-btn" onChange={this.handleInputChange} multiple className="btn btn-lg photo-upload-btn" />
-                                            </button>
-                                            
+                                                <button className="btn btn-lg photo-upload-btn">
+                                                    <input type="file" name="photos" className="btn btn-lg photo-upload-btn" onChange={this.handleInputChange} multiple className="btn btn-lg photo-upload-btn" />
+                                                </button>
+
                                                 <button className="btn btn-lg photo-upload-btn">SELECT PHOTOS TO UPLOAD</button>
                                             </div>
                                         </div>
@@ -350,6 +459,7 @@ class AddProperty extends Component {
                                             <h4>How much do you want to charge?</h4>
                                         </div>
                                         <hr />
+                                        {pricingErrorPane}
                                         <div className="pricing-form-description pad-bot-10">
                                             <p>We recommend starting with a low price to get a few bookings and earn some initial guest reviews. You can update your rates at any time.</p>
                                         </div>
