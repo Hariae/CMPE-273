@@ -14,7 +14,8 @@ class OwnerSignup extends Component {
             Email: "",
             Password: "",
             isNewUserCreated: false,
-            validationError:  false
+            validationError:  false,
+            errorRedirect: false
         }
 
         //bind
@@ -84,6 +85,13 @@ class OwnerSignup extends Component {
                             isNewUserCreated: false
                         })
                     }
+                })
+                .catch((err)=>{
+                    if(err){
+                        this.setState({
+                            errorRedirect: true
+                        });
+                    }
                 });
         }
     }
@@ -92,6 +100,10 @@ class OwnerSignup extends Component {
         let redirectVar = null;
         if (this.state.isNewUserCreated === true) {
             redirectVar = <Redirect to="/login" />
+        }
+
+        if (this.state.errorRedirect === true) {
+            redirectVar = <Redirect to="/error" />
         }
 
         let errorAlert = null;

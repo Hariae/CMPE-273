@@ -484,3 +484,7 @@ textarea{
 .hidden-container{
   display: none;
 }
+
+.error-div{
+  padding: 10% 25%;
+}

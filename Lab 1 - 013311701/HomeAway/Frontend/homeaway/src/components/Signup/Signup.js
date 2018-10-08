@@ -14,7 +14,8 @@ class Signup extends Component {
             Email: "",
             Password: "",
             isNewUserCreated: false,
-            validationError: false
+            validationError: false,
+            errorRedirect: false
         }
 
         //bind
@@ -86,6 +87,13 @@ class Signup extends Component {
                             isNewUserCreated: false
                         })
                     }
+                })
+                .catch((err)=>{
+                    if(err){
+                        this.setState({
+                            errorRedirect: true
+                        });
+                    }
                 });
         }
     }
@@ -94,6 +102,10 @@ class Signup extends Component {
         let redirectVar = null;
         if (this.state.isNewUserCreated === true) {
             redirectVar = <Redirect to="/login" />
+        }
+
+        if (this.state.errorRedirect === true) {
+            redirectVar = <Redirect to="/error" />
         }
 
         let errorAlert = null;
