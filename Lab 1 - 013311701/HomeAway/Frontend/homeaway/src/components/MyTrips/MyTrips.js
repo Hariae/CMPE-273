@@ -68,29 +68,18 @@ class MyTrips extends Component {
             return (
                 <div className="container trip-details-container" key={index}>
                     <div className="trip-details-content border">
-                        <div className="trip-main-details">
+                        <div className="trip-main-details blue-text">
                             <h2><strong>{trip.Headline}</strong></h2>
                             <div>Property Type : {trip.Propertytype}</div>
                             <div>{trip.Bedrooms} BR</div>
                             <div>{trip.Bathrooms} BA</div>
                             <div>Sleeps {trip.Accomodates}</div>
+                            <div>Arrive: {trip.Bookingstartdate}</div>
+                            <div>Depart: {trip.Bookingenddate}</div>
+                            <div>Guests: {trip.Guests} guests</div>
+                            <div>Owner Name: {trip.Ownername}</div>
                         </div>
-                        <div className="col-5 trips-table">
-                            <table className="table table-bordered">
-                                <tbody>
-                                    <tr>
-                                        <td><div>Arrive</div><div className="blue-text">{trip.Bookingstartdate}</div></td>
-                                        <td><div>Depart</div><div className="blue-text">{trip.Bookingenddate}</div></td>
-                                    </tr>
-                                    <tr>
-                                        <td colSpan="2"><div>Guests</div><div className="blue-text">{trip.Guests} guests</div></td>
-                                    </tr>
-                                    <tr>
-                                        <td colSpan="2"><div>Owner Name</div><div className="blue-text">{trip.Ownername}</div></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        
 
                         <div className="pricing-content">
                             <h3><strong>Total Cost: ${trip.Totalcost}</strong></h3>
@@ -99,9 +88,6 @@ class MyTrips extends Component {
                 </div>
             )
         })
-
-
-
 
 
         return (

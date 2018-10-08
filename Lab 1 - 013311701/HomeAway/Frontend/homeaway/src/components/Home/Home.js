@@ -10,45 +10,10 @@ import DisplayProperties from '../DisplayProperties/DisplayProperties';
 class Home extends Component {
 
     constructor(props) {
-        super(props);
-        
-        // this.state = {
-        //     arrivalDate: moment(),
-        //     departureDate: moment(),
-        //     searchText: "",
-                 
-        // }
-
-        // this.handleArrivalDateChange = this.handleArrivalDateChange.bind(this);
-        // this.handleDepartureDateChange = this.handleDepartureDateChange.bind(this);
-        // this.handleInputChange = this.handleInputChange.bind(this);        
+        super(props);                     
     }
 
-    // handleArrivalDateChange(date){
-    //     this.setState({
-    //         arrivalDate: date
-    //     })
-    // }
-
-    // handleDepartureDateChange(date){
-    //     this.setState({
-    //         departureDate: date
-    //     })
-    // }
-
-    // handleInputChange = (event) =>{
-    //     console.log("event",event.target.value)
-        
-    //     this.setState({
-    //         searchText: event.target.value                        
-    //     });
-    //     console.log("VALUE " + this.state.searchText);       
-    // }
-
     
-
-
-
     render() {
 
         let redrirectVar = null;
@@ -158,7 +123,7 @@ class Home extends Component {
                             <img src="http://cms.homeaway.com/files/live/sites/hub/files/contributed/homepage/marketing/list-your-property.jpg" alt="lyp-image"></img>    
                             <div className="lyp-content center-content">
                                     <h1>List your Property</h1>
-                                    <a href="/list-property" className="btn btn-success btn-lg">List Your Property</a>
+                                    <a href="/add-property" className="btn btn-success btn-lg">List Your Property</a>
                             </div>
                         </div>
                         

@@ -138,7 +138,6 @@ class PropertyDisplay extends Component {
             const timeEnd = moment(this.state.departureDate);
             const diff = timeEnd.diff(startDate);
             const diffDuration = moment.duration(diff);
-            //console.log(diffDuration._data.days * this.state.propertyDetails.Baserate.substring(1));
             totalCost = (diffDuration._data.days + 1) * this.state.propertyDetails.Baserate.substring(1);
 
         }

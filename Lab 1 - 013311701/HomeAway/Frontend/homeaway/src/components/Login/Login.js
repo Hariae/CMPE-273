@@ -14,7 +14,8 @@ class Login extends Component {
             Email: "",
             Password: "",
             formValidationFailure: false,
-            isValidationFailure: true
+            isValidationFailure: true,
+            errorRedirect: false
 
         }
 
@@ -71,12 +72,20 @@ class Login extends Component {
 
                 })
                 .catch((err) => {
-                    if (err.response.status === 400) {
-                        this.setState({
-                            isValidationFailure: false
-                        })
-                        console.log("Error messagw", err.response.status);
+                    if (err) {
+                        if (err.response.status === 401) {
+                            this.setState({
+                                isValidationFailure: false
+                            })
+                            console.log("Error messagw", err.response.status);
+                        }
+                        else {
+                            this.setState({
+                                errorRedirect: true
+                            })
+                        }
                     }
+
                 });
         }
 
@@ -89,6 +98,10 @@ class Login extends Component {
         let redrirectVar = null;
         if (cookie.load('cookie')) {
             redrirectVar = <Redirect to="/home" />
+        }
+
+        if (this.state.errorRedirect) {
+            redrirectVar = <Redirect to="/error" />
         }
 
         let errorPanel = null;

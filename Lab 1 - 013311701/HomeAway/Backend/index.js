@@ -13,6 +13,7 @@ var cookieParser = require('cookie-parser');
 var cors = require('cors');
 
 var mysql = require('mysql');
+var bcrypt = require('bcrypt-nodejs');
 
 //set up cors
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
@@ -70,11 +71,7 @@ app.post('/login', function (req, res) {
         else {
 
             //Login validation query
-            var sql = 'SELECT * from userdetails WHERE Username = ' + mysql.escape(req.body.Email) +
-                'AND Password = ' + mysql.escape(req.body.Password);
-
-            console.log(sql);
-
+            var sql = 'SELECT * from userdetails WHERE Username = ' + mysql.escape(req.body.Email);
             conn.query(sql, function (err, result) {
 
                 if (err) {
@@ -83,18 +80,16 @@ app.post('/login', function (req, res) {
                     });
                     res.end('Invalid Credentials!');
                 }
-                else {
-                    console.log(result);
-                    if(result.length == 0){
-                        res.writeHead(400, {
+                else {                            
+                    if (result.length == 0 || !bcrypt.compareSync(req.body.Password, result[0].Password)) {
+                        res.writeHead(401, {
                             'Content-type': 'text/plain'
-                        })
-                        //res.status(500).send({ error: "Invalid Credentials!" });
+                        })                    
                         console.log('Invalid Credentials!');
                         res.end('Invalid Credentials!');
-
                     }
-                    else{
+                    else {
+                        console.log(result);                        
                         res.cookie('cookie', result[0].Firstname, {
                             maxAge: 360000,
                             httpOnly: false,
@@ -112,7 +107,7 @@ app.post('/login', function (req, res) {
                         console.log('Login successful!');
                         res.end('Login successful!');
                     }
-                    
+
                 }
             });
         }
@@ -145,31 +140,38 @@ app.post('/signup', function (req, res) {
                     res.writeHead(400, {
                         'Content-type': 'text/plain'
                     });
+                    console.log('Error in adding an user');
                     res.end('Error in adding an user');
                 }
                 else {
-                    if (result[0]) {                        
+                    if (result[0]) {
                         var sql = 'UPDATE userdetails set Accounttype = 3';
                     }
-                    else{
+                    else {
+
+                        //Hashing Password!
+                        const hashedPassword = bcrypt.hashSync(req.body.Password);
+
                         var sql = 'INSERT into userdetails (Username, Password, Firstname, Lastname, Email, Accounttype) VALUES(' +
-                        mysql.escape(req.body.Email) + ',' +
-                        mysql.escape(req.body.Password) + ',' +
-                        mysql.escape(req.body.FirstName) + ',' +
-                        mysql.escape(req.body.LastName) + ',' +
-                        mysql.escape(req.body.Email) + ',' +
-                        mysql.escape(req.body.Accounttype) + ');';
+                            mysql.escape(req.body.Email) + ',' +
+                            mysql.escape(hashedPassword) + ',' +
+                            mysql.escape(req.body.FirstName) + ',' +
+                            mysql.escape(req.body.LastName) + ',' +
+                            mysql.escape(req.body.Email) + ',' +
+                            mysql.escape(req.body.Accounttype) + ');';
                     }
-                    
+
 
                     conn.query(sql, function (err, result) {
                         if (err) {
+                            console.log('Error in adding an user');
                             res.writeHead(400, {
                                 'Content-type': 'text/plain'
-                            });
+                            });                            
                             res.end('Error in adding an user');
                         }
                         else {
+                            console.log('Adding a user successful!');
                             res.writeHead(200, {
                                 'Content-type': 'text/plain'
                             });
@@ -218,6 +220,7 @@ app.get('/profile-details', function (req, res) {
             console.log("ProfileId : ", req.session.user.ProfileId);
             conn.query(sql, function (err, result) {
                 if (err) {
+                    console.log('Error in retrieving profile data');
                     res.writeHead(400, {
                         'Content-type': 'text/plain'
                     });
@@ -264,11 +267,17 @@ app.post('/update-profile', function (req, res) {
                 'Aboutme= ' + mysql.escape(req.body.Aboutme) + ',' +
                 'Country = ' + mysql.escape(req.body.Country) + ',' +
                 'City = ' + mysql.escape(req.body.City) + ',' +
-                'Gender = ' + mysql.escape(req.body.Gender) +
+                'Gender = ' + mysql.escape(req.body.Gender) + ',' +
+                'Hometown = ' + mysql.escape(req.body.Hometown) + ',' +
+                'School = ' + mysql.escape(req.body.School) + ',' +
+                'Company = ' + mysql.escape(req.body.Company) + ',' +
+                'Language = ' + mysql.escape(req.body.Language) + ',' +
+                'ProfileImage = ' + mysql.escape(req.body.ProfileImage) +
                 ' WHERE ProfileId = ' + req.session.user.ProfileId;
 
             conn.query(sql, function (err, result) {
                 if (err) {
+                    console.log('Error in updating profile data');
                     res.writeHead(400, {
                         'Content-type': 'text/plain'
                     });
@@ -334,6 +343,7 @@ app.post('/add-property', function (req, res) {
             conn.query(sql, function (err, result) {
 
                 if (err) {
+                    console.log('Error in Posting property data');
                     res.writeHead(400, {
                         'Content-type': 'text/plain'
                     });
@@ -376,12 +386,13 @@ app.post('/search', function (req, res) {
             //Search Properties Query            
             var sql = 'SELECT * from propertydetails WHERE ' +
                 'City = ' + mysql.escape(searchProperties.searchText) +
-                ' AND DATE(Availabilitystartdate) BETWEEN ' + mysql.escape(new Date(searchProperties.startDate).toISOString().substring(0, 10)) + ' AND \'2020-01-01\'' +
+                ' AND DATE(Availabilitystartdate) BETWEEN ' + ' \'2000-01-01\' AND ' + mysql.escape(new Date(searchProperties.startDate).toISOString().substring(0, 10)) + 
                 ' AND DATE(Availabilityenddate) BETWEEN ' + mysql.escape(new Date(searchProperties.endDate).toISOString().substring(0, 10)) + ' AND \'2020-01-01\';';
 
             conn.query(sql, function (err, result) {
 
                 if (err) {
+                    console.log('Error in Retrieving property data');
                     res.writeHead(400, {
                         'Content-type': 'text/plain'
                     });
@@ -389,11 +400,10 @@ app.post('/search', function (req, res) {
 
                 }
                 else {
-
+                    console.log(JSON.stringify(result));
                     res.writeHead(200, {
                         'Content-type': 'application/json'
-                    });
-                    //console.log(JSON.stringify(result));
+                    });                    
                     res.end(JSON.stringify(result));
                 }
             });
@@ -406,7 +416,7 @@ app.post('/search', function (req, res) {
 
 app.post('/property-details', function (req, res) {
 
-    console.log('Inside Property Details Method GET!');
+    console.log('Inside Property Details Method POST!');
     console.log('Request Body: ', req.body);
 
     pool.getConnection(function (err, conn) {
@@ -424,6 +434,7 @@ app.post('/property-details', function (req, res) {
             var sql = 'SELECT * from propertydetails WHERE PropertyId = ' + req.body.PropertyId;
             conn.query(sql, function (err, result) {
                 if (err) {
+                    console.log('Error in Retrieving property');
                     res.writeHead(400, {
                         'Content-type': 'text/plain'
                     });
@@ -439,6 +450,7 @@ app.post('/property-details', function (req, res) {
                 }
             });
         }
+        conn.release();
     });
 
 });
@@ -474,6 +486,7 @@ app.post('/submit-booking', function (req, res) {
                 conn.query(sql, function (err, result) {
 
                     if (err) {
+                        console.log('Error in Booking  property');
                         res.writeHead(400, {
                             'Content-type': 'text/plain'
                         });
@@ -601,10 +614,6 @@ app.get('/owner-dashboard-details', function (req, res) {
 
 
 });
-
-app.hello = () => {
-    return 'hello';
-} 
 
 module.exports = app;
 app.listen(3001);

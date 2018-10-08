@@ -9,7 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.18.3",
+    "brcypt": "^1.0.1",
     "chai": "^4.2.0",
     "chai-http": "^4.2.0",
     "cookie-parser": "^1.4.3",

@@ -25,11 +25,6 @@ app.use(function (req, res, next) {
 })
 
 
-
-
-
-
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -39,11 +34,12 @@ app.use(cookieParser());
 app.post('/calculate', function(req, res){
 
     console.log('Inside Calculate method!');
-    console.log(eval(req.body.expression));
+    
     var result = eval(req.body.expression);
     res.writeHead(200,{
         'Content-type':'application/json'
     });
+    console.log("Result:", JSON.stringify(result));
     res.end(JSON.stringify(result));
 
 });

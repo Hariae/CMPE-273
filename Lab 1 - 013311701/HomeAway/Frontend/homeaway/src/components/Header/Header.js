@@ -26,10 +26,12 @@ class Header extends Component {
 
         let loggedInUserContent = null;
         let ownerContent = null;
-        let travelerContent = null
+        let travelerContent = null;
+        let ownerListPropertyTab = null;
 
         if(cookie.load('Accounttype') >= 2){
             ownerContent = <a className="dropdown-item blue-text" href="/owner-dashboard">Owner Dashboard</a>
+            ownerListPropertyTab = <span><a href="/add-property" className="btn btn-lg lyp-btn">List your property</a></span>
         }
 
         if(cookie.load('Accounttype') == 1 || cookie.load('Accounttype') == 3){
@@ -51,9 +53,9 @@ class Header extends Component {
                         {travelerContent}
                         {ownerContent}                        
                         <a className="dropdown-item blue-text" href="/login" onClick={this.handleLogout}>Logout</a>
-                    </div>
+                    </div>                    
                 </span>
-                <span><a href="/list-property" className="btn btn-lg lyp-btn">List your property</a></span>
+                {ownerListPropertyTab}                
             </span>
 
 

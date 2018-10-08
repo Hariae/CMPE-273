@@ -146,7 +146,7 @@ class AddProperty extends Component {
 
     handleAvailabilityStartDateChange(date) {
         this.setState({
-            availabilityStateDate: date
+            availabilityStartDate: date
         })
     }
 

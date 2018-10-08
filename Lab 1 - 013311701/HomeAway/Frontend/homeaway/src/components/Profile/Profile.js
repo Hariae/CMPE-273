@@ -16,7 +16,13 @@ class Profile extends Component {
             Aboutme: "",
             Country: "",
             City: "",
-            Gender: ""
+            Company: "",
+            School: "",
+            Hometown: "",
+            Language: "",
+            Gender: "",
+            ProfileImage: "",
+            ProfileImagePreview: undefined
         }
 
         //Bind
@@ -32,17 +38,7 @@ class Profile extends Component {
                 if (response.status === 200) {
                     //console.log('Status: '. response.status);
                     console.log(response.data);
-                    var data = {
-                        Firstname: "",
-                        Lastname: "",
-                        Email: "",
-                        Phonenumber: "",
-                        Aboutme: "",
-                        Country: "",
-                        City: "",
-                        Gender: ""
-                    }
-                    data = response.data;
+                    var data = response.data;
                     this.setState({
                         Firstname: data.Firstname,
                         Lastname: data.Lastname,
@@ -51,8 +47,29 @@ class Profile extends Component {
                         Aboutme: data.Aboutme,
                         Country: data.Country,
                         City: data.City,
-                        Gender: data.Gender
+                        Gender: data.Gender,
+                        School: data.School,
+                        Hometown: data.Hometown,
+                        Language: data.Language,
+                        Company: data.Company,
+                        ProfileImage: data.ProfileImage
                     });
+
+                    //DOwnload Image
+                    console.log('Profile Photo Name: ', data.ProfileImage);
+
+                    //Download image
+                    axios.post('http://localhost:3001/download-file/' + data.ProfileImage)
+                        .then(response => {
+                            let imagePreview = 'data:image/jpg;base64, ' + response.data;
+                            this.setState({
+                                ProfileImagePreview: imagePreview
+                            })
+
+                        });
+                        
+
+
                 }
             });
     }
@@ -62,9 +79,36 @@ class Profile extends Component {
         const name = target.name;
         const value = target.value;
 
-        this.setState({
-            [name]: value
-        });
+        if (name === "ProfileImage") {
+            console.log(target.files);
+            var profilePhoto = target.files[0];
+            var data = new FormData();
+            data.append('photos', profilePhoto);
+            axios.defaults.withCredentials = true;
+            axios.post('http://localhost:3001/upload-file', data)
+                .then(response => {
+                    if (response.status === 200) {
+                        console.log('Profile Photo Name: ', profilePhoto.name);
+
+                        //Download image
+                        axios.post('http://localhost:3001/download-file/' + profilePhoto.name)
+                            .then(response => {
+                                let imagePreview = 'data:image/jpg;base64, ' + response.data;
+                                this.setState({
+                                    ProfileImage: profilePhoto.name,
+                                    ProfileImagePreview: imagePreview
+                                })
+
+                            });
+                    }
+                });
+        }
+        else {
+            this.setState({
+                [name]: value
+            });
+        }
+
     }
 
     saveChanges = (e) => {
@@ -79,11 +123,17 @@ class Profile extends Component {
             Aboutme: this.state.Aboutme,
             Country: this.state.Country,
             City: this.state.City,
-            Gender: this.state.Gender
+            Gender: this.state.Gender,
+            School: this.state.School,
+            Hometown: this.state.Hometown,
+            Language: this.state.Language,
+            Company: this.state.Company,
+            ProfileImage: this.state.ProfileImage
+
 
         }
 
-        console.log('Data: ',data);
+        console.log('Data: ', data);
         axios.post('http://localhost:3001/update-profile', data)
             .then(response => {
                 if (response.status === 200) {
@@ -100,15 +150,19 @@ class Profile extends Component {
             redrirectVar = <Redirect to="/login" />
         }
 
+        let profileImageData = <img src="https://img.freepik.com/free-icon/user-filled-person-shape_318-74922.jpg?size=338c&ext=jpg" alt="logo" />
+        if (this.state.ProfileImagePreview) {
+            profileImageData = <img src={this.state.ProfileImagePreview} alt="logo" />
+        }
         return (
             <div>
                 <Header />
                 <div className="container">
                     {redrirectVar}
                     <div className="center-content profile-heading">
-                        <img src="https://img.freepik.com/free-icon/user-filled-person-shape_318-74922.jpg?size=338c&ext=jpg" alt="logo" />
-                        <h3>{this.state.Firstname} {this.state.Lastname}</h3>
-                        <p>Member since 2001</p>
+                        {profileImageData}
+                        <h3>{this.state.Firstname} {this.state.Lastname}</h3> 
+                        <p></p>                       
                     </div>
                     <div className="container profile-content">
                         <div className="row">
@@ -140,6 +194,22 @@ class Profile extends Component {
                                     </div>
                                     <div className="form-group">
                                         <input type="text" name="Gender" id="gender" className="form-control form-control-lg" placeholder="Gender" onChange={this.handleChange} value={this.state.Gender} />
+                                    </div>
+                                    <div className="form-group">
+                                        <input type="text" name="Company" id="company" className="form-control form-control-lg" placeholder="Company" onChange={this.handleChange} value={this.state.Company} />
+                                    </div>
+                                    <div className="form-group">
+                                        <input type="text" name="School" id="school" className="form-control form-control-lg" placeholder="School" onChange={this.handleChange} value={this.state.School} />
+                                    </div>
+                                    <div className="form-group">
+                                        <input type="text" name="Hometown" id="hometown" className="form-control form-control-lg" placeholder="Hometown" onChange={this.handleChange} value={this.state.Hometown} />
+                                    </div>
+                                    <div className="form-group">
+                                        <input type="text" name="Language" id="language" className="form-control form-control-lg" placeholder="Language" onChange={this.handleChange} value={this.state.Language} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label htmlFor="ProfileImage"><strong>Profile Image : </strong></label><br />
+                                        <input type="file" name="ProfileImage" id="ProfileImage" className="btn btn-lg photo-upload-btn" onChange={this.handleChange} className="btn btn-lg photo-upload-btn" />
                                     </div>
                                     <div className="form-group">
                                         <button className="btn btn-lg btn-primary" onClick={this.saveChanges}>Save Changes</button>
