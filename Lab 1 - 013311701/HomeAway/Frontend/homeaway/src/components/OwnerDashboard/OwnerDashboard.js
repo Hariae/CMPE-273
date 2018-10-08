@@ -11,7 +11,8 @@ class OwnerDashboard extends Component {
         super();
         this.state={
             trips: [],
-            tripDetails: []
+            tripDetails: [],
+            errorRedirect: false
         }
 
     }
@@ -50,9 +51,21 @@ class OwnerDashboard extends Component {
                                     console.log("Trip Details: ", this.state.tripDetails);
                                 }
 
+                            }).catch((err) =>{
+                                if(err){
+                                    this.setState({
+                                        errorRedirect: true
+                                    })
+                                }
                             });
                     }
 
+                }
+            }).catch((err) =>{
+                if(err){
+                    this.setState({
+                        errorRedirect: true
+                    })
                 }
             });
     }
@@ -62,6 +75,9 @@ class OwnerDashboard extends Component {
         let redrirectVar = null;
         if (!cookie.load('cookie')) {
             redrirectVar = <Redirect to="/login" />
+        }
+        if (this.state.errorRedirect === true) {
+            redrirectVar = <Redirect to="/error" />
         }
 
 

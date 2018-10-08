@@ -22,7 +22,8 @@ class Profile extends Component {
             Language: "",
             Gender: "",
             ProfileImage: "",
-            ProfileImagePreview: undefined
+            ProfileImagePreview: undefined,
+            errorRedirect: false
         }
 
         //Bind
@@ -99,6 +100,12 @@ class Profile extends Component {
                                     ProfileImagePreview: imagePreview
                                 })
 
+                            }).catch((err) =>{
+                                if(err){
+                                    this.setState({
+                                        errorRedirect: true
+                                    })
+                                }
                             });
                     }
                 });
@@ -139,6 +146,12 @@ class Profile extends Component {
                 if (response.status === 200) {
                     console.log('');
                 }
+            }).catch((err) =>{
+                if(err){
+                    this.setState({
+                        errorRedirect: true
+                    })
+                }
             });
 
     }
@@ -148,6 +161,10 @@ class Profile extends Component {
         let redrirectVar = null;
         if (!cookie.load('cookie')) {
             redrirectVar = <Redirect to="/login" />
+        }
+
+        if (this.state.errorRedirect === true) {
+            redrirectVar = <Redirect to="/error" />
         }
 
         let profileImageData = <img src="https://img.freepik.com/free-icon/user-filled-person-shape_318-74922.jpg?size=338c&ext=jpg" alt="logo" />

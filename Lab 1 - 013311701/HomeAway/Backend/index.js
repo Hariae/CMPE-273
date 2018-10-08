@@ -80,16 +80,16 @@ app.post('/login', function (req, res) {
                     });
                     res.end('Invalid Credentials!');
                 }
-                else {                            
+                else {
                     if (result.length == 0 || !bcrypt.compareSync(req.body.Password, result[0].Password)) {
                         res.writeHead(401, {
                             'Content-type': 'text/plain'
-                        })                    
+                        })
                         console.log('Invalid Credentials!');
                         res.end('Invalid Credentials!');
                     }
                     else {
-                        console.log(result);                        
+                        console.log(result);
                         res.cookie('cookie', result[0].Firstname, {
                             maxAge: 360000,
                             httpOnly: false,
@@ -167,7 +167,7 @@ app.post('/signup', function (req, res) {
                             console.log('Error in adding an user');
                             res.writeHead(400, {
                                 'Content-type': 'text/plain'
-                            });                            
+                            });
                             res.end('Error in adding an user');
                         }
                         else {
@@ -204,38 +204,41 @@ app.get('/profile-details', function (req, res) {
     console.log('Inside Profile Details GET!');
     console.log('Request Body:', req.body);
 
-    pool.getConnection(function (err, conn) {
-        if (err) {
-            console.log('Error in creating connection!');
-            res.writeHead(400, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Error in creating connection!');
+    if (req.session.user) {
 
-        }
-        else {
+        pool.getConnection(function (err, conn) {
+            if (err) {
+                console.log('Error in creating connection!');
+                res.writeHead(400, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Error in creating connection!');
 
-            //Profile Details query
-            var sql = 'SELECT * from userdetails where ProfileId = ' + mysql.escape(req.session.user.ProfileId);
-            console.log("ProfileId : ", req.session.user.ProfileId);
-            conn.query(sql, function (err, result) {
-                if (err) {
-                    console.log('Error in retrieving profile data');
-                    res.writeHead(400, {
-                        'Content-type': 'text/plain'
-                    });
-                    res.end('Error in retrieving profile data');
-                }
-                else {
-                    console.log('Profile Data: ', result);
-                    res.writeHead(200, {
-                        'Content-type': 'application/json'
-                    });
-                    res.end(JSON.stringify(result[0]));
-                }
-            });
-        }
-    });
+            }
+            else {
+
+                //Profile Details query
+                var sql = 'SELECT * from userdetails where ProfileId = ' + mysql.escape(req.session.user.ProfileId);
+                console.log("ProfileId : ", req.session.user.ProfileId);
+                conn.query(sql, function (err, result) {
+                    if (err) {
+                        console.log('Error in retrieving profile data');
+                        res.writeHead(400, {
+                            'Content-type': 'text/plain'
+                        });
+                        res.end('Error in retrieving profile data');
+                    }
+                    else {
+                        console.log('Profile Data: ', result);
+                        res.writeHead(200, {
+                            'Content-type': 'application/json'
+                        });
+                        res.end(JSON.stringify(result[0]));
+                    }
+                });
+            }
+        });
+    }
 
 });
 
@@ -246,55 +249,58 @@ app.post('/update-profile', function (req, res) {
     console.log('Inside Update Profile POST!');
     console.log('Request Body: ', req.body);
 
-    pool.getConnection(function (err, conn) {
+    if (req.session.user) {
 
-        if (err) {
+        pool.getConnection(function (err, conn) {
 
-            console.log('Error in creating connection!');
-            res.writeHead(400, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Error in creating connection!');
+            if (err) {
 
-        }
-        else {
+                console.log('Error in creating connection!');
+                res.writeHead(400, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Error in creating connection!');
 
-            var sql = 'UPDATE userdetails set ' +
-                'Firstname = ' + mysql.escape(req.body.Firstname) + ',' +
-                'Lastname = ' + mysql.escape(req.body.Lastname) + ',' +
-                'Email = ' + mysql.escape(req.body.Email) + ',' +
-                'Phonenumber = ' + mysql.escape(req.body.Phonenumber) + ',' +
-                'Aboutme= ' + mysql.escape(req.body.Aboutme) + ',' +
-                'Country = ' + mysql.escape(req.body.Country) + ',' +
-                'City = ' + mysql.escape(req.body.City) + ',' +
-                'Gender = ' + mysql.escape(req.body.Gender) + ',' +
-                'Hometown = ' + mysql.escape(req.body.Hometown) + ',' +
-                'School = ' + mysql.escape(req.body.School) + ',' +
-                'Company = ' + mysql.escape(req.body.Company) + ',' +
-                'Language = ' + mysql.escape(req.body.Language) + ',' +
-                'ProfileImage = ' + mysql.escape(req.body.ProfileImage) +
-                ' WHERE ProfileId = ' + req.session.user.ProfileId;
+            }
+            else {
 
-            conn.query(sql, function (err, result) {
-                if (err) {
-                    console.log('Error in updating profile data');
-                    res.writeHead(400, {
-                        'Content-type': 'text/plain'
-                    });
-                    res.end('Error in updating profile data');
+                var sql = 'UPDATE userdetails set ' +
+                    'Firstname = ' + mysql.escape(req.body.Firstname) + ',' +
+                    'Lastname = ' + mysql.escape(req.body.Lastname) + ',' +
+                    'Email = ' + mysql.escape(req.body.Email) + ',' +
+                    'Phonenumber = ' + mysql.escape(req.body.Phonenumber) + ',' +
+                    'Aboutme= ' + mysql.escape(req.body.Aboutme) + ',' +
+                    'Country = ' + mysql.escape(req.body.Country) + ',' +
+                    'City = ' + mysql.escape(req.body.City) + ',' +
+                    'Gender = ' + mysql.escape(req.body.Gender) + ',' +
+                    'Hometown = ' + mysql.escape(req.body.Hometown) + ',' +
+                    'School = ' + mysql.escape(req.body.School) + ',' +
+                    'Company = ' + mysql.escape(req.body.Company) + ',' +
+                    'Language = ' + mysql.escape(req.body.Language) + ',' +
+                    'ProfileImage = ' + mysql.escape(req.body.ProfileImage) +
+                    ' WHERE ProfileId = ' + req.session.user.ProfileId;
 
-                }
-                else {
-                    console.log('Profile data update complete!');
-                    res.writeHead(200, {
-                        'Content-type': 'text/plain'
-                    });
-                    res.end('Profile data update complete!');
-                }
-            });
+                conn.query(sql, function (err, result) {
+                    if (err) {
+                        console.log('Error in updating profile data');
+                        res.writeHead(400, {
+                            'Content-type': 'text/plain'
+                        });
+                        res.end('Error in updating profile data');
 
-        }
-    });
+                    }
+                    else {
+                        console.log('Profile data update complete!');
+                        res.writeHead(200, {
+                            'Content-type': 'text/plain'
+                        });
+                        res.end('Profile data update complete!');
+                    }
+                });
+
+            }
+        });
+    }
 
 });
 
@@ -307,62 +313,65 @@ app.post('/add-property', function (req, res) {
     const newProperty = req.body;
     const userSession = req.session.user;
 
-    pool.getConnection(function (err, conn) {
+    if (req.session.user) {
 
-        if (err) {
-            console.log('Error in creating connection!');
-            res.writeHead(400, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Error in creating connection!');
-        }
-        else {
+        pool.getConnection(function (err, conn) {
 
-            //session = session.ProfileId;
-            var sql = 'INSERT into propertydetails values(NULL,' +
-                mysql.escape(newProperty.LocationDetails.country) + ',' +
-                mysql.escape(newProperty.LocationDetails.streetAddress) + ',' +
-                mysql.escape(newProperty.LocationDetails.unitNumber) + ',' +
-                mysql.escape(newProperty.LocationDetails.city) + ',' +
-                mysql.escape(newProperty.LocationDetails.state) + ',' +
-                mysql.escape(newProperty.LocationDetails.zipCode) + ',' +
-                mysql.escape(newProperty.Details.headline) + ',' +
-                mysql.escape(newProperty.Details.description) + ',' +
-                mysql.escape(newProperty.Details.propertyType) + ',' +
-                mysql.escape(newProperty.Details.bedrooms) + ',' +
-                mysql.escape(newProperty.Details.accomodates) + ',' +
-                mysql.escape(newProperty.Details.bathrooms) + ',' +
-                mysql.escape(newProperty.Photos.photos) + ',' +
-                mysql.escape(new Date(newProperty.PricingDetails.availabilityStartDate)) + ',' +
-                mysql.escape(new Date(newProperty.PricingDetails.availabilityEndDate)) + ',' +
-                mysql.escape(newProperty.PricingDetails.currency + newProperty.PricingDetails.baserate) + ',' +
-                mysql.escape(newProperty.PricingDetails.minStay) + ',' +
-                mysql.escape(userSession.ProfileId) + ',' +
-                mysql.escape(userSession.Firstname + ' ' + userSession.Lastname) + ');';
+            if (err) {
+                console.log('Error in creating connection!');
+                res.writeHead(400, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Error in creating connection!');
+            }
+            else {
 
-            conn.query(sql, function (err, result) {
+                //session = session.ProfileId;
+                var sql = 'INSERT into propertydetails values(NULL,' +
+                    mysql.escape(newProperty.LocationDetails.country) + ',' +
+                    mysql.escape(newProperty.LocationDetails.streetAddress) + ',' +
+                    mysql.escape(newProperty.LocationDetails.unitNumber) + ',' +
+                    mysql.escape(newProperty.LocationDetails.city) + ',' +
+                    mysql.escape(newProperty.LocationDetails.state) + ',' +
+                    mysql.escape(newProperty.LocationDetails.zipCode) + ',' +
+                    mysql.escape(newProperty.Details.headline) + ',' +
+                    mysql.escape(newProperty.Details.description) + ',' +
+                    mysql.escape(newProperty.Details.propertyType) + ',' +
+                    mysql.escape(newProperty.Details.bedrooms) + ',' +
+                    mysql.escape(newProperty.Details.accomodates) + ',' +
+                    mysql.escape(newProperty.Details.bathrooms) + ',' +
+                    mysql.escape(newProperty.Photos.photos) + ',' +
+                    mysql.escape(new Date(newProperty.PricingDetails.availabilityStartDate)) + ',' +
+                    mysql.escape(new Date(newProperty.PricingDetails.availabilityEndDate)) + ',' +
+                    mysql.escape(newProperty.PricingDetails.currency + newProperty.PricingDetails.baserate) + ',' +
+                    mysql.escape(newProperty.PricingDetails.minStay) + ',' +
+                    mysql.escape(userSession.ProfileId) + ',' +
+                    mysql.escape(userSession.Firstname + ' ' + userSession.Lastname) + ');';
 
-                if (err) {
-                    console.log('Error in Posting property data');
-                    res.writeHead(400, {
-                        'Content-type': 'text/plain'
-                    });
-                    res.end('Error in Posting property data');
-                }
-                else {
+                conn.query(sql, function (err, result) {
 
-                    console.log('Property listing complete!');
-                    res.writeHead(200, {
-                        'Content-type': 'text/plain'
-                    });
-                    res.end('Property listing complete!');
-                }
+                    if (err) {
+                        console.log('Error in Posting property data');
+                        res.writeHead(400, {
+                            'Content-type': 'text/plain'
+                        });
+                        res.end('Error in Posting property data');
+                    }
+                    else {
 
-            });
+                        console.log('Property listing complete!');
+                        res.writeHead(200, {
+                            'Content-type': 'text/plain'
+                        });
+                        res.end('Property listing complete!');
+                    }
 
-        }
+                });
 
-    });
+            }
+
+        });
+    }
 });
 
 //Search
@@ -373,43 +382,45 @@ app.post('/search', function (req, res) {
 
     const searchProperties = req.body;
 
-    pool.getConnection(function (err, conn) {
-        if (err) {
-            console.log('Error in creating connection!');
-            res.writeHead(400, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Error in creating connection!');
-        }
-        else {
+    if (req.session.user) {
 
-            //Search Properties Query            
-            var sql = 'SELECT * from propertydetails WHERE ' +
-                'City = ' + mysql.escape(searchProperties.searchText) +
-                ' AND DATE(Availabilitystartdate) BETWEEN ' + ' \'2000-01-01\' AND ' + mysql.escape(new Date(searchProperties.startDate).toISOString().substring(0, 10)) + 
-                ' AND DATE(Availabilityenddate) BETWEEN ' + mysql.escape(new Date(searchProperties.endDate).toISOString().substring(0, 10)) + ' AND \'2020-01-01\';';
+        pool.getConnection(function (err, conn) {
+            if (err) {
+                console.log('Error in creating connection!');
+                res.writeHead(400, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Error in creating connection!');
+            }
+            else {
 
-            conn.query(sql, function (err, result) {
+                //Search Properties Query            
+                var sql = 'SELECT * from propertydetails WHERE ' +
+                    'City = ' + mysql.escape(searchProperties.searchText) +
+                    ' AND DATE(Availabilitystartdate) BETWEEN ' + ' \'2000-01-01\' AND ' + mysql.escape(new Date(searchProperties.startDate).toISOString().substring(0, 10)) +
+                    ' AND DATE(Availabilityenddate) BETWEEN ' + mysql.escape(new Date(searchProperties.endDate).toISOString().substring(0, 10)) + ' AND \'2020-01-01\';';
 
-                if (err) {
-                    console.log('Error in Retrieving property data');
-                    res.writeHead(400, {
-                        'Content-type': 'text/plain'
-                    });
-                    res.end('Error in Retrieving property data');
+                conn.query(sql, function (err, result) {
 
-                }
-                else {
-                    console.log(JSON.stringify(result));
-                    res.writeHead(200, {
-                        'Content-type': 'application/json'
-                    });                    
-                    res.end(JSON.stringify(result));
-                }
-            });
-        }
-    });
+                    if (err) {
+                        console.log('Error in Retrieving property data');
+                        res.writeHead(400, {
+                            'Content-type': 'text/plain'
+                        });
+                        res.end('Error in Retrieving property data');
 
+                    }
+                    else {
+                        console.log(JSON.stringify(result));
+                        res.writeHead(200, {
+                            'Content-type': 'application/json'
+                        });
+                        res.end(JSON.stringify(result));
+                    }
+                });
+            }
+        });
+    }
 });
 
 //Get Property Details
@@ -419,40 +430,43 @@ app.post('/property-details', function (req, res) {
     console.log('Inside Property Details Method POST!');
     console.log('Request Body: ', req.body);
 
-    pool.getConnection(function (err, conn) {
-        if (err) {
+    if (req.session.user) {
 
-            console.log('Error in creating connection!');
-            res.writeHead(400, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Error in creating connection!');
+        pool.getConnection(function (err, conn) {
+            if (err) {
 
-        }
-        else {
+                console.log('Error in creating connection!');
+                res.writeHead(400, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Error in creating connection!');
 
-            var sql = 'SELECT * from propertydetails WHERE PropertyId = ' + req.body.PropertyId;
-            conn.query(sql, function (err, result) {
-                if (err) {
-                    console.log('Error in Retrieving property');
-                    res.writeHead(400, {
-                        'Content-type': 'text/plain'
-                    });
-                    res.end('Error in Retrieving property');
+            }
+            else {
 
-                }
-                else {
-                    res.writeHead(200, {
-                        'Content-type': 'application/json'
-                    });
-                    console.log(JSON.stringify(result[0]));
-                    res.end(JSON.stringify(result[0]));
-                    conn.release();
-                }
-            });
-        }
-        
-    });
+                var sql = 'SELECT * from propertydetails WHERE PropertyId = ' + req.body.PropertyId;
+                conn.query(sql, function (err, result) {
+                    if (err) {
+                        console.log('Error in Retrieving property');
+                        res.writeHead(400, {
+                            'Content-type': 'text/plain'
+                        });
+                        res.end('Error in Retrieving property');
+
+                    }
+                    else {
+                        res.writeHead(200, {
+                            'Content-type': 'application/json'
+                        });
+                        console.log(JSON.stringify(result[0]));
+                        res.end(JSON.stringify(result[0]));
+                        conn.release();
+                    }
+                });
+            }
+
+        });
+    }
 
 });
 
@@ -537,37 +551,40 @@ app.get('/trip-details', function (req, res) {
     console.log('Inside Trip Details GET!');
     const userSession = req.session.user;
 
-    pool.getConnection(function (err, conn) {
+    if (req.session.user) {
 
-        if (err) {
-            console.log('Error in creating connection!');
-            res.writeHead(400, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Error in creating connection!');
+        pool.getConnection(function (err, conn) {
 
-        }
-        else {
-            var sql = 'SELECT * from bookingdetails where TravelerId = ' + mysql.escape(userSession.ProfileId);
-            conn.query(sql, function (err, result) {
-                if (err) {
-                    res.writeHead(400, {
-                        'Content-type': 'text/plain'
-                    });
-                    console.log('Error in Getting Trip Details');
-                    res.end('Error in Getting Trip Details');
-                }
-                else {
+            if (err) {
+                console.log('Error in creating connection!');
+                res.writeHead(400, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Error in creating connection!');
 
-                    res.writeHead(200, {
-                        'Content-type': 'application/json'
-                    });
-                    console.log(JSON.stringify(result));
-                    res.end(JSON.stringify(result));
-                }
-            });
-        }
-    });
+            }
+            else {
+                var sql = 'SELECT * from bookingdetails where TravelerId = ' + mysql.escape(userSession.ProfileId);
+                conn.query(sql, function (err, result) {
+                    if (err) {
+                        res.writeHead(400, {
+                            'Content-type': 'text/plain'
+                        });
+                        console.log('Error in Getting Trip Details');
+                        res.end('Error in Getting Trip Details');
+                    }
+                    else {
+
+                        res.writeHead(200, {
+                            'Content-type': 'application/json'
+                        });
+                        console.log(JSON.stringify(result));
+                        res.end(JSON.stringify(result));
+                    }
+                });
+            }
+        });
+    }
 
 
 });
