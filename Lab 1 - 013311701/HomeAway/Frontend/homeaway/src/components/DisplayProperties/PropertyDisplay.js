@@ -20,7 +20,8 @@ class PropertyDisplay extends Component {
             bookingStartDate: "",
             bokingEndDate: "",
             guests: 2,
-            totalCost: 0
+            totalCost: 0,
+            errorRedirect: false
         }
 
         //Bind
@@ -61,10 +62,22 @@ class PropertyDisplay extends Component {
 
                                 console.log('PhotoArr: ', photoArr);
                                 console.log('Photo State: ', this.state.photos);
+                            }).catch((err) =>{
+                                if(err){
+                                    this.setState({
+                                        errorRedirect: true
+                                    })
+                                }
                             });
                     }
 
 
+                }
+            }).catch((err) =>{
+                if(err){
+                    this.setState({
+                        errorRedirect: true
+                    })
                 }
             });
     }
@@ -84,6 +97,12 @@ class PropertyDisplay extends Component {
             .then(response => {
                 if (response.status === 200) {
                     console.log('Booking Successful!');
+                }
+            }).catch((err) =>{
+                if(err){
+                    this.setState({
+                        errorRedirect: true
+                    })
                 }
             });
 
@@ -127,6 +146,9 @@ class PropertyDisplay extends Component {
         let redrirectVar = null;
         if (!cookie.load('cookie')) {
             redrirectVar = <Redirect to="/login" />
+        }
+        if (this.state.errorRedirect === true) {
+            redrirectVar = <Redirect to="/error" />
         }
 
         var totalCost = 0;

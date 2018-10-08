@@ -41,29 +41,18 @@ class AddProperty extends Component {
             detailsError: false,
             photosError: false,
             pricingError: false,
-            propertyInsertComplete: false
+            propertyInsertComplete: false,
+            errorRedirect: false
         }
 
 
 
         //bind
-
-        //this.handleLocationClick = this.handleLocationClick.bind(this);
-        //this.handleDetailsClick = this.handleDetailsClick.bind(this);
         this.handleAvailabilityStartDateChange = this.handleAvailabilityStartDateChange.bind(this);
         this.handleAvailabilityEndDateChange = this.handleAvailabilityEndDateChange.bind(this);
-
         this.handleInputChange = this.handleInputChange.bind(this);
         this.submitPropertyDetails = this.submitPropertyDetails.bind(this);
-        //this.uploadFile = this.uploadFile.bind(this);
-
-        //init
-
-
     }
-
-
-
 
     handleLocationClick = () => {
 
@@ -193,6 +182,13 @@ class AddProperty extends Component {
                                         photos: photoArr
                                     });
 
+                                })
+                                .catch((err) =>{
+                                    if(err){
+                                        this.setState({
+                                            errorRedirect: true
+                                        })
+                                    }
                                 });
                         }
 
@@ -200,6 +196,12 @@ class AddProperty extends Component {
                         console.log('Photos: ', this.state.photos);
                     }
 
+                }).catch((err) =>{
+                    if(err){
+                        this.setState({
+                            errorRedirect: true
+                        })
+                    }
                 });
         }
         else {
@@ -270,6 +272,12 @@ class AddProperty extends Component {
                             pricingError: false
                         })
                     }
+                }).catch((err) =>{
+                    if(err){
+                        this.setState({
+                            errorRedirect: true
+                        })
+                    }
                 });
 
         }
@@ -283,6 +291,10 @@ class AddProperty extends Component {
         let redrirectVar = null;
         if (!cookie.load('cookie')) {
             redrirectVar = <Redirect to="/login" />
+        }
+
+        if (this.state.errorRedirect === true) {
+            redrirectVar = <Redirect to="/error" />
         }
 
         if(this.state.propertyInsertComplete){

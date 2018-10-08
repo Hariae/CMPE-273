@@ -48,7 +48,8 @@ class DisplayProperties extends Component {
             },
             displayProperty: false,
             propertyId: "",
-            Photos: []
+            Photos: [],
+            errorRedirect: false
         }
 
         
@@ -89,7 +90,19 @@ class DisplayProperties extends Component {
                             this.setState({
                                 Properties: propertyArr
                             });
+                        }).catch((err) =>{
+                            if(err){
+                                this.setState({
+                                    errorRedirect: true
+                                })
+                            }
                         });
+                }
+            }).catch((err) =>{
+                if(err){
+                    this.setState({
+                        errorRedirect: true
+                    })
                 }
             });
     }
@@ -114,7 +127,9 @@ class DisplayProperties extends Component {
             redrirectVar = <Redirect to="/login" />
         }
 
-
+        if (this.state.errorRedirect === true) {
+            redrirectVar = <Redirect to="/error" />
+        }
 
 
 

@@ -447,10 +447,11 @@ app.post('/property-details', function (req, res) {
                     });
                     console.log(JSON.stringify(result[0]));
                     res.end(JSON.stringify(result[0]));
+                    conn.release();
                 }
             });
         }
-        conn.release();
+        
     });
 
 });
