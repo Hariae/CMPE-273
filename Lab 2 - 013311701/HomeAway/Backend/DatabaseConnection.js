@@ -1,30 +1,3 @@
-// const MongoClient = require('mongodb').MongoClient;
-
-// MongoClient.connect('mongodb://localhost:27017/sample', (err, client) => {
-
-//     if(err){
-//         console.log('Error in connecting to Mongo DB', err);
-//     }
-//     else{
-//         console.log('Connection Successful');
-//         const db = client.db('sample');
-//         db.collection('sampleCollection').insertOne({
-//             UserId : '1',
-//             Name : 'admin',
-//             Password : 'password'
-//         }, (err, result)=>{
-//             if(err){
-//                 console.log('Error Occured!');
-//             }
-//             else{
-//                 console.log(JSON.stringify(result.ops, undefined, 2));
-//             }
-//         });
-//         client.close();
-//     }
-    
-// });
-
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/HomeAway');
@@ -78,7 +51,51 @@ var Userdetails = mongoose.model('Userdetails', {
     },
     'Accounttype' : {
         type : Number
-    }
+    },
+    'PropertyDetails' : {
+        type: Array
+    },
+    'Tripdetails' : Array,
+    'ProfileId' : Number
 });
 
-module.exports = Userdetails;
+
+var PropertyDetails = mongoose.model('PropertyDetails', {    
+    'PropertyId' : String,
+    'Headline' : String,
+    'Description' : String,
+    'Country' : String,
+    'StreetAddress' :String,
+    'City' : String,
+    'State' : String,
+    'ZipCode' : String,
+    'PropertyType' :String,
+    'Bedrooms' : Number,
+    'Accomodates' :Number,
+    'Bathrooms': Number,
+    'Photos' : String,
+    'Currency' : String,
+    'Baserate' : String,
+    'AvailabilityStartDate': Date,
+    'AvailabilityEndDate': Date,
+    'MinStay' : Number,
+    'Ownername' : String
+
+});
+
+var BookingDetails = mongoose.model('BookingDetails', {
+    'PropertyId' : String,
+    'Bookingstartdate' : Date,
+    'Bookingenddate' : Date,
+    'Guests': Number,
+    'TotalCost' : String,
+    'Ownername' : String,
+    'Travelername' : String,
+    'TravelerId' : Number
+});
+
+module.exports = {
+    Userdetails,
+    PropertyDetails,
+    BookingDetails
+};

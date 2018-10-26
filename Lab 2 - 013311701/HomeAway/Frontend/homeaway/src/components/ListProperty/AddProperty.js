@@ -7,11 +7,12 @@ import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import Header from '../Header/Header';
 
-
+import { photoHandler } from '../../actions/listPropertyActions';
+import { connect } from 'react-redux';
 class AddProperty extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.state = {
             locationActive: true,
@@ -53,6 +54,17 @@ class AddProperty extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);
         this.submitPropertyDetails = this.submitPropertyDetails.bind(this);
     }
+
+    componentWillReceiveProps(nextProps) {
+        // You don't have to do this check first, but it can help prevent an unneeded render
+        console.log('Next props', nextProps);
+        if(nextProps.listPropertyStore.result){
+            if (nextProps.listPropertyStore.result.photos !== this.state.photos) {
+          this.setState({ photos: nextProps.listPropertyStore.result.photos });
+        }
+        }
+        
+      }
 
     handleLocationClick = () => {
 
@@ -146,63 +158,17 @@ class AddProperty extends Component {
     }
 
     handleInputChange(event) {
+        event.preventDefault();
         const target = event.target;
         const name = target.name;
         const value = target.value;
 
         if (name === "photos") {
             console.log('Files : ', target.files);
-
             var photos = target.files;
             console.log('photos:', photos);
-            let data = new FormData();
-            for (var i = 0; i < photos.length; i++) {
-                data.append('photos', photos[i]);
-            }
-
-            axios.defaults.withCredentials = true;
-            axios.post('http://localhost:3001/upload-file', data)
-                .then(response => {
-                    var imagePreviewArr = [];
-                    var photoArr = "";
-
-                    if (response.status === 200) {
-                        for (var i = 0; i < photos.length; i++) {
-                            photoArr = photoArr.length == 0 ? photos[i].name : photoArr + ',' + photos[i].name;
-                            axios.defaults.withCredentials = true;
-                            axios.post('http://localhost:3001/download-file/' + photos[i].name)
-                                .then(response => {
-                                    //console.log("Imgae Res : ", response);
-                                    let imagePreview = 'data:image/jpg;base64, ' + response.data;
-                                    imagePreviewArr.push(imagePreview);
-
-
-                                    this.setState({
-                                        photoThumbnail: imagePreviewArr,
-                                        photos: photoArr
-                                    });
-
-                                })
-                                .catch((err) =>{
-                                    if(err){
-                                        this.setState({
-                                            errorRedirect: true
-                                        })
-                                    }
-                                });
-                        }
-
-
-                        console.log('Photos: ', this.state.photos);
-                    }
-
-                }).catch((err) =>{
-                    if(err){
-                        this.setState({
-                            errorRedirect: true
-                        })
-                    }
-                });
+            //call action
+            this.props.photoHandler(photos)                                   
         }
         else {
             this.setState({
@@ -340,12 +306,20 @@ class AddProperty extends Component {
                 </div>
             </div>
         }
+        var photoThumbnails = null;
+        if(this.props.listPropertyStore.result){
+            
+            //let photoThumbnails = this.state.photoThumbnail.map(function (thumbnail, index) {
+            photoThumbnails = this.props.listPropertyStore.result.photoThumbnail.map(function (thumbnail, index) {    
+            
+                return (
+                    <img src={thumbnail} className="img-thumbnail" alt="thumbnail" width="304" height="236" key={index}></img>
+                )
+            });
+        }
+        
 
-        let photoThumbnails = this.state.photoThumbnail.map(function (thumbnail, index) {
-            return (
-                <img src={thumbnail} className="img-thumbnail" alt="thumbnail" width="304" height="236" key={index}></img>
-            )
-        })
+
         console.log('PhotoThumbnail inside return: ', this.state.photoThumbnail);
 
 
@@ -526,4 +500,9 @@ class AddProperty extends Component {
     }
 }
 
-export default AddProperty;
+const mapStateToProps = state => ({
+    listPropertyStore : state.listProperty
+});
+
+export default connect(mapStateToProps, {photoHandler})(AddProperty);
+

@@ -67,7 +67,7 @@ class OwnerSignup extends Component {
             LastName: values.lastname,
             Email: values.email,
             Password: values.password,
-            Accounttype: 1
+            Accounttype: 2
         }
 
        // e.preventDefault();

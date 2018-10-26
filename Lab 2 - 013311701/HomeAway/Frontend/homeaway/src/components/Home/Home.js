@@ -7,10 +7,57 @@ import {Redirect} from 'react-router';
 import Header from '../Header/Header';
 import DisplayProperties from '../DisplayProperties/DisplayProperties';
 
+import { connect } from 'react-redux';
+import { saveSearchDetailsToStore } from '../../actions/homeAction';
+
 class Home extends Component {
 
     constructor(props) {
-        super(props);                     
+        super(props);     
+        
+        this.state = {
+            searchStartDate : moment(),
+            searchEndDate : moment()
+        }
+        //bind         
+        this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleStartDateChange = this.handleStartDateChange.bind(this);
+        this.handleEndDateChange = this.handleEndDateChange.bind(this);
+        this.handleSearchClick = this.handleSearchClick.bind(this);
+    }
+
+    handleInputChange = (event) => { 
+        var target = event.target;
+        var name = target.name;
+        var value = target.value;
+
+        this.setState({
+            [name] : value
+        });
+    }
+
+    handleStartDateChange = (date) =>{
+        this.setState({
+            searchStartDate : date
+        })
+
+    }
+
+    handleEndDateChange = (date) => {
+        this.setState({
+            searchEndDate : date
+        })
+        
+    }
+
+    handleSearchClick = () => {
+        var data = {
+            searchText : this.state.searchText,
+            startDate : this.state.searchStartDate,
+            endDate : this.state.searchEndDate,
+            guests: this.state.guests
+        }
+        this.props.saveSearchDetailsToStore(data);
     }
 
     
@@ -24,6 +71,18 @@ class Home extends Component {
         
         if(this.props.isSearch){
             redrirectVar = <Redirect to="/display-properties" />
+        }
+
+        if(this.props.isSearch){
+            redrirectVar = <Redirect to="/display-properties" />
+        }
+        console.log('homestore', this.props.homeStateStore);
+        if(this.props.homeStateStore.result){
+            console.log('Search flag ', this.props.homeStateStore.result.isSearch);
+            if(this.props.homeStateStore.result.isSearch === true){
+                redrirectVar = <Redirect to="/display-properties" />
+            }
+            
         }
         
         return (
@@ -39,29 +98,26 @@ class Home extends Component {
                                 <h1>
                                     <div className="headline-text">Book beach houses, cabins,</div>
                                     <div className="headline-text">condos and more, worldwide</div>
-                                </h1>
-                                <div className="form-group row search-tab">
-
+                                </h1>                              
+                                <div className="form-group row search-tab">                                    
                                     <span className="col-lg-4 col-md-12 col-sm-12 col-xs-12 pad-bot-10">
-                                        <input type="textbox" className="form-control form-control-lg" name="searchText" placeholder="Search" onChange={this.props.handleInputChange}></input>                                        
+                                        <input type="textbox" className="form-control form-control-lg" name="searchText" placeholder="Search" onChange={this.handleInputChange}></input>                                        
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                                        <DatePicker className="form-control form-control-lg"  dateFormat="MM/DD/YY" selected={this.props.startDate} onChange={this.props.handleStartDateChange}/>                                                                                
+                                        <DatePicker className="form-control form-control-lg"  dateFormat="MM/DD/YY" selected={this.state.searchStartDate} onChange={this.handleStartDateChange}/>                                                                                
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                                        <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.props.endDate} onChange={this.props.handleEndDateChange}/>                                        
+                                        <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.state.searchEndDate} onChange={this.handleEndDateChange}/>                                        
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                                        <input type="textbox" className="form-control form-control-lg" name="guests" placeholder="2 guests" onChange={this.props.handleInputChange}></input>
+                                        <input type="textbox" className="form-control form-control-lg" name="guests" placeholder="2 guests" onChange={this.handleInputChange}></input>
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
-                                        <button className="btn btn-primary btn-lg" style={{ width: "100%" }} onClick={this.props.searchClick}>Search</button>
-                                    </span>
+                                        <button className="btn btn-primary btn-lg" style={{ width: "100%" }} onClick={this.handleSearchClick}>Search</button>
+                                    </span>                                   
                                 </div>
                             </div>                            
                             
-
-
                             <div className="home-page-list-content hidden-xs">
                                 <ul className="home-page-list">
                                     <li className="value-props-item">
@@ -156,5 +212,10 @@ class Home extends Component {
     }
 }
 
+//
+const mapStateToProps = state => ({
+    homeStateStore : state.home
+})
 
-export default Home;
+//export default Profile;
+export default connect(mapStateToProps, { saveSearchDetailsToStore })(Home);

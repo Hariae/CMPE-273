@@ -6,11 +6,12 @@ import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import Header from '../Header/Header';
 import axios from 'axios';
+import {connect} from 'react-redux';
 
 class PropertyDisplay extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.state = {
             arrivalDate: moment(),
@@ -21,7 +22,8 @@ class PropertyDisplay extends Component {
             bokingEndDate: "",
             guests: 2,
             totalCost: 0,
-            errorRedirect: false
+            errorRedirect: false,
+            redirectToHome: false
         }
 
         //Bind
@@ -43,7 +45,7 @@ class PropertyDisplay extends Component {
                 if (response.status === 200) {
                     console.log('Result: ', response.data);
                     this.setState({
-                        propertyDetails: response.data
+                        propertyDetails: response.data[0]
                     });
 
                     var imageArr = [];
@@ -66,7 +68,8 @@ class PropertyDisplay extends Component {
                                 if(err){
                                     this.setState({
                                         errorRedirect: true
-                                    })
+                                    });
+                                    console.log(err);
                                 }
                             });
                     }
@@ -77,7 +80,8 @@ class PropertyDisplay extends Component {
                 if(err){
                     this.setState({
                         errorRedirect: true
-                    })
+                    });
+                    console.log(err);
                 }
             });
     }
@@ -85,24 +89,32 @@ class PropertyDisplay extends Component {
     submitBooking = (e) => {
 
         axios.defaults.withCredentials = true;
+        
+
         var data = {
             PropertyId: this.props.match.params.id,
-            Bookingstartdate: this.state.bookingStartDate,
-            Bookingenddate: this.state.bookingEndDate,
-            Guests: this.state.guests,
-            Totalcost: e.target.value
+            Bookingstartdate: this.props.homeStateStore.result.startDate,
+            Bookingenddate: this.props.homeStateStore.result.endDate,
+            Guests: this.props.homeStateStore.result.guests,
+            TotalCost: e.target.value,
+            Ownername: this.state.propertyDetails.Ownername,
+            PropertyDetails : this.state.propertyDetails
         }
+
 
         axios.post('http://localhost:3001/submit-booking', data)
             .then(response => {
                 if (response.status === 200) {
                     console.log('Booking Successful!');
+                    this.setState({
+                        redirectToHome : true
+                    });
                 }
             }).catch((err) =>{
                 if(err){
                     this.setState({
                         errorRedirect: true
-                    })
+                    });
                 }
             });
 
@@ -151,17 +163,21 @@ class PropertyDisplay extends Component {
             redrirectVar = <Redirect to="/error" />
         }
 
+        if(this.state.redirectToHome === true){
+            redrirectVar = <Redirect to="/home" />
+        }
+
         var totalCost = 0;
 
-        if (this.state.propertyDetails.Baserate) {
+        if (this.state.propertyDetails.Baserate && this.props.homeStateStore.result) {
 
 
-            const startDate = moment(this.state.arrivalDate);
-            const timeEnd = moment(this.state.departureDate);
+            const startDate = moment(this.props.homeStateStore.result.startDate);
+            const timeEnd = moment(this.props.homeStateStore.result.endDate);
             const diff = timeEnd.diff(startDate);
             const diffDuration = moment.duration(diff);
-            totalCost = (diffDuration._data.days + 1) * this.state.propertyDetails.Baserate.substring(1);
-
+            console.log('diffduration', diffDuration);
+            totalCost = (diffDuration._data.days + 1) * this.state.propertyDetails.Baserate.substring(1);            
         }
 
         let carousalBlock = this.state.photos.map(function (item, index) {
@@ -180,7 +196,25 @@ class PropertyDisplay extends Component {
             )
         });
 
+        //var startDate = this.state.propertyDetails.AvailabilityStartDate;
+        var startDate = "";
+        var endDate = "";
+        if(this.props.homeStateStore.result){
+            var date = new Date(this.props.homeStateStore.result.startDate);
+        var locale = "en-us";
+        var month = date.toLocaleString(locale, { month: "short" });
+        var day = date.getDate();
+        startDate = month + " - " + day;
+        console.log(startDate);
 
+        //End date
+        date = new Date(this.props.homeStateStore.result.endDate);
+        month = date.toLocaleString(locale, { month: "short" });
+        day = date.getDate();
+        endDate = month + " - " + day;
+        console.log(endDate);
+        }
+        
 
         return (
             <div>
@@ -234,11 +268,11 @@ class PropertyDisplay extends Component {
                                 <table className="table table-bordered">
                                     <tbody>
                                         <tr>
-                                            <td><div>Arrive</div><div className="blue-text">{this.state.bookingStartDate}</div></td>
-                                            <td><div>Depart</div><div className="blue-text">{this.state.bookingEndDate}</div></td>
+                                            <td><div>Arrive</div><div className="blue-text">{startDate}</div></td>
+                                            <td><div>Depart</div><div className="blue-text">{endDate}</div></td>
                                         </tr>
                                         <tr>
-                                            <td colSpan="2"><div>Guests</div><div className="blue-text">{this.state.guests} guests</div></td>
+                                            <td colSpan="2"><div>Guests</div><div className="blue-text">{this.props.homeStateStore.result ? this.props.homeStateStore.result.guests : "2"} guests</div></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -264,7 +298,7 @@ class PropertyDisplay extends Component {
                         <div className="property-display-details-content col-6">
                             <div className="details-content-headline-text"><h4><strong>{this.state.propertyDetails.Headline}</strong></h4></div>
                             <div>
-                                <p>{this.state.propertyDetails.Streetaddress}, {this.state.propertyDetails.City} {this.state.propertyDetails.State}</p>
+                                <p>{this.state.propertyDetails.StreetAddress}, {this.state.propertyDetails.City} {this.state.propertyDetails.State}</p>
                             </div>
                             <div className="details-table">
                                 <table className="table table-hover">
@@ -279,7 +313,7 @@ class PropertyDisplay extends Component {
                                         <tr>
                                             <th scope="row">1</th>
                                             <td>Property type</td>
-                                            <td>{this.state.propertyDetails.Propertytype}</td>
+                                            <td>{this.state.propertyDetails.PropertyType}</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">2</th>
@@ -299,7 +333,7 @@ class PropertyDisplay extends Component {
                                         <tr>
                                             <th scope="row">5</th>
                                             <td>Min Stay</td>
-                                            <td>{this.state.propertyDetails.Minstay} nights</td>
+                                            <td>{this.state.propertyDetails.MinStay} nights</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -318,4 +352,10 @@ class PropertyDisplay extends Component {
     }
 }
 
-export default PropertyDisplay;
+const mapStateToProps = state => ({
+    homeStateStore : state.home
+});
+
+//export default PropertyDisplay;
+
+export default connect(mapStateToProps)(PropertyDisplay);

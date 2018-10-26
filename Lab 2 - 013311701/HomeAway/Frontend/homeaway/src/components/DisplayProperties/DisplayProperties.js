@@ -8,6 +8,8 @@ import { Redirect } from 'react-router';
 import Header from '../Header/Header';
 import { Link } from 'react-router-dom';
 
+import { connect } from 'react-redux';
+
 class DisplayProperties extends Component {
 
     constructor(props) {
@@ -64,12 +66,12 @@ class DisplayProperties extends Component {
     componentDidMount() {
 
         var data = {
-            searchText : this.props.searchText,
-            startDate : this.props.startDate,
-            endDate : this.props.endDate
+            searchText : this.props.homeStateStore.result.searchText,
+            startDate : this.props.homeStateStore.result.startDate,
+            endDate : this.props.homeStateStore.result.endDate
         };
        
-
+        
         axios.defaults.withCredentials = true;
         axios.post('http://localhost:3001/search', data)
             .then(response => {
@@ -144,7 +146,7 @@ class DisplayProperties extends Component {
                             <div className="property-content-desc col-9 hidden-xs">
                                 <div>
                                     <h2><strong>{property.Headline}</strong></h2>
-                                    <div>{property.Streetaddress}, {property.City} {property.State}</div>
+                                    <div>{property.StreetAddress}, {property.City} {property.State}</div>
                                     <div>Property Type : {property.Propertytype}</div>
                                     <div>{property.Bedrooms} BR</div>
                                     <div>{property.Bathrooms} BA</div>
@@ -203,4 +205,11 @@ class DisplayProperties extends Component {
     }
 }
 
-export default DisplayProperties;
+//
+const mapStateToProps = state => ({
+    homeStateStore : state.home
+})
+
+//export default DisplayProperties;
+
+export default connect (mapStateToProps, {})(DisplayProperties);
