@@ -2,6 +2,14 @@ var connection = require('./kafka/Connection');
 
 var Login = require('./services/login');
 var Signup = require('./services/signup');
+var ProfileDetails = require('./services/profileDetails');
+var UpdateProfile = require('./services/updateProfile');
+var TripDetails = require('./services/tripDetails');
+var OwnerDashboard = require('./services/ownerDashboard');
+var AddProperty = require('./services/addProperty');
+var Search = require('./services/search');
+var PropertyDetails = require('./services/propertyDetails');
+var SubmitBooking = require('./services/submitBooking');
 
 function handleTopicRequest(topic_name, function_name){
 
@@ -36,3 +44,11 @@ function handleTopicRequest(topic_name, function_name){
 
 handleTopicRequest("login", Login);
 handleTopicRequest("signup", Signup);
+handleTopicRequest("profile-details", ProfileDetails);
+handleTopicRequest("update-profile", UpdateProfile);
+handleTopicRequest("trip-details", TripDetails);
+handleTopicRequest("owner-dashboard", OwnerDashboard);
+handleTopicRequest("add-property", AddProperty);
+handleTopicRequest("search", Search);
+handleTopicRequest("property-details", PropertyDetails);
+handleTopicRequest("submit-booking", SubmitBooking);

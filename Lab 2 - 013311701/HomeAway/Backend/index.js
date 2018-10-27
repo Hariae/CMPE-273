@@ -174,28 +174,7 @@ app.get('/profile-details', function (req, res) {
                 });
                 res.end(JSON.stringify(result));
             }
-        });
-        // Model.Userdetails.findOne({
-        //     'Email': req.session.user.Username
-        // }, (err, user) => {
-
-        //     if (err) {
-        //         console.log("Unable to fetch user details.", err);
-        //         res.writeHead(400, {
-        //             'Content-type': 'text/plain'
-        //         });
-        //         res.end('Error in fetching user details!');
-        //     }
-        //     else {
-
-        //         console.log('Profile Data: ', user);
-        //         res.writeHead(200, {
-        //             'Content-type': 'application/json'
-        //         });
-        //         res.end(JSON.stringify(user));
-
-        //     }
-        // });
+        });        
     }
 });
 
@@ -208,51 +187,23 @@ app.post('/update-profile', function (req, res) {
 
     if (req.session.user) {
 
-        Model.Userdetails.findOne({
-            'Email': req.session.user.Email
-        }, (err, user) => {
+        kafka.make_request("update-profile", req, function(err, result){
 
-            if (err) {
-                console.log("Unable to fetch user details.", err);
+            if(err){
+                console.log("Unable to save user details.", err);
                 res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in fetching user details!');
-            }
-            else {
-                console.log('Userdetails', user);
-
-                user.FirstName = req.body.FirstName;
-                user.LastName = req.body.LastName;
-                user.Email = req.body.Email;
-                user.Aboutme = req.body.Aboutme;
-                user.Country = req.body.Country;
-                user.City = req.body.City;
-                user.Gender = req.body.Gender;
-                user.Hometown = req.body.Hometown;
-                user.School = req.body.School;
-                user.Company = req.body.Company;
-                user.Language = req.body.Language;
-                user.PhoneNumber = req.body.PhoneNumber;
-                user.ProfileImage = req.body.ProfileImage;
-
-                user.save().then((doc) => {
-
-                    console.log("User details saved successfully.", doc);
-                    res.writeHead(200, {
                         'Content-type': 'text/plain'
-                    });
-                    res.end('Adding a user successful!');
-
-                }, (err) => {
-                    console.log("Unable to save user details.", err);
-                    res.writeHead(400, {
-                        'Content-type': 'text/plain'
-                    });
-                    res.end('Error in adding an user');
                 });
+                res.end('Error in adding an user');
             }
-        });
+            else{
+                console.log("User details saved successfully.", result);
+                res.writeHead(200, {
+                        'Content-type': 'text/plain'
+                });
+                res.end('Adding a user successful!');
+            }
+        });        
     }
 
 });
@@ -268,116 +219,22 @@ app.post('/add-property', function (req, res) {
 
     if (req.session.user) {
 
-        var propertyCount = 1;
-        Model.PropertyDetails.countDocuments({}, function (err, count) {
-            propertyCount += count;
-        });
-        console.log(propertyCount);
-        const propertyId = mongooseTypes.ObjectId();
-
-
-        Model.Userdetails.findOne({
-            Email: userSession.Email
-        }, function (err, user) {
-            if (err) {
-                console.log("Add-property. Unable to fetch user details.", err);
+        kafka.make_request("add-property", req, function(err, result){
+            if(err){
+                console.log("Error in adding property.", err);
                 res.writeHead(400, {
                     'Content-type': 'text/plain'
                 });
-                res.end('Add-property. Error in fetching user details!');
+                res.end('Error in adding property.');
             }
-            else {
-                console.log('User', user);
-                var propertyDetails = {
-                    //PropertyId: propertyId.toString(),
-                    Country: newProperty.LocationDetails.country,
-                    StreetAddress: newProperty.LocationDetails.streetAddress,
-                    UnitNumber: newProperty.LocationDetails.unitNumber,
-                    City: newProperty.LocationDetails.city,
-                    State: newProperty.LocationDetails.state,
-                    ZipCode: newProperty.LocationDetails.zipCode,
-                    Headline: newProperty.Details.headline,
-                    Description: newProperty.Details.description,
-                    PropertyType: newProperty.Details.propertyType,
-                    Bedrooms: newProperty.Details.bedrooms,
-                    Accomodates: newProperty.Details.accomodates,
-                    Bathrooms: newProperty.Details.bathrooms,
-                    Photos: newProperty.Photos.photos,
-                    AvailabilityStartDate: new Date(newProperty.PricingDetails.availabilityStartDate),
-                    AvailabilityEndDate: new Date(newProperty.PricingDetails.availabilityEndDate),
-                    Currency: newProperty.PricingDetails.currency + newProperty.PricingDetails.baserate,
-                    Baserate: newProperty.PricingDetails.currency + newProperty.PricingDetails.baserate,
-                    MinStay: newProperty.PricingDetails.minStay
-                };
-                user.PropertyDetails = user.PropertyDetails || [];
-                user.PropertyDetails.push(propertyDetails);
-
-                /**Save property to user details */
-                user.save().then((doc) => {
-
-                    console.log("Property details saved successfully.", doc);
-
-
-                }, (err) => {
-                    console.log("Unable to property details.", err);
-                    res.writeHead(400, {
-                        'Content-type': 'text/plain'
-                    });
-                    res.end('Error in adding a property');
+            else{                
+                console.log("Property details saved successfully.", result);
+                res.writeHead(200, {
+                    'Content-type': 'text/plain'
                 });
-
-                /**Save property to user details */
-
-
+                res.end('Adding a property successful!');
             }
         });
-
-        /**Creating property object to add to Property details collection */
-        var property = new Model.PropertyDetails({
-            PropertyId: propertyId,
-            Country: newProperty.LocationDetails.country,
-            StreetAddress: newProperty.LocationDetails.streetAddress,
-            UnitNumber: newProperty.LocationDetails.unitNumber,
-            City: newProperty.LocationDetails.city,
-            State: newProperty.LocationDetails.state,
-            ZipCode: newProperty.LocationDetails.zipCode,
-            Headline: newProperty.Details.headline,
-            Description: newProperty.Details.description,
-            PropertyType: newProperty.Details.propertyType,
-            Bedrooms: newProperty.Details.bedrooms,
-            Accomodates: newProperty.Details.accomodates,
-            Bathrooms: newProperty.Details.bathrooms,
-            Photos: newProperty.Photos.photos,
-            AvailabilityStartDate: new Date(newProperty.PricingDetails.availabilityStartDate),
-            AvailabilityEndDate: new Date(newProperty.PricingDetails.availabilityEndDate),
-            Currency: newProperty.PricingDetails.currency + newProperty.PricingDetails.baserate,
-            Baserate: newProperty.PricingDetails.currency + newProperty.PricingDetails.baserate,
-            MinStay: newProperty.PricingDetails.minStay,
-            Ownername: userSession.FirstName + " " + userSession.LastName,
-        });
-
-        //console.log('PropertyCount', propertyCount);
-        //property.PropertyId = propertyCount;
-
-
-        property.save().then((doc) => {
-
-            console.log("Property details saved successfully.", doc);
-            res.writeHead(200, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Adding a property successful!');
-
-        }, (err) => {
-            console.log("Unable to property details.", err);
-            res.writeHead(400, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Error in adding a property');
-        });
-
-        /**Creating property object to add to Property details collection */
-
     }
 });
 
@@ -387,81 +244,22 @@ app.post('/search', function (req, res) {
     console.log('Inside Search Method GET!');
     console.log('Request Body: ', req.body);
 
-    const searchProperties = req.body;
-
-    //Property search based on availability
-    var properties = [];
-    Model.PropertyDetails.find({
-        City: searchProperties.searchText,
-        AvailabilityStartDate: {
-
-            $lte: new Date(searchProperties.startDate)
-        },
-        AvailabilityEndDate: {
-            $gte: new Date(searchProperties.endDate),
-
-        }
-    }, async (err, result) => {
-        if (err) {
-            console.log('Error in Retrieving property data');
+    kafka.make_request("search", req, function(err, result){
+        if(err){
+            console.log('Error in Property search');
             res.writeHead(400, {
                 'Content-type': 'text/plain'
             });
-            res.end('Error in Retrieving property data');
+            res.end('Error in Property search');
         }
-        else {
-            console.log('property list seacrh based on availability dates', JSON.stringify(result));
-
-            properties = result;
-            var propertyResult = [];
-            for (let i = 0; i < properties.length; i++) {
-                console.log('Insideproperties array: ', properties[i].PropertyId);
-
-
-                await Model.BookingDetails.find({
-                    PropertyId: properties[i].PropertyId
-                }, (err, result) => {
-                    if (err) {
-                        console.log('Error in Retrieving property data');
-                        res.writeHead(400, {
-                            'Content-type': 'text/plain'
-                        });
-                        res.end('Error in Retrieving property data');
-                    }
-                    else {
-
-                        if (result.length > 0) {
-
-                            var bookingstartdate = new Date(result[0].Bookingstartdate);
-                            var bookingenddate = new Date(result[0].Bookingenddate);
-                            console.log(bookingstartdate + " " + bookingenddate);
-                            console.log(new Date(searchProperties.startDate) + " " + new Date(searchProperties.endDate));
-                            console.log('Check startDate: ', new Date(searchProperties.startDate) >= bookingstartdate && new Date(searchProperties.startDate) <= bookingenddate);
-                            console.log('Check endDate: ', new Date(searchProperties.endDate) >= bookingstartdate && new Date(searchProperties.endDate) <= bookingenddate);
-                            if ((new Date(searchProperties.startDate) >= bookingstartdate && new Date(searchProperties.startDate) <= bookingenddate) || (new Date(searchProperties.endDate) >= bookingstartdate && new Date(searchProperties.endDate) <= bookingenddate)) {
-                                properties.splice(i, 1);
-                            }
-                        }
-                    }
-                });
-            }
-
-
+        else{
+            
             res.writeHead(200, {
                 'Content-type': 'application/json'
             });
-            console.log(JSON.stringify(properties));
-            res.end(JSON.stringify(properties));
+            console.log(JSON.stringify(result));
+            res.end(JSON.stringify(result));
         }
-
-        //console.log('property list seacrh based on availability dates', properties);
-
-
-
-
-
-
-
     });
 });
 
@@ -474,103 +272,49 @@ app.post('/property-details', function (req, res) {
 
     if (req.session.user) {
 
-        var properties = Model.PropertyDetails.find({
-            PropertyId: req.body.PropertyId
-        }, (err, result) => {
-            if (err) {
-                console.log('Error in Retrieving property data');
+        kafka.make_request("property-details", req, function(err, result){
+            if(err){
+                console.log('Error in Retrieving property Details', err);
                 res.writeHead(400, {
                     'Content-type': 'text/plain'
                 });
-                res.end('Error in Retrieving property data');
+                res.end('Error in Retrieving property Details');
             }
-            else {
+            else{
                 console.log(JSON.stringify(result));
                 res.writeHead(200, {
                     'Content-type': 'application/json'
                 });
                 res.end(JSON.stringify(result));
             }
-            console.log('result', result);
-        });
+        });        
     }
 
 });
 
 //submit Booking
 
-app.post('/submit-booking', async function (req, res) {
+app.post('/submit-booking', function (req, res) {
 
     console.log('Inside Submit Booking POST!');
     console.log('Request Body: ', req.body);
 
     if (req.session.user) {
-        const userSession = req.session.user;
 
-        var booking = new Model.BookingDetails({
-            'PropertyId': req.body.PropertyId,
-            'Bookingstartdate': req.body.Bookingstartdate,
-            'Bookingenddate': req.body.Bookingenddate,
-            'Guests': req.body.Guests,
-            'TotalCost': req.body.TotalCost,
-            'Ownername': req.body.Ownername,
-            'Travelername': userSession.FirstName + " " + userSession.LastName,
-            'TravelerId': userSession.ProfileId,
-        });
-
-        await booking.save().then((doc) => {
-            console.log("Booking details saved successfully.", doc);
-            // res.writeHead(200, {
-            //     'Content-type': 'text/plain'
-            // });
-            // res.end('Booking added successfully! ');
-        },
-            (err) => {
+        kafka.make_request("submit-booking", req, function(err, result){
+            if(err){
                 console.log("Unable to save booking details.", err);
                 res.writeHead(400, {
                     'Content-type': 'text/plain'
                 });
                 res.end('Error in adding a booking');
-            });
-
-        Model.Userdetails.findOne({
-            Email: req.session.user.Email
-        }, function (err, user) {
-            if (err) {
-                console.log("Unable to get user details.", err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in getting user');
             }
-            else {
-
-                var propertyDetails = req.body.PropertyDetails;
-                propertyDetails.PropertyId = req.body.PropertyId;
-                propertyDetails.Bookingstartdate = req.body.Bookingstartdate;
-                propertyDetails.Bookingenddate = req.body.Bookingenddate;
-                propertyDetails.Guests = req.body.Guests;
-                propertyDetails.TotalCost = req.body.TotalCost;
-                propertyDetails.Ownername = req.body.Ownername;
-                propertyDetails.Travelername = userSession.FirstName + " " + userSession.LastName;
-                propertyDetails.TravelerId = userSession.ProfileId;
-
-                user.Tripdetails = user.Tripdetails || [];
-                user.Tripdetails.push(propertyDetails);
-                user.save().then((doc) => {
-                    console.log('Booking details saved to user details', doc);
-                    res.writeHead(200, {
+            else{
+                console.log('Booking details saved to user details', result);
+                res.writeHead(200, {
                         'Content-type': 'text/plain'
-                    });
-                    res.end('Booking added successfully! ');
-                }, (err) => {
-                    console.log("Unable to save booking details.", err);
-                    res.writeHead(400, {
-                        'Content-type': 'text/plain'
-                    });
-                    res.end('Error in adding a booking');
                 });
-
+                res.end('Booking added successfully! ');
             }
         });
 
@@ -608,27 +352,23 @@ app.get('/trip-details', function (req, res) {
     const userSession = req.session.user;
 
     if (req.session.user) {
-       
-        Model.Userdetails.findOne({
-            Email: req.session.user.Email
-        }, (err, user) => {
-            if (err) {
-                console.log("Unable to get user details.", err);
+
+        kafka.make_request("trip-details", req, function(err, result){
+            if(err){
+                console.log("Error in trip details.", err);
                 res.writeHead(400, {
                     'Content-type': 'text/plain'
                 });
-                res.end('Error in getting user');
+                res.end('Error in trip details');
             }
-            else {
-                console.log('Trip details', JSON.stringify(user.Tripdetails));
+            else{
+                console.log('Trip details', JSON.stringify(result));
                 res.writeHead(200, {
                     'Content-type': 'application/json'
                 });
-                res.end(JSON.stringify(user.Tripdetails));
-
+                res.end(JSON.stringify(result));
             }
-        });
-
+        });               
     }
 
 
@@ -641,24 +381,24 @@ app.get('/owner-dashboard-details', function (req, res) {
     console.log('Inside Owner Dashboard Details GET!');
 
     if (req.session.user) {
-        Model.Userdetails.findOne({
-            Email: req.session.user.Email
-        }, (err, user) => {
-            if (err) {
-                console.log("Unable to get user details.", err);
+        
+        kafka.make_request("owner-dashboard", req, function(err, result){
+            if(err){
+                console.log("Error in Owner dashboard", err);
                 res.writeHead(400, {
                     'Content-type': 'text/plain'
                 });
-                res.end('Error in getting user');
+                res.end('Error in Owner dashboard');
             }
-            else {
-                console.log('Property details of owner', JSON.stringify(user.PropertyDetails));
+            else{
+                console.log('Property details of owner', JSON.stringify(result));
                 res.writeHead(200, {
                     'Content-type': 'application/json'
                 });
-                res.end(JSON.stringify(user.PropertyDetails));
+                res.end(JSON.stringify(result));
             }
         });
+                
     }
 
 

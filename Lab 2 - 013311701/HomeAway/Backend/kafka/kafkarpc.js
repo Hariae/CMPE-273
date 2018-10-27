@@ -1,5 +1,6 @@
 var crypto = require('crypto');
 var conn = require('./Connection');
+const JSON = require('circular-json');
 
 var TIMEOUT=8000; //time to wait for response in ms
 var self;
