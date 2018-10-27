@@ -19,6 +19,7 @@
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "fs": "0.0.1-security",
+    "kafka-node": "^3.0.1",
     "mocha": "^5.2.0",
     "mongodb": "^3.1.8",
     "mongoose": "^5.3.3",

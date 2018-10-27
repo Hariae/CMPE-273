@@ -25,41 +25,10 @@ class OwnerDashboard extends Component {
                 if (response.status === 200) {
                     console.log("Response : ", response.data);
                     this.setState({
-                        trips: response.data
+                        tripDetails: response.data
                     });
 
-                    var tripDetails = [];
-                    for (let i = 0; i < this.state.trips.length; i++) {
-                        var data = {
-                            PropertyId: this.state.trips[i].PropertyId
-                        }
-
-                        axios.post('http://localhost:3001/property-details', data)
-                            .then(response => {
-
-                                if (response.status === 200) {
-                                    var tripDetail = response.data;
-                                    tripDetail["Bookingstartdate"] = this.state.trips[i].Bookingstartdate;
-                                    tripDetail["Bookingenddate"] = this.state.trips[i].Bookingenddate;
-                                    tripDetail["Guests"] = this.state.trips[i].Guests;
-                                    tripDetail["Totalcost"] = this.state.trips[i].Totalcost;
-                                    tripDetail["Travelername"] = this.state.trips[i].Travelername;
-                                    tripDetails.push(tripDetail);
-                                    this.setState({
-                                        tripDetails: tripDetails
-                                    });
-                                    console.log("Trip Details: ", this.state.tripDetails);
-                                }
-
-                            }).catch((err) =>{
-                                if(err){
-                                    this.setState({
-                                        errorRedirect: true
-                                    })
-                                }
-                            });
-                    }
-
+                    
                 }
             }).catch((err) =>{
                 if(err){
@@ -83,23 +52,38 @@ class OwnerDashboard extends Component {
 
         let tripDetails = this.state.tripDetails.map(function (trip, index) {
 
+            var startDate = "";
+            var endDate = "";
+            
+            var date = new Date(trip.AvailabilityStartDate);
+            var locale = "en-us";
+            var month = date.toLocaleString(locale, { month: "short" });
+            var day = date.getDate();
+            startDate = month + " - " + day;
+            console.log(startDate);
+            
+            //End date
+            date = new Date(trip.AvailabilityEndDate);
+            month = date.toLocaleString(locale, { month: "short" });
+            day = date.getDate();
+            endDate = month + " - " + day;
+            console.log(endDate);
+
             return (
                 <div className="container trip-details-container" key={index}>
                     <div className="trip-details-content border">
                         <div className="trip-main-details blue-text">
                             <h2><strong>{trip.Headline}</strong></h2>
-                            <div>Property Type : {trip.Propertytype}</div>
+                            <div>Property Type : {trip.PropertyType}</div>
                             <div>{trip.Bedrooms} BR</div>
                             <div>{trip.Bathrooms} BA</div>
                             <div>Sleeps {trip.Accomodates}</div>
-                            <div>Arrive: {trip.Bookingstartdate}</div>
-                            <div>Depart: {trip.Bookingenddate}</div>
-                            <div>Guests: {trip.Guests} guests</div>
-                            <div>Traveler Name: {trip.Travelername}</div>
+                            <div>Availability State Date: {startDate}</div>
+                            <div>Availability End Date: {endDate}</div>                            
                         </div>
                         
                         <div className="pricing-content">
-                            <h3><strong>Total Cost: ${trip.Totalcost}</strong></h3>
+                            <h3><strong>Price : {trip.Baserate} / night</strong></h3>
                         </div>
                     </div>
                 </div>

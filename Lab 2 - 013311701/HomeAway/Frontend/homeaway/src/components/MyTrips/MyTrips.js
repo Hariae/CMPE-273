@@ -27,37 +27,7 @@ class MyTrips extends Component {
                         tripDetails: response.data
                     });
 
-                    // var tripDetails = [];
-                    // for (let i = 0; i < this.state.trips.length; i++) {
-                    //     var data = {
-                    //         PropertyId: this.state.trips[i].PropertyId
-                    //     }
-
-                    //     axios.post('http://localhost:3001/property-details', data)
-                    //         .then(response => {
-
-                    //             if (response.status === 200) {
-                    //                 var tripDetail = response.data;
-                    //                 tripDetail["Bookingstartdate"] = this.state.trips[i].Bookingstartdate;
-                    //                 tripDetail["Bookingenddate"] = this.state.trips[i].Bookingenddate;
-                    //                 tripDetail["Guests"] = this.state.trips[i].Guests;
-                    //                 tripDetail["Totalcost"] = this.state.trips[i].Totalcost;
-                    //                 tripDetails.push(tripDetail);
-                    //                 this.setState({
-                    //                     tripDetails: tripDetails
-                    //                 });
-                    //                 console.log("Trip Details: ", this.state.tripDetails);
-                    //             }
-
-                    //         }).catch((err) =>{
-                    //             if(err){
-                    //                 this.setState({
-                    //                     errorRedirect: true
-                    //                 })
-                    //             }
-                    //         });
-                    // }
-
+                    
                 }
             }).catch((err) =>{
                 if(err){

@@ -19,35 +19,35 @@ class DisplayProperties extends Component {
             arrivalDate: moment(),
             departureDate: moment(),
             Properties: [],
-            propertyDetails: {
-                LocationDetails: {
-                    country: "",
-                    streetAddress: "",
-                    unitNumber: "",
-                    city: "",
-                    state: "",
-                    zipCode: ""
-                },
-                Details: {
-                    headline: "",
-                    description: "",
-                    propertyType: "",
-                    bedrooms: "",
-                    accomodates: "",
-                    bathrooms: ""
-                },
-                Photos: {
-                    photos: ""
-                },
-                PricingDetails: {
-                    availabilityStartDate: "",
-                    availabilityEndDate: "",
-                    currency: "",
-                    baserate: "",
-                    minStay: ""
+            // propertyDetails: {
+            //     LocationDetails: {
+            //         country: "",
+            //         streetAddress: "",
+            //         unitNumber: "",
+            //         city: "",
+            //         state: "",
+            //         zipCode: ""
+            //     },
+            //     Details: {
+            //         headline: "",
+            //         description: "",
+            //         propertyType: "",
+            //         bedrooms: "",
+            //         accomodates: "",
+            //         bathrooms: ""
+            //     },
+            //     Photos: {
+            //         photos: ""
+            //     },
+            //     PricingDetails: {
+            //         availabilityStartDate: "",
+            //         availabilityEndDate: "",
+            //         currency: "",
+            //         baserate: "",
+            //         minStay: ""
 
-                }
-            },
+            //     }
+            // },
             displayProperty: false,
             propertyId: "",
             Photos: [],

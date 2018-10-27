@@ -19,6 +19,9 @@ var mysql = require('mysql');
 var bcrypt = require('bcrypt-nodejs');
 var mongooseTypes = require('mongoose').Types;
 
+//Kafka
+var kafka = require('./kafka/client');
+
 //set up cors
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
@@ -63,57 +66,49 @@ app.post('/login', function (req, res) {
     console.log('Inside login POST');
     console.log('Request Body: ', req.body);
 
-    //Query    
+    //Kafka request 
 
-    Model.Userdetails.findOne({
-        'Email': req.body.Email
-    }, (err, user) => {
-
-        if (err) {
-            console.log("Unable to fetch user details.", err);
+    kafka.make_request('login', req.body, function(err, result){
+        console.log('In results login');
+        console.log('results', result);
+        if(err){
+            console.log('Inside err login');
             res.writeHead(400, {
                 'Content-type': 'text/plain'
             });
-            res.end('Error in fetching user details!');
+            res.end('Error in login!');
         }
-        else {
-
-            console.log("User details ", user);
-            if (!bcrypt.compareSync(req.body.Password, user.Password)) {
+        else{
+            console.log('Inside results Login');
+            if(result){
+                res.cookie('cookie', result.FirstName, {
+                    maxAge: 360000,
+                    httpOnly: false,
+                    path: '/'
+                });
+                res.cookie('Accounttype', result.Accounttype, {
+                    maxAge: 360000,
+                    httpOnly: false,
+                    path: '/'
+                });
+                req.session.user = result;
+                res.writeHead(200, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Login successful!');    
+            }
+            else{
                 res.writeHead(401,
                     {
                         'Content-type': 'text/plain'
                     })
                 console.log('Invalid Credentials!');
                 res.end('Invalid Credentials!');
-            }
-            else {
-                res.cookie('cookie', user.FirstName, {
-                    maxAge: 360000,
-                    httpOnly: false,
-                    path: '/'
-                });
-                res.cookie('Accounttype', user.Accounttype, {
-                    maxAge: 360000,
-                    httpOnly: false,
-                    path: '/'
-                });
-                req.session.user = user;
-
-
-                res.writeHead(200, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Login successful!');
-            }
-
-
+            }            
         }
-
     });
 
-
-
+    //Query    
 });
 
 //Signup
@@ -122,78 +117,24 @@ app.post('/signup', function (req, res) {
     console.log('Inside Signup POST');
     console.log('Request Body: ', req.body);
 
-    //User creation query
-
-    var userCount = 1;
-    Model.Userdetails.countDocuments({}, function (err, count) {
-        userCount += count;
-    });
-
-    //Check if user exists
-
-    Model.Userdetails.findOne({
-        'Email': req.body.Email
-    }, (err, user) => {
-
-        if (err) {
-            console.log("Unable to fetch user details.", err);
+    kafka.make_request('signup', req.body, function(err, result){
+        console.log('In results Signup');
+        console.log('Results: ', result);
+        if(res){
+            console.log("User saved successfully.", result);
+            res.writeHead(200, {
+                'Content-type': 'text/plain'
+            });
+            res.end('Adding a user successful!');
+        }
+        else{
+            console.log("Unable to fetch user details. Error in Signup.", err);
             res.writeHead(400, {
                 'Content-type': 'text/plain'
             });
-            res.end('Error in fetching user details!');
+            res.end('Error in fetching user details!');            
         }
-        else {
-
-            if (user) {
-                console.log('User Exists!', user);
-                user.Accounttype = 3;
-            }
-            else {
-                const hashedPassword = bcrypt.hashSync(req.body.Password);
-
-                var user = new Model.Userdetails({
-                    Username: req.body.Email,
-                    Password: hashedPassword,
-                    FirstName: req.body.FirstName,
-                    LastName: req.body.LastName,
-                    Email: req.body.Email,
-                    Aboutme: '',
-                    Country: '',
-                    City: '',
-                    Gender: '',
-                    Hometown: '',
-                    School: '',
-                    Company: '',
-                    Language: '',
-                    PhoneNumber: '',
-                    ProfileImage: 'default-profile-image.jpg',
-                    Accounttype: req.body.Accounttype,
-                    ProfileId: userCount
-                });
-            }
-
-            user.save().then((doc) => {
-
-                console.log("User saved successfully.", doc);
-                res.writeHead(200, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Adding a user successful!');
-
-            }, (err) => {
-                console.log("Unable to save user details.", err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in adding an user');
-            });
-
-        }
-
     });
-
-    //Hashing Password!
-
 });
 
 //Logout
@@ -217,27 +158,44 @@ app.get('/profile-details', function (req, res) {
 
     if (req.session.user) {
         console.log(req.session.user);
-        Model.Userdetails.findOne({
-            'Email': req.session.user.Username
-        }, (err, user) => {
 
-            if (err) {
+        kafka.make_request("profile-details", req, function(err, result){
+            if(err){
                 console.log("Unable to fetch user details.", err);
                 res.writeHead(400, {
                     'Content-type': 'text/plain'
                 });
                 res.end('Error in fetching user details!');
             }
-            else {
-
-                console.log('Profile Data: ', user);
+            else{
+                console.log('Profile Data: ', result);
                 res.writeHead(200, {
                     'Content-type': 'application/json'
                 });
-                res.end(JSON.stringify(user));
-
+                res.end(JSON.stringify(result));
             }
         });
+        // Model.Userdetails.findOne({
+        //     'Email': req.session.user.Username
+        // }, (err, user) => {
+
+        //     if (err) {
+        //         console.log("Unable to fetch user details.", err);
+        //         res.writeHead(400, {
+        //             'Content-type': 'text/plain'
+        //         });
+        //         res.end('Error in fetching user details!');
+        //     }
+        //     else {
+
+        //         console.log('Profile Data: ', user);
+        //         res.writeHead(200, {
+        //             'Content-type': 'application/json'
+        //         });
+        //         res.end(JSON.stringify(user));
+
+        //     }
+        // });
     }
 });
 
@@ -372,11 +330,11 @@ app.post('/add-property', function (req, res) {
 
 
             }
-        });        
+        });
 
         /**Creating property object to add to Property details collection */
-        var property = new Model.PropertyDetails({            
-            PropertyId : propertyId,
+        var property = new Model.PropertyDetails({
+            PropertyId: propertyId,
             Country: newProperty.LocationDetails.country,
             StreetAddress: newProperty.LocationDetails.streetAddress,
             UnitNumber: newProperty.LocationDetails.unitNumber,
@@ -397,10 +355,10 @@ app.post('/add-property', function (req, res) {
             MinStay: newProperty.PricingDetails.minStay,
             Ownername: userSession.FirstName + " " + userSession.LastName,
         });
-        
+
         //console.log('PropertyCount', propertyCount);
         //property.PropertyId = propertyCount;
-        
+
 
         property.save().then((doc) => {
 
@@ -477,9 +435,9 @@ app.post('/search', function (req, res) {
                             var bookingstartdate = new Date(result[0].Bookingstartdate);
                             var bookingenddate = new Date(result[0].Bookingenddate);
                             console.log(bookingstartdate + " " + bookingenddate);
-                            console.log(new Date(searchProperties.startDate) + " " + new Date(searchProperties.endDate));                        
-                            console.log('Check startDate: ', new Date(searchProperties.startDate) >= bookingstartdate && new Date(searchProperties.startDate) <= bookingenddate);            
-                            console.log('Check endDate: ', new Date(searchProperties.endDate) >= bookingstartdate && new Date(searchProperties.endDate) <= bookingenddate);            
+                            console.log(new Date(searchProperties.startDate) + " " + new Date(searchProperties.endDate));
+                            console.log('Check startDate: ', new Date(searchProperties.startDate) >= bookingstartdate && new Date(searchProperties.startDate) <= bookingenddate);
+                            console.log('Check endDate: ', new Date(searchProperties.endDate) >= bookingstartdate && new Date(searchProperties.endDate) <= bookingenddate);
                             if ((new Date(searchProperties.startDate) >= bookingstartdate && new Date(searchProperties.startDate) <= bookingenddate) || (new Date(searchProperties.endDate) >= bookingstartdate && new Date(searchProperties.endDate) <= bookingenddate)) {
                                 properties.splice(i, 1);
                             }
@@ -576,16 +534,16 @@ app.post('/submit-booking', async function (req, res) {
             });
 
         Model.Userdetails.findOne({
-            Email : req.session.user.Email
-        }, function(err, user){
-            if(err){
+            Email: req.session.user.Email
+        }, function (err, user) {
+            if (err) {
                 console.log("Unable to get user details.", err);
                 res.writeHead(400, {
                     'Content-type': 'text/plain'
                 });
                 res.end('Error in getting user');
             }
-            else{
+            else {
 
                 var propertyDetails = req.body.PropertyDetails;
                 propertyDetails.PropertyId = req.body.PropertyId;
@@ -595,24 +553,24 @@ app.post('/submit-booking', async function (req, res) {
                 propertyDetails.TotalCost = req.body.TotalCost;
                 propertyDetails.Ownername = req.body.Ownername;
                 propertyDetails.Travelername = userSession.FirstName + " " + userSession.LastName;
-                propertyDetails.TravelerId = userSession.ProfileId;   
+                propertyDetails.TravelerId = userSession.ProfileId;
 
                 user.Tripdetails = user.Tripdetails || [];
                 user.Tripdetails.push(propertyDetails);
-                user.save().then((doc)=>{
+                user.save().then((doc) => {
                     console.log('Booking details saved to user details', doc);
                     res.writeHead(200, {
                         'Content-type': 'text/plain'
                     });
                     res.end('Booking added successfully! ');
-                }, (err)=>{
+                }, (err) => {
                     console.log("Unable to save booking details.", err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
+                    res.writeHead(400, {
+                        'Content-type': 'text/plain'
+                    });
+                    res.end('Error in adding a booking');
                 });
-                res.end('Error in adding a booking');
-                });
-                
+
             }
         });
 
@@ -650,56 +608,24 @@ app.get('/trip-details', function (req, res) {
     const userSession = req.session.user;
 
     if (req.session.user) {
-
-        // pool.getConnection(function (err, conn) {
-
-        //     if (err) {
-        //         console.log('Error in creating connection!');
-        //         res.writeHead(400, {
-        //             'Content-type': 'text/plain'
-        //         });
-        //         res.end('Error in creating connection!');
-
-        //     }
-        //     else {
-        //         var sql = 'SELECT * from bookingdetails where TravelerId = ' + mysql.escape(userSession.ProfileId);
-        //         conn.query(sql, function (err, result) {
-        //             if (err) {
-        //                 res.writeHead(400, {
-        //                     'Content-type': 'text/plain'
-        //                 });
-        //                 console.log('Error in Getting Trip Details');
-        //                 res.end('Error in Getting Trip Details');
-        //             }
-        //             else {
-
-        //                 res.writeHead(200, {
-        //                     'Content-type': 'application/json'
-        //                 });
-        //                 console.log(JSON.stringify(result));
-        //                 res.end(JSON.stringify(result));
-        //             }
-        //         });
-        //     }
-        // });
-
+       
         Model.Userdetails.findOne({
-            Email : req.session.user.Email
+            Email: req.session.user.Email
         }, (err, user) => {
-            if(err){
+            if (err) {
                 console.log("Unable to get user details.", err);
                 res.writeHead(400, {
                     'Content-type': 'text/plain'
                 });
                 res.end('Error in getting user');
             }
-            else{
+            else {
                 console.log('Trip details', JSON.stringify(user.Tripdetails));
                 res.writeHead(200, {
                     'Content-type': 'application/json'
-                });                
+                });
                 res.end(JSON.stringify(user.Tripdetails));
-                
+
             }
         });
 
@@ -713,39 +639,28 @@ app.get('/trip-details', function (req, res) {
 app.get('/owner-dashboard-details', function (req, res) {
 
     console.log('Inside Owner Dashboard Details GET!');
-    const userSession = req.session.user;
 
-    pool.getConnection(function (err, conn) {
+    if (req.session.user) {
+        Model.Userdetails.findOne({
+            Email: req.session.user.Email
+        }, (err, user) => {
+            if (err) {
+                console.log("Unable to get user details.", err);
+                res.writeHead(400, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Error in getting user');
+            }
+            else {
+                console.log('Property details of owner', JSON.stringify(user.PropertyDetails));
+                res.writeHead(200, {
+                    'Content-type': 'application/json'
+                });
+                res.end(JSON.stringify(user.PropertyDetails));
+            }
+        });
+    }
 
-        if (err) {
-            console.log('Error in creating connection!');
-            res.writeHead(400, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Error in creating connection!');
-
-        }
-        else {
-            var sql = 'SELECT * from bookingdetails where PropertyId in (SELECT PropertyId from propertydetails where OwnerId = ' + mysql.escape(userSession.ProfileId) + ')';
-            conn.query(sql, function (err, result) {
-                if (err) {
-                    res.writeHead(400, {
-                        'Content-type': 'text/plain'
-                    });
-                    console.log('Error in Getting Dahsboard Details');
-                    res.end('Error in Getting Dahsboard Details');
-                }
-                else {
-
-                    res.writeHead(200, {
-                        'Content-type': 'application/json'
-                    });
-                    console.log(JSON.stringify(result));
-                    res.end(JSON.stringify(result));
-                }
-            });
-        }
-    });
 
 
 
