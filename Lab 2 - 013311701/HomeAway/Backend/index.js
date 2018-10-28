@@ -22,6 +22,15 @@ var mongooseTypes = require('mongoose').Types;
 //Kafka
 var kafka = require('./kafka/client');
 
+
+//Passport authentication
+
+var passport = require('passport');
+var jwt = require('jsonwebtoken');
+// Set up middleware
+var requireAuth = passport.authenticate('jwt', {session: false});
+const secret = "secret";
+
 //set up cors
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
@@ -38,14 +47,21 @@ app.use(session({
 app.use(bodyParser.json());
 
 //Allow acceess control headers
-app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
-    res.setHeader('Cache-Control', 'no-cache');
-    next();
-});
+// app.use(function (req, res, next) {
+//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+//     res.setHeader('Access-Control-Allow-Credentials', 'true');
+//     res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
+//     res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
+//     res.setHeader('Cache-Control', 'no-cache');
+//     next();
+// });
+
+//require('./app/routes')(app);
+app.use(passport.initialize());
+
+// Bring in defined Passport Strategy
+require('./config/passport')(passport);
+
 
 //Storing documents/Images
 const storage = multer.diskStorage({
@@ -92,10 +108,21 @@ app.post('/login', function (req, res) {
                     path: '/'
                 });
                 req.session.user = result;
-                res.writeHead(200, {
-                    'Content-type': 'text/plain'
+
+                // Create token if the password matched and no error was thrown
+                var token = jwt.sign(result, secret, {
+                    expiresIn: 10080 // in seconds
                 });
-                res.end('Login successful!');    
+
+                //res.json({success: true, token: 'JWT ' + token});
+                res.writeHead(200, {
+                    'Content-type': 'text/plain',
+                    'Authorization': 'Bearer {' + token + '}'
+                });
+                
+                //res.status(200).json({success: true, Authorization: 'Bearer ' + token});
+
+                res.end(JSON.stringify(token));    
             }
             else{
                 res.writeHead(401,
@@ -151,7 +178,7 @@ app.post('/logout', function (req, res) {
 });
 
 //Profile Details
-app.get('/profile-details', function (req, res) {
+app.get('/profile-details', requireAuth, function (req, res) {
 
     console.log('Inside Profile Details GET!');
     console.log('Request Body:', req.body);

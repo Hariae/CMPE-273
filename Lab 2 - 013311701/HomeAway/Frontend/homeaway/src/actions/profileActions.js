@@ -15,8 +15,11 @@ export function getProfileDetails() {
             data : {},
             imageData : ""
         }
+        var token = localStorage.getItem("token");
 
-        await axios.get('http://localhost:3001/profile-details')
+        await axios.get('http://localhost:3001/profile-details', {
+            headers: {"Authorization" : `Bearer ${token}`}
+        })
             .then((response) => {
                 result.data = response.data;
                 ProfileImage = response.data.ProfileImage;

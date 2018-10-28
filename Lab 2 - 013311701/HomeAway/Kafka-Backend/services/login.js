@@ -1,6 +1,7 @@
 var Model = require('../DatabaseConnection');
 var bcrypt = require('bcrypt-nodejs');
 
+
 function handle_request(msg, callback){
     console.log('Inside  Kafka Backend Login');
     console.log('Message', msg);
@@ -21,6 +22,7 @@ function handle_request(msg, callback){
                 callback(null, null);                
             }
             else {
+                
                 callback(null, user);
             }
 

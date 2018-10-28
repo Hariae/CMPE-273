@@ -10,7 +10,9 @@ export function submitLogin(data) {
         axios.defaults.withCredentials = true;
         axios.post('http://localhost:3001/login', data)
             .then(response => {
+                console.log(response);
                 if (response.status === 200) {
+                    localStorage.setItem("token", response.data);
                     dispatch({
                         type: AUTH_LOGIN,
                         payload: true
