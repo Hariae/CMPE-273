@@ -26,7 +26,6 @@ module.exports = function (passport) {
                 else {
                     callback(err, false);
                 }
-
             });
     }));
 };

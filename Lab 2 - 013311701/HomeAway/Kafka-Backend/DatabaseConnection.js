@@ -79,8 +79,9 @@ var PropertyDetails = mongoose.model('PropertyDetails', {
     'AvailabilityStartDate': Date,
     'AvailabilityEndDate': Date,
     'MinStay' : Number,
-    'Ownername' : String
-
+    'Ownername' : String,
+    'Messages': Array,
+    'OwnerId' : String
 });
 
 var BookingDetails = mongoose.model('BookingDetails', {
@@ -94,8 +95,17 @@ var BookingDetails = mongoose.model('BookingDetails', {
     'TravelerId' : Number
 });
 
+var MessageCollection = mongoose.model('MessageCollection',{
+    'PropertyId' : String,
+    'TravelerId' : String,
+    'OwnerId' : String,
+    'Message' : JSON,
+    'MessageId': String
+});
+
 module.exports = {
     Userdetails,
     PropertyDetails,
-    BookingDetails
+    BookingDetails,
+    MessageCollection
 };

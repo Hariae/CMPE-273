@@ -71,9 +71,12 @@ class DisplayProperties extends Component {
             endDate : this.props.homeStateStore.result.endDate
         };
        
+        var token = localStorage.getItem("token");
         
         axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3001/search', data)
+        axios.post('http://localhost:3001/search', data, {
+            headers: {"Authorization" : `Bearer ${token}`}
+        })
             .then(response => {
                 console.log(response.data);
                 this.setState({
@@ -82,7 +85,9 @@ class DisplayProperties extends Component {
 
                 var imageArr = [];
                 for (let i = 0; i < this.state.Properties.length; i++) {
-                    axios.post('http://localhost:3001/download-file/' + this.state.Properties[i].Photos.split(',')[0])
+                    axios.post('http://localhost:3001/download-file/' + this.state.Properties[i].Photos.split(',')[0] , {
+                        headers: {"Authorization" : `Bearer ${token}`}
+                    })
                         .then(response => {
                             //console.log("Imgae Res : ", response);
                             let imagePreview = 'data:image/jpg;base64, ' + response.data;

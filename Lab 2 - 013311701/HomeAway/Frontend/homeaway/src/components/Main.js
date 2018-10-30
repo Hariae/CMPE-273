@@ -12,6 +12,9 @@ import Profile from './Profile/Profile';
 import MyTrips from './MyTrips/MyTrips';
 import OwnerDashboard from './OwnerDashboard/OwnerDashboard';
 import Error from './Error/Error';
+import OwnerInbox from './Inbox/OwnerInbox';
+import TravelerInbox from './Inbox/TravelerInbox';
+import OwnerPropertyInbox from './Inbox/OwnerPropertyInbox';
 import moment from 'moment';
 
 class Main extends Component{
@@ -111,6 +114,9 @@ class Main extends Component{
                 <Route path="/profile" component={Profile} />
                 <Route path="/owner-dashboard" component={OwnerDashboard} />
                 <Route path="/my-trips" component={MyTrips} />
+                <Route path="/owner-inbox" component={OwnerInbox} />
+                <Route path="/owner-property-inbox/:id" component={OwnerPropertyInbox} />
+                <Route path="/traveler-inbox" component={TravelerInbox} />
                 <Route path='/error' component={Error} />
             </div>
         )

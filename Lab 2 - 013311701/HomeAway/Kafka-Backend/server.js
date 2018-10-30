@@ -10,6 +10,9 @@ var AddProperty = require('./services/addProperty');
 var Search = require('./services/search');
 var PropertyDetails = require('./services/propertyDetails');
 var SubmitBooking = require('./services/submitBooking');
+var SendMessage = require('./services/sendMessage');
+var GetMessages = require('./services/getMessages');
+var GetTravelerMessages = require('./services/getTravelerMessages');
 
 function handleTopicRequest(topic_name, function_name){
 
@@ -52,3 +55,6 @@ handleTopicRequest("add-property", AddProperty);
 handleTopicRequest("search", Search);
 handleTopicRequest("property-details", PropertyDetails);
 handleTopicRequest("submit-booking", SubmitBooking);
+handleTopicRequest("send-message", SendMessage);
+handleTopicRequest("get-messages", GetMessages);
+handleTopicRequest("get-traveler-messages", GetTravelerMessages);

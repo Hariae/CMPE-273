@@ -2,7 +2,7 @@ var Model = require('../DatabaseConnection');
 
 async function handle_request(message, callback){
     
-    console.log('Inside Kafka Method Property Details. Message ', message);
+    console.log('Inside Kafka Method Submit  Booking. Message ', message);
     const userSession = message.session.user;
 
     var booking = new Model.BookingDetails({

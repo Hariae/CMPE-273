@@ -25,7 +25,9 @@ export function getProfileDetails() {
                 ProfileImage = response.data.ProfileImage;
             });
         console.log('ProfileImage', ProfileImage);
-        await axios.post('http://localhost:3001/download-file/' + ProfileImage)
+        await axios.post('http://localhost:3001/download-file/' + ProfileImage , {
+            headers: {"Authorization" : `Bearer ${token}`}
+        })
             .then(response => {
                 result.imageData = 'data:image/jpg;base64, ' + response.data;
 
@@ -44,8 +46,11 @@ export function getProfileDetails() {
 export function updateProfileDetails(data){
     return function(dispatch){
         console.log('Inside Update Profile Details');
+        var token = localStorage.getItem("token");
         axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3001/update-profile', data)
+        axios.post('http://localhost:3001/update-profile', data , {
+            headers: {"Authorization" : `Bearer ${token}`}
+        })
             .then(response => {
                 if (response.status === 200) {
                     console.log('');

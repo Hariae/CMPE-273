@@ -387,11 +387,11 @@ textarea{
   padding-top: 1%;
 }
 
-.display-properties-container{
+.display-properties-container, .display-messages-container{
   padding: 1% 0;  
 }
 
-.display-properties-container:hover{
+.display-properties-container:hover, .display-messages-container:hover{
   box-shadow: 10px 10px 5px grey;  
 }
 
@@ -495,4 +495,25 @@ textarea{
 
 .has-danger{
   border-color: red;
+}
+
+#myTripsSearchText, #ownerDashboardSearchText{
+  height: 65px;
+}
+
+.pad-lft-9-pc{
+  padding-left: 9%;
+}
+
+.pad-5-pc{
+  padding: 5%;
+}
+
+.dark-blue-bg{
+  background-color: lightgreen;
+}
+
+
+.light-blue-bg{
+  background-color: lightblue;
 }

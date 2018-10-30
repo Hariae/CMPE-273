@@ -227,8 +227,11 @@ class AddProperty extends Component {
                 PricingDetails: pricingDetails
             }
 
+            var token = localStorage.getItem("token");
             axios.defaults.withCredentials = true;
-            axios.post('http://localhost:3001/add-property', data)
+            axios.post('http://localhost:3001/add-property', data, {
+                headers: {"Authorization" : `Bearer ${token}`}
+            })
                 .then(response => {
 
                     if (response.status === 200) {

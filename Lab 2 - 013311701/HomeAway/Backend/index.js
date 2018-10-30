@@ -47,14 +47,14 @@ app.use(session({
 app.use(bodyParser.json());
 
 //Allow acceess control headers
-// app.use(function (req, res, next) {
-//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-//     res.setHeader('Access-Control-Allow-Credentials', 'true');
-//     res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
-//     res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
-//     res.setHeader('Cache-Control', 'no-cache');
-//     next();
-// });
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
+    res.setHeader('Cache-Control', 'no-cache');
+    next();
+});
 
 //require('./app/routes')(app);
 app.use(passport.initialize());
@@ -116,8 +116,7 @@ app.post('/login', function (req, res) {
 
                 //res.json({success: true, token: 'JWT ' + token});
                 res.writeHead(200, {
-                    'Content-type': 'text/plain',
-                    'Authorization': 'Bearer {' + token + '}'
+                    'Content-type': 'text/plain'
                 });
                 
                 //res.status(200).json({success: true, Authorization: 'Bearer ' + token});
@@ -207,7 +206,7 @@ app.get('/profile-details', requireAuth, function (req, res) {
 
 //Update Profile data
 
-app.post('/update-profile', function (req, res) {
+app.post('/update-profile', requireAuth, function (req, res) {
 
     console.log('Inside Update Profile POST!');
     console.log('Request Body: ', req.body);
@@ -237,7 +236,7 @@ app.post('/update-profile', function (req, res) {
 
 
 //Post-Property
-app.post('/add-property', function (req, res) {
+app.post('/add-property', requireAuth, function (req, res) {
 
     console.log('Inside Add Property POST!');
     console.log('Request Body: ', req.body);
@@ -266,7 +265,7 @@ app.post('/add-property', function (req, res) {
 });
 
 //Search
-app.post('/search', function (req, res) {
+app.post('/search', requireAuth, function (req, res) {
 
     console.log('Inside Search Method GET!');
     console.log('Request Body: ', req.body);
@@ -292,7 +291,7 @@ app.post('/search', function (req, res) {
 
 //Get Property Details
 
-app.post('/property-details', function (req, res) {
+app.post('/property-details', requireAuth, function (req, res) {
 
     console.log('Inside Property Details Method POST!');
     console.log('Request Body: ', req.body);
@@ -321,7 +320,7 @@ app.post('/property-details', function (req, res) {
 
 //submit Booking
 
-app.post('/submit-booking', function (req, res) {
+app.post('/submit-booking', requireAuth, function (req, res) {
 
     console.log('Inside Submit Booking POST!');
     console.log('Request Body: ', req.body);
@@ -349,17 +348,89 @@ app.post('/submit-booking', function (req, res) {
 
 });
 
+//Messaging feature
+
+app.post('/send-message', function(req, res){
+    console.log('Inside Send Message POst!');
+    console.log('Request body: ', req.body);
+
+    kafka.make_request("send-message", req, function(err, result){
+        if(err){
+            console.log("Unable to send message.", err);
+                res.writeHead(400, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Error in sending message');
+        }
+        else{
+            //console.log('Message sent successfully', result);
+                res.writeHead(200, {
+                        'Content-type': 'text/plain'
+                });
+                res.end('Message sent successfully! ');
+        }
+    })
+});
+
+//Get messages
+
+app.post('/get-messages', function(req, res){
+    console.log('Inside Get Message GET!');
+    console.log('Request body: ', req.body);
+
+    kafka.make_request("get-messages", req, function(err, result){
+        if(err){
+            console.log("Unable to get message.", err);
+                res.writeHead(400, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Error in get message');
+        }
+        else{
+                console.log('Message retreived successfully ', result);
+                res.writeHead(200, {
+                        'Content-type': 'text/plain'
+                });
+                res.end(JSON.stringify(result));
+        }
+    });
+});
+
+//Get Traveler messages
+
+app.post('/get-traveler-messages', function(req, res){
+    console.log('Inside Get Traveler Message GET!');
+    console.log('Request body: ', req.body);
+
+    kafka.make_request("get-traveler-messages", req, function(err, result){
+        if(err){
+            console.log("Unable to get traveler message.", err);
+                res.writeHead(400, {
+                    'Content-type': 'text/plain'
+                });
+                res.end('Error in get traveler message');
+        }
+        else{
+                console.log('traveler Message retreived successfully ', result);
+                res.writeHead(200, {
+                        'Content-type': 'text/plain'
+                });
+                res.end(JSON.stringify(result));
+        }
+    });
+});
+
 
 //upload-file 
 
-app.post('/upload-file', upload.array('photos', 5), (req, res) => {
+app.post('/upload-file', requireAuth, upload.array('photos', 5), (req, res) => {
     console.log('req.body', req.body);
     res.end();
 });
 
 //download-file
 
-app.post('/download-file/:file(*)', (req, res) => {
+app.post('/download-file/:file(*)', function(req, res){
     console.log('Inside DOwnload File');
     var file = req.params.file;
     var filelocation = path.join(__dirname + '/uploads', file);
@@ -373,7 +444,7 @@ app.post('/download-file/:file(*)', (req, res) => {
 
 //Trip - details
 
-app.get('/trip-details', function (req, res) {
+app.get('/trip-details', requireAuth, function (req, res) {
 
     console.log('Inside Trip Details GET!');
     const userSession = req.session.user;
@@ -403,7 +474,7 @@ app.get('/trip-details', function (req, res) {
 
 //owner dashboard details
 
-app.get('/owner-dashboard-details', function (req, res) {
+app.get('/owner-dashboard-details', requireAuth, function (req, res) {
 
     console.log('Inside Owner Dashboard Details GET!');
 

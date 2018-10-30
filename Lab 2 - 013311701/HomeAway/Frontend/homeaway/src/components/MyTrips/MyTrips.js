@@ -17,9 +17,12 @@ class MyTrips extends Component {
     }
 
     componentWillMount() {
-
+       
+        var token = localStorage.getItem("token");
         axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3001/trip-details')
+        axios.get('http://localhost:3001/trip-details', {
+            headers: {"Authorization" : `Bearer ${token}`}
+        })
             .then(response => {
                 if (response.status === 200) {
                     console.log("Response : ", response.data);
@@ -103,6 +106,13 @@ class MyTrips extends Component {
                 <div className="my-trips-container">
                     <div className="center-content trip-banner">
                         <h1>My Trips - Personalised view of your trips</h1>
+                    </div>
+                    <div class="pad-lft-9-pc">
+                        <div className="form-group row search-tab">                                    
+                            <span className="col-lg-8 col-md-12 col-sm-12 col-xs-12 pad-bot-10">
+                                <input type="textbox" className="form-control form-control-lg" name="myTripsSearchText" id = "myTripsSearchText" placeholder="Search" onChange={this.handleInputChange}></input>                                        
+                            </span>
+                        </div>
                     </div>
                     <div>
                         {tripDetails}

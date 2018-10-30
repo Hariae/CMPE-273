@@ -15,12 +15,18 @@ class OwnerDashboard extends Component {
             errorRedirect: false
         }
 
+        //bind
+        this.handleSearchChange = this.handleSearchChange.bind(this);
+
     }
 
     componentWillMount(){
+        
+        var token = localStorage.getItem("token");
         axios.defaults.withCredentials = true;
-
-        axios.get('http://localhost:3001/owner-dashboard-details')
+        axios.get('http://localhost:3001/owner-dashboard-details', {
+            headers: {"Authorization" : `Bearer ${token}`}
+        })
             .then(response=>{
                 if (response.status === 200) {
                     console.log("Response : ", response.data);
@@ -38,6 +44,24 @@ class OwnerDashboard extends Component {
                 }
             });
     }
+
+
+    handleSearchChange = (event) => {
+
+        var target = event.target;
+        var name = target.name;
+        var value = target.value;
+
+
+        // //var value = e.target.value;
+        // //console.log('searchText', value);
+        // this.state.tripDetails = this.state.tripDetails.filter(function(item){
+        //     console.log('Item', item.Headline.includes("2"));
+        //     return item.Headline.includes("2");
+        // });
+
+    }
+
 
     render() {
 
@@ -60,14 +84,14 @@ class OwnerDashboard extends Component {
             var month = date.toLocaleString(locale, { month: "short" });
             var day = date.getDate();
             startDate = month + " - " + day;
-            console.log(startDate);
+            //console.log(startDate);
             
             //End date
             date = new Date(trip.AvailabilityEndDate);
             month = date.toLocaleString(locale, { month: "short" });
             day = date.getDate();
             endDate = month + " - " + day;
-            console.log(endDate);
+            //console.log(endDate);
 
             return (
                 <div className="container trip-details-container" key={index}>
@@ -101,6 +125,13 @@ class OwnerDashboard extends Component {
                 <div className="dashboard-container">
                     <div className="center-content owner-dashboard-banner">
                         <h1>Dashboard</h1>
+                    </div>
+                    <div class="pad-lft-9-pc">
+                        <div className="form-group row search-tab">                                    
+                            <span className="col-lg-8 col-md-12 col-sm-12 col-xs-12 pad-bot-10">
+                                <input type="textbox" className="form-control form-control-lg" name="ownerDashboardSearchText" id = "ownerDashboardSearchText" placeholder="Search" onChange={this.handleSearchChange} ></input>                                        
+                            </span>
+                        </div>
                     </div>
                     <div>
                         {tripDetails}

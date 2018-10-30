@@ -6,7 +6,7 @@ import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import Header from '../Header/Header';
 import axios from 'axios';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 
 class PropertyDisplay extends Component {
 
@@ -23,7 +23,8 @@ class PropertyDisplay extends Component {
             guests: 2,
             totalCost: 0,
             errorRedirect: false,
-            redirectToHome: false
+            redirectToHome: false,
+            messageContent: ""
         }
 
         //Bind
@@ -31,16 +32,20 @@ class PropertyDisplay extends Component {
         this.handleArrivalDateChange = this.handleArrivalDateChange.bind(this);
         this.handleDepartureDateChange = this.handleDepartureDateChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.sendMessage = this.sendMessage.bind(this);
     }
 
     componentDidMount() {
+        var token = localStorage.getItem("token");
         axios.defaults.withCredentials = true;
 
         var data = {
             PropertyId: this.props.match.params.id
         }
         console.log('Data: ', data);
-        axios.post('http://localhost:3001/property-details', data)
+        axios.post('http://localhost:3001/property-details', data, {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
             .then(response => {
                 if (response.status === 200) {
                     console.log('Result: ', response.data);
@@ -51,7 +56,9 @@ class PropertyDisplay extends Component {
                     var imageArr = [];
                     var photoList = this.state.propertyDetails.Photos.split(',');
                     for (let i = 0; i < photoList.length; i++) {
-                        axios.post('http://localhost:3001/download-file/' + photoList[i])
+                        axios.post('http://localhost:3001/download-file/' + photoList[i], {
+                            headers: { "Authorization": `Bearer ${token}` }
+                        })
                             .then(response => {
                                 //console.log("Imgae Res : ", response);
                                 let imagePreview = 'data:image/jpg;base64, ' + response.data;
@@ -64,8 +71,8 @@ class PropertyDisplay extends Component {
 
                                 console.log('PhotoArr: ', photoArr);
                                 console.log('Photo State: ', this.state.photos);
-                            }).catch((err) =>{
-                                if(err){
+                            }).catch((err) => {
+                                if (err) {
                                     this.setState({
                                         errorRedirect: true
                                     });
@@ -76,8 +83,8 @@ class PropertyDisplay extends Component {
 
 
                 }
-            }).catch((err) =>{
-                if(err){
+            }).catch((err) => {
+                if (err) {
                     this.setState({
                         errorRedirect: true
                     });
@@ -89,7 +96,7 @@ class PropertyDisplay extends Component {
     submitBooking = (e) => {
 
         axios.defaults.withCredentials = true;
-        
+        var token = localStorage.getItem("token");
 
         var data = {
             PropertyId: this.props.match.params.id,
@@ -98,20 +105,22 @@ class PropertyDisplay extends Component {
             Guests: this.props.homeStateStore.result.guests,
             TotalCost: e.target.value,
             Ownername: this.state.propertyDetails.Ownername,
-            PropertyDetails : this.state.propertyDetails
+            PropertyDetails: this.state.propertyDetails
         }
 
 
-        axios.post('http://localhost:3001/submit-booking', data)
+        axios.post('http://localhost:3001/submit-booking', data, {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
             .then(response => {
                 if (response.status === 200) {
                     console.log('Booking Successful!');
                     this.setState({
-                        redirectToHome : true
+                        redirectToHome: true
                     });
                 }
-            }).catch((err) =>{
-                if(err){
+            }).catch((err) => {
+                if (err) {
                     this.setState({
                         errorRedirect: true
                     });
@@ -154,6 +163,29 @@ class PropertyDisplay extends Component {
         });
     }
 
+    sendMessage = () => {
+        console.log('Inside Send Message ', this.state.messageContent);
+        var token = localStorage.getItem("token");
+        axios.defaults.withCredentials = true;
+
+        var data = {
+            traveler : true,
+            messageContent : this.state.messageContent,
+            PropertyId: this.props.match.params.id,
+            OwnerId: this.state.propertyDetails.OwnerId
+        }
+
+        axios.post('http://localhost:3001/send-message', data, {
+            headers: { "Authorization": `Bearer ${token}` }
+        })
+        .then(response => {
+
+            if(response.status === 200){
+                console.log('Message sent!');
+            }
+        });
+    }
+
     render() {
         let redrirectVar = null;
         if (!cookie.load('cookie')) {
@@ -163,7 +195,7 @@ class PropertyDisplay extends Component {
             redrirectVar = <Redirect to="/error" />
         }
 
-        if(this.state.redirectToHome === true){
+        if (this.state.redirectToHome === true) {
             redrirectVar = <Redirect to="/home" />
         }
 
@@ -177,7 +209,7 @@ class PropertyDisplay extends Component {
             const diff = timeEnd.diff(startDate);
             const diffDuration = moment.duration(diff);
             console.log('diffduration', diffDuration);
-            totalCost = (diffDuration._data.days + 1) * this.state.propertyDetails.Baserate.substring(1);            
+            totalCost = (diffDuration._data.days + 1) * this.state.propertyDetails.Baserate.substring(1);
         }
 
         let carousalBlock = this.state.photos.map(function (item, index) {
@@ -191,30 +223,30 @@ class PropertyDisplay extends Component {
 
         let carousalIndicator = this.state.photos.map(function (item, index) {
 
-            return (                
-                    <li data-target="#myCarousel" data-slide-to={index} className={index == 0 ? "active" : ""} key={index}></li>     
+            return (
+                <li data-target="#myCarousel" data-slide-to={index} className={index == 0 ? "active" : ""} key={index}></li>
             )
         });
 
         //var startDate = this.state.propertyDetails.AvailabilityStartDate;
         var startDate = "";
         var endDate = "";
-        if(this.props.homeStateStore.result){
+        if (this.props.homeStateStore.result) {
             var date = new Date(this.props.homeStateStore.result.startDate);
-        var locale = "en-us";
-        var month = date.toLocaleString(locale, { month: "short" });
-        var day = date.getDate();
-        startDate = month + " - " + day;
-        console.log(startDate);
+            var locale = "en-us";
+            var month = date.toLocaleString(locale, { month: "short" });
+            var day = date.getDate();
+            startDate = month + " - " + day;
+            console.log(startDate);
 
-        //End date
-        date = new Date(this.props.homeStateStore.result.endDate);
-        month = date.toLocaleString(locale, { month: "short" });
-        day = date.getDate();
-        endDate = month + " - " + day;
-        console.log(endDate);
+            //End date
+            date = new Date(this.props.homeStateStore.result.endDate);
+            month = date.toLocaleString(locale, { month: "short" });
+            day = date.getDate();
+            endDate = month + " - " + day;
+            console.log(endDate);
         }
-        
+
 
         return (
             <div>
@@ -288,6 +320,31 @@ class PropertyDisplay extends Component {
                                     <label htmlFor="ownername">Property Owner: </label>
                                     <span id="ownername"><strong> {this.state.propertyDetails.Ownername}</strong></span>
                                 </div>
+                                <div>
+                                    <div className="center-content">
+                                        <button type="button" className="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Message Owner</button>
+                                    </div>
+                                    <div className="modal fade" id="myModal" role="dialog">
+                                        <div className="modal-dialog">
+                                            <div className="modal-content">
+                                                <div className="modal-header">
+                                                <h4 className="modal-title">Ask Manager a Question</h4>
+                                                    <button type="button" className="close" data-dismiss="modal">&times;</button>                                                    
+                                                </div>
+                                                <div className="modal-body">
+                                                    <p></p>
+                                                    <div className="form-group">
+                                                        <textarea type="text" name="messageContent" id="messageContent" className="form-control form-control-lg" placeholder="Type your message here" onChange={this.handleInputChange}/>
+                                                    </div>
+                                                </div>
+                                                <div className="modal-footer">
+                                                    <button type="button" className="btn btn-success" data-dismiss="modal" onClick={this.sendMessage}>Send</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div>
 
@@ -353,7 +410,7 @@ class PropertyDisplay extends Component {
 }
 
 const mapStateToProps = state => ({
-    homeStateStore : state.home
+    homeStateStore: state.home
 });
 
 //export default PropertyDisplay;

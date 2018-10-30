@@ -16,8 +16,11 @@ export function photoHandler(photos){
             photos: ""
         }
 
+        var token = localStorage.getItem("token");
         axios.defaults.withCredentials = true;
-        await axios.post('http://localhost:3001/upload-file', data)
+        await axios.post('http://localhost:3001/upload-file', data, {
+            headers: {"Authorization" : `Bearer ${token}`}
+        })
             .then(response => {
                 var photoArr = "";
 
@@ -41,7 +44,9 @@ export function photoHandler(photos){
             axios.defaults.withCredentials = true;
             var imagePreviewArr = [];
             for (var i = 0; i < photos.length; i++) {
-                await axios.post('http://localhost:3001/download-file/' + photos[i].name)
+                await axios.post('http://localhost:3001/download-file/' + photos[i].name, {
+                    headers: {"Authorization" : `Bearer ${token}`}
+                })
                 .then(response => {
                     //console.log("Imgae Res : ", response);
                     let imagePreview = 'data:image/jpg;base64, ' + response.data;

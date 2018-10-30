@@ -84,6 +84,7 @@ function handle_request(message, callback){
             Baserate: newProperty.PricingDetails.currency + newProperty.PricingDetails.baserate,
             MinStay: newProperty.PricingDetails.minStay,
             Ownername: userSession.FirstName + " " + userSession.LastName,
+            OwnerId: userSession.ProfileId
         });
 
       
