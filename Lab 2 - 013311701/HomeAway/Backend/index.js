@@ -3,10 +3,6 @@ const multer = require('multer');
 const uuidv4 = require('uuid/v4');
 const path = require('path');
 const fs = require('fs');
-var pool = require('./ConnectionPooling.js');
-//var MongoClient = require('./DatabaseConnection');
-var Model = require('./DatabaseConnection');
-//var PropertyDetails = require('./DatabaseConnection');
 
 var app = express();
 
@@ -15,21 +11,8 @@ var session = require('express-session');
 var cookieParser = require('cookie-parser');
 var cors = require('cors');
 
-var mysql = require('mysql');
-var bcrypt = require('bcrypt-nodejs');
-var mongooseTypes = require('mongoose').Types;
-
-//Kafka
-var kafka = require('./kafka/client');
-
-
 //Passport authentication
-
 var passport = require('passport');
-var jwt = require('jsonwebtoken');
-// Set up middleware
-var requireAuth = passport.authenticate('jwt', {session: false});
-const secret = "secret";
 
 //set up cors
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
@@ -63,6 +46,7 @@ app.use(passport.initialize());
 require('./config/passport')(passport);
 
 
+
 //Storing documents/Images
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -75,361 +59,49 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-
-//Login validation
-app.post('/login', function (req, res) {
-
-    console.log('Inside login POST');
-    console.log('Request Body: ', req.body);
-
-    //Kafka request 
-
-    kafka.make_request('login', req.body, function(err, result){
-        console.log('In results login');
-        console.log('results', result);
-        if(err){
-            console.log('Inside err login');
-            res.writeHead(400, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Error in login!');
-        }
-        else{
-            console.log('Inside results Login');
-            if(result){
-                res.cookie('cookie', result.FirstName, {
-                    maxAge: 360000,
-                    httpOnly: false,
-                    path: '/'
-                });
-                res.cookie('Accounttype', result.Accounttype, {
-                    maxAge: 360000,
-                    httpOnly: false,
-                    path: '/'
-                });
-                req.session.user = result;
-
-                // Create token if the password matched and no error was thrown
-                var token = jwt.sign(result, secret, {
-                    expiresIn: 10080 // in seconds
-                });
-
-                //res.json({success: true, token: 'JWT ' + token});
-                res.writeHead(200, {
-                    'Content-type': 'text/plain'
-                });
-                
-                //res.status(200).json({success: true, Authorization: 'Bearer ' + token});
-
-                res.end(JSON.stringify(token));    
-            }
-            else{
-                res.writeHead(401,
-                    {
-                        'Content-type': 'text/plain'
-                    })
-                console.log('Invalid Credentials!');
-                res.end('Invalid Credentials!');
-            }            
-        }
-    });
-
-    //Query    
-});
-
-//Signup
-app.post('/signup', function (req, res) {
-
-    console.log('Inside Signup POST');
-    console.log('Request Body: ', req.body);
-
-    kafka.make_request('signup', req.body, function(err, result){
-        console.log('In results Signup');
-        console.log('Results: ', result);
-        if(res){
-            console.log("User saved successfully.", result);
-            res.writeHead(200, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Adding a user successful!');
-        }
-        else{
-            console.log("Unable to fetch user details. Error in Signup.", err);
-            res.writeHead(400, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Error in fetching user details!');            
-        }
-    });
-});
-
-//Logout
-
-app.post('/logout', function (req, res) {
-    console.log('POST LOgout!');
-    res.clearCookie('cookie');
-    req.session.user = undefined;
-    res.writeHead(200, {
-        'Content-type': 'text/plain'
-    });
-    res.end('Back to login!');
-
-});
-
-//Profile Details
-app.get('/profile-details', requireAuth, function (req, res) {
-
-    console.log('Inside Profile Details GET!');
-    console.log('Request Body:', req.body);
-
-    if (req.session.user) {
-        console.log(req.session.user);
-
-        kafka.make_request("profile-details", req, function(err, result){
-            if(err){
-                console.log("Unable to fetch user details.", err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in fetching user details!');
-            }
-            else{
-                console.log('Profile Data: ', result);
-                res.writeHead(200, {
-                    'Content-type': 'application/json'
-                });
-                res.end(JSON.stringify(result));
-            }
-        });        
-    }
-});
-
-//Update Profile data
-
-app.post('/update-profile', requireAuth, function (req, res) {
-
-    console.log('Inside Update Profile POST!');
-    console.log('Request Body: ', req.body);
-
-    if (req.session.user) {
-
-        kafka.make_request("update-profile", req, function(err, result){
-
-            if(err){
-                console.log("Unable to save user details.", err);
-                res.writeHead(400, {
-                        'Content-type': 'text/plain'
-                });
-                res.end('Error in adding an user');
-            }
-            else{
-                console.log("User details saved successfully.", result);
-                res.writeHead(200, {
-                        'Content-type': 'text/plain'
-                });
-                res.end('Adding a user successful!');
-            }
-        });        
-    }
-
-});
+//Routing
 
 
-//Post-Property
-app.post('/add-property', requireAuth, function (req, res) {
+var login = require('./routes/login.js');
+var signup = require('./routes/signup');
+var logout = require('./routes/logout');
+var profileDetails = require('./routes/profile-details');
+var updateProfile = require('./routes/update-profile');
+var addProperty = require('./routes/add-property');
+var search = require('./routes/search');
+var propertyDetails = require('./routes/property-details');
+var submitBooking = require('./routes/submit-booking');
+var sendMessage = require('./routes/send-message');
+var getMessages = require('./routes/get-messages');
+var getTravelerMessages = require('./routes/get-traveler-messages');
+var tripDetails = require('./routes/trip-details');
+var ownerDashboard = require('./routes/owner-dashboard-details');
 
-    console.log('Inside Add Property POST!');
-    console.log('Request Body: ', req.body);
-    const newProperty = req.body;
-    const userSession = req.session.user;
+//Route config
 
-    if (req.session.user) {
-
-        kafka.make_request("add-property", req, function(err, result){
-            if(err){
-                console.log("Error in adding property.", err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in adding property.');
-            }
-            else{                
-                console.log("Property details saved successfully.", result);
-                res.writeHead(200, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Adding a property successful!');
-            }
-        });
-    }
-});
-
-//Search
-app.post('/search', requireAuth, function (req, res) {
-
-    console.log('Inside Search Method GET!');
-    console.log('Request Body: ', req.body);
-
-    kafka.make_request("search", req, function(err, result){
-        if(err){
-            console.log('Error in Property search');
-            res.writeHead(400, {
-                'Content-type': 'text/plain'
-            });
-            res.end('Error in Property search');
-        }
-        else{
-            
-            res.writeHead(200, {
-                'Content-type': 'application/json'
-            });
-            console.log(JSON.stringify(result));
-            res.end(JSON.stringify(result));
-        }
-    });
-});
-
-//Get Property Details
-
-app.post('/property-details', requireAuth, function (req, res) {
-
-    console.log('Inside Property Details Method POST!');
-    console.log('Request Body: ', req.body);
-
-    if (req.session.user) {
-
-        kafka.make_request("property-details", req, function(err, result){
-            if(err){
-                console.log('Error in Retrieving property Details', err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in Retrieving property Details');
-            }
-            else{
-                console.log(JSON.stringify(result));
-                res.writeHead(200, {
-                    'Content-type': 'application/json'
-                });
-                res.end(JSON.stringify(result));
-            }
-        });        
-    }
-
-});
-
-//submit Booking
-
-app.post('/submit-booking', requireAuth, function (req, res) {
-
-    console.log('Inside Submit Booking POST!');
-    console.log('Request Body: ', req.body);
-
-    if (req.session.user) {
-
-        kafka.make_request("submit-booking", req, function(err, result){
-            if(err){
-                console.log("Unable to save booking details.", err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in adding a booking');
-            }
-            else{
-                console.log('Booking details saved to user details', result);
-                res.writeHead(200, {
-                        'Content-type': 'text/plain'
-                });
-                res.end('Booking added successfully! ');
-            }
-        });
-
-    }
-
-});
-
-//Messaging feature
-
-app.post('/send-message', function(req, res){
-    console.log('Inside Send Message POst!');
-    console.log('Request body: ', req.body);
-
-    kafka.make_request("send-message", req, function(err, result){
-        if(err){
-            console.log("Unable to send message.", err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in sending message');
-        }
-        else{
-            //console.log('Message sent successfully', result);
-                res.writeHead(200, {
-                        'Content-type': 'text/plain'
-                });
-                res.end('Message sent successfully! ');
-        }
-    })
-});
-
-//Get messages
-
-app.post('/get-messages', function(req, res){
-    console.log('Inside Get Message GET!');
-    console.log('Request body: ', req.body);
-
-    kafka.make_request("get-messages", req, function(err, result){
-        if(err){
-            console.log("Unable to get message.", err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in get message');
-        }
-        else{
-                console.log('Message retreived successfully ', result);
-                res.writeHead(200, {
-                        'Content-type': 'text/plain'
-                });
-                res.end(JSON.stringify(result));
-        }
-    });
-});
-
-//Get Traveler messages
-
-app.post('/get-traveler-messages', function(req, res){
-    console.log('Inside Get Traveler Message GET!');
-    console.log('Request body: ', req.body);
-
-    kafka.make_request("get-traveler-messages", req, function(err, result){
-        if(err){
-            console.log("Unable to get traveler message.", err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in get traveler message');
-        }
-        else{
-                console.log('traveler Message retreived successfully ', result);
-                res.writeHead(200, {
-                        'Content-type': 'text/plain'
-                });
-                res.end(JSON.stringify(result));
-        }
-    });
-});
+app.use('/login', login);
+app.use('/signup', signup);
+app.use('/logout', logout);
+app.use('/profile-details', profileDetails);
+app.use('/update-profile', updateProfile);
+app.use('/add-property', addProperty);
+app.use('/search', search);
+app.use('/property-details', propertyDetails);
+app.use('/submit-booking', submitBooking);
+app.use('/send-message', sendMessage);
+app.use('/get-messages', getMessages);
+app.use('/get-traveler-messages', getTravelerMessages);
+app.use('/trip-details', tripDetails);
+app.use('/owner-dashboard-details', ownerDashboard);
 
 
 //upload-file 
-
-app.post('/upload-file', requireAuth, upload.array('photos', 5), (req, res) => {
+app.post('/upload-file', upload.array('photos', 5), (req, res) => {
     console.log('req.body', req.body);
     res.end();
 });
 
 //download-file
-
 app.post('/download-file/:file(*)', function(req, res){
     console.log('Inside DOwnload File');
     var file = req.params.file;
@@ -442,71 +114,6 @@ app.post('/download-file/:file(*)', function(req, res){
     res.end(base64img);
 });
 
-//Trip - details
-
-app.get('/trip-details', requireAuth, function (req, res) {
-
-    console.log('Inside Trip Details GET!');
-    const userSession = req.session.user;
-
-    if (req.session.user) {
-
-        kafka.make_request("trip-details", req, function(err, result){
-            if(err){
-                console.log("Error in trip details.", err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in trip details');
-            }
-            else{
-                console.log('Trip details', JSON.stringify(result));
-                res.writeHead(200, {
-                    'Content-type': 'application/json'
-                });
-                res.end(JSON.stringify(result));
-            }
-        });               
-    }
-
-
-});
-
-//owner dashboard details
-
-app.get('/owner-dashboard-details', requireAuth, function (req, res) {
-
-    console.log('Inside Owner Dashboard Details GET!');
-
-    if (req.session.user) {
-        
-        kafka.make_request("owner-dashboard", req, function(err, result){
-            if(err){
-                console.log("Error in Owner dashboard", err);
-                res.writeHead(400, {
-                    'Content-type': 'text/plain'
-                });
-                res.end('Error in Owner dashboard');
-            }
-            else{
-                console.log('Property details of owner', JSON.stringify(result));
-                res.writeHead(200, {
-                    'Content-type': 'application/json'
-                });
-                res.end(JSON.stringify(result));
-            }
-        });
-                
-    }
-
-
-
-
-
-});
-
-
-//Mongo Sample
 
 
 
