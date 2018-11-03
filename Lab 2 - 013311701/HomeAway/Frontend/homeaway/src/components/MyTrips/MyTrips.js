@@ -3,7 +3,8 @@ import Header from '../Header/Header';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import axios from 'axios';
-
+import { connect } from 'react-redux';
+import {rooturl} from '../../config/settings';
 
 class MyTrips extends Component {
 
@@ -12,22 +13,38 @@ class MyTrips extends Component {
         this.state = {
             trips: [],
             tripDetails: [],
-            errorRedirect: false
+            errorRedirect: false,
+            startIndex : 0,
+            currentPage : 1,
+            pagesPerPage : 5,
+            ownerDashBoardTrips: []
         }
+
+        //bind
+        this.handleSearchChange = this.handleSearchChange.bind(this);
+        this.handlePagination = this.handlePagination.bind(this);
     }
 
     componentWillMount() {
        
         var token = localStorage.getItem("token");
         axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3001/trip-details', {
+        axios.get('http://'+rooturl+':3001/trip-details', {
             headers: {"Authorization" : `Bearer ${token}`}
         })
             .then(response => {
                 if (response.status === 200) {
                     console.log("Response : ", response.data);
+
+                    var trips = response.data;
+                    var tripsResult = trips.filter(function(property){
+                        var index = trips.indexOf(property);
+                        return index >= 0 && index <= 4;
+                    });
+
                     this.setState({
-                        tripDetails: response.data
+                        tripDetails: response.data,
+                        ownerDashBoardTrips : tripsResult
                     });
 
                     
@@ -42,12 +59,75 @@ class MyTrips extends Component {
 
     }
 
+    handleSearchChange = (event) => {
+
+        var target = event.target;        
+        var value = target.value;
+
+                
+        var filteredArray = this.state.ownerDashBoardTrips.filter(function (item){
+            return item.Headline.indexOf(value) != -1;
+        });
+
+        this.setState({
+            tripDetails : filteredArray
+        });
+        console.log('Filtered Array: ', filteredArray);
+    }
+
+    handlePagination(event){
+
+        var target = event.target;
+        var id = target.id;
+        var flag = true;
+        if(id == "prev"){
+            console.log('SI', this.state.startIndex);
+            if(this.state.startIndex > 0){
+                var startIndex = this.state.startIndex - this.state.pagesPerPage;
+            }
+            else{
+                flag = false;
+            }
+        }        
+        else{
+            var startIndex = this.state.startIndex + this.state.pagesPerPage;
+            if(startIndex > this.state.tripDetails.length){
+                flag = false;
+            }
+        }
+        
+
+        if(flag === true){
+
+        
+        var endIndex = startIndex + this.state.pagesPerPage - 1;
+        var trips =this.state.tripDetails;
+        var tripsResult = this.state.tripDetails.filter(function(property){
+            var index = trips.indexOf(property);
+            return index >= startIndex && index <= endIndex;
+        });
+        console.log('startomdex: ', startIndex);
+        console.log('endomdex: ', endIndex);
+        this.setState({
+            ownerDashBoardTrips : tripsResult,
+            startIndex : startIndex
+        });
+        }
+    }
+
+
     render() {
 
         let redrirectVar = null;
-        if (!cookie.load('cookie')) {
+        if(this.props.loginStateStore.result){
+            if(!this.props.loginStateStore.result.isAuthenticated === true){
+                redrirectVar = <Redirect to="/login" />
+            }
+        }
+        else{
             redrirectVar = <Redirect to="/login" />
         }
+
         if (this.state.errorRedirect === true) {
             redrirectVar = <Redirect to="/error" />
         }
@@ -55,7 +135,7 @@ class MyTrips extends Component {
         
 
 
-        let tripDetails = this.state.tripDetails.map(function (trip, index) {
+        let tripDetails = this.state.ownerDashBoardTrips.map(function (trip, index) {
             //var startDate = this.state.propertyDetails.AvailabilityStartDate;
             var startDate = "";
             var endDate = "";
@@ -107,15 +187,23 @@ class MyTrips extends Component {
                     <div className="center-content trip-banner">
                         <h1>My Trips - Personalised view of your trips</h1>
                     </div>
-                    <div class="pad-lft-9-pc">
+                    <div className="pad-lft-9-pc">
                         <div className="form-group row search-tab">                                    
                             <span className="col-lg-8 col-md-12 col-sm-12 col-xs-12 pad-bot-10">
-                                <input type="textbox" className="form-control form-control-lg" name="myTripsSearchText" id = "myTripsSearchText" placeholder="Search" onChange={this.handleInputChange}></input>                                        
+                                <input type="textbox" className="form-control form-control-lg" name="myTripsSearchText" id = "myTripsSearchText" placeholder="Search" onChange={this.handleSearchChange}></input>                                        
                             </span>
                         </div>
                     </div>
                     <div>
                         {tripDetails}
+                    </div>
+                    <div className="pagination-container center-content">
+                        <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
+                            <button className="btn btn-primary btn-lg" id="prev" onClick={this.handlePagination}>Prev</button>
+                        </span>
+                        <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
+                            <button className="btn btn-primary btn-lg" id="next" onClick={this.handlePagination} >Next</button>
+                        </span>                        
                     </div>
                     
                 </div>
@@ -124,4 +212,9 @@ class MyTrips extends Component {
     }
 }
 
-export default MyTrips;
+const mapStateToProps = state => ({
+    loginStateStore : state.login
+})
+
+//export default Header;
+export default connect(mapStateToProps, {})(MyTrips);

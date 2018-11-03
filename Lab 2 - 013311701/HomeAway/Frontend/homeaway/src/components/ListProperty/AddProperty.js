@@ -6,6 +6,7 @@ import axios from 'axios';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import Header from '../Header/Header';
+import {rooturl} from '../../config/settings';
 
 import { photoHandler } from '../../actions/listPropertyActions';
 import { connect } from 'react-redux';
@@ -229,7 +230,7 @@ class AddProperty extends Component {
 
             var token = localStorage.getItem("token");
             axios.defaults.withCredentials = true;
-            axios.post('http://localhost:3001/add-property', data, {
+            axios.post('http://'+rooturl+':3001/add-property', data, {
                 headers: {"Authorization" : `Bearer ${token}`}
             })
                 .then(response => {
@@ -258,7 +259,16 @@ class AddProperty extends Component {
     render() {
 
         let redrirectVar = null;
-        if (!cookie.load('cookie')) {
+        // if (!cookie.load('cookie')) {
+        //     redrirectVar = <Redirect to="/login" />
+        // }
+
+        if(this.props.loginStateStore.result){
+            if(!this.props.loginStateStore.result.isAuthenticated === true){
+                redrirectVar = <Redirect to="/login" />
+            }
+        }
+        else{
             redrirectVar = <Redirect to="/login" />
         }
 
@@ -504,7 +514,8 @@ class AddProperty extends Component {
 }
 
 const mapStateToProps = state => ({
-    listPropertyStore : state.listProperty
+    listPropertyStore : state.listProperty,
+    loginStateStore : state.login
 });
 
 export default connect(mapStateToProps, {photoHandler})(AddProperty);

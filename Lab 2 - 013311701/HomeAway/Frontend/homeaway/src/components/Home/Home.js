@@ -6,6 +6,7 @@ import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
 import Header from '../Header/Header';
 import DisplayProperties from '../DisplayProperties/DisplayProperties';
+import {Link} from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { saveSearchDetailsToStore } from '../../actions/homeAction';
@@ -64,27 +65,15 @@ class Home extends Component {
     render() {
 
         let redrirectVar = null;
-        if(!cookie.load('cookie')){
+        if(this.props.loginStateStore.result){
+            if(!this.props.loginStateStore.result.isAuthenticated === true){
+                redrirectVar = <Redirect to="/login" />
+            }
+        }
+        else{
             redrirectVar = <Redirect to="/login" />
         }
-
-        
-        if(this.props.isSearch){
-            redrirectVar = <Redirect to="/display-properties" />
-        }
-
-        if(this.props.isSearch){
-            redrirectVar = <Redirect to="/display-properties" />
-        }
-        console.log('homestore', this.props.homeStateStore);
-        if(this.props.homeStateStore.result){
-            console.log('Search flag ', this.props.homeStateStore.result.isSearch);
-            if(this.props.homeStateStore.result.isSearch === true){
-                redrirectVar = <Redirect to="/display-properties" />
-            }
-            
-        }
-        
+                
         return (
             <div className="home-container">
                 <Header />
@@ -113,7 +102,7 @@ class Home extends Component {
                                         <input type="textbox" className="form-control form-control-lg" name="guests" placeholder="2 guests" onChange={this.handleInputChange}></input>
                                     </span>
                                     <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
-                                        <button className="btn btn-primary btn-lg" style={{ width: "100%" }} onClick={this.handleSearchClick}>Search</button>
+                                        <Link to="/display-properties" className="btn btn-primary btn-lg" style={{ width: "100%" }} onClick={this.handleSearchClick}>Search</Link>
                                     </span>                                   
                                 </div>
                             </div>                            
@@ -214,7 +203,8 @@ class Home extends Component {
 
 //
 const mapStateToProps = state => ({
-    homeStateStore : state.home
+    homeStateStore : state.home,
+    loginStateStore : state.login
 })
 
 //export default Profile;

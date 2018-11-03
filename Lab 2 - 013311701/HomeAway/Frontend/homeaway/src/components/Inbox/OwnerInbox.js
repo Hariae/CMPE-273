@@ -4,6 +4,8 @@ import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import {rooturl} from '../../config/settings';
+import { connect } from 'react-redux';
 
 class OwnerInbox extends Component {
 
@@ -12,50 +14,12 @@ class OwnerInbox extends Component {
         this.state = {
             messageContent: "",
             messages: [],
-            messageResult: []
+            messageResult: [],
+            redirectToHome: false
         }
-
-        //bind
-        //this.sendMessage = this.sendMessage.bind(this);
-        //this.handleInputChange = this.handleInputChange.bind(this);
-
     }
 
-    // handleInputChange = (event) => {
-
-    //     const target = event.target;
-    //     const name = target.name;
-    //     const value = target.value;
-
-
-    //     this.setState({
-    //         [name]: value
-    //     });
-    // }
-
-    // sendMessage = (event) => {
-    //     var propertyId = event.target.value;
-    //     console.log('Inside Send Message ', this.state.messageContent);
-    //     var token = localStorage.getItem("token");
-    //     axios.defaults.withCredentials = true;
-
-    //     var data = {
-    //         traveler: false,
-    //         messageContent: this.state.messageContent,
-    //         PropertyId: propertyId
-    //     }
-
-    //     axios.post('http://localhost:3001/send-message', data, {
-    //         headers: { "Authorization": `Bearer ${token}` }
-    //     })
-    //         .then(response => {
-
-    //             if (response.status === 200) {
-    //                 console.log('Message sent!');
-    //             }
-    //         });
-    // }
-
+    
     componentWillMount() {
 
         var token = localStorage.getItem("token");
@@ -65,7 +29,7 @@ class OwnerInbox extends Component {
 
         };
         console.log('component did mount');
-        axios.post('http://localhost:3001/get-messages/', data)
+        axios.post('http://'+rooturl+':3001/get-messages/', data)
             .then(response => {
                 if (response.status === 200) {
                     //console.log(response.data);
@@ -81,9 +45,16 @@ class OwnerInbox extends Component {
 
     render() {
 
-
-
-        //let messageDetails = null;
+        let redirectVar = null;
+        if(this.props.loginStateStore.result){
+            if(!this.props.loginStateStore.result.isAuthenticated === true){
+                redirectVar = <Redirect to="/login" />
+            }
+        }
+        else{
+            redirectVar = <Redirect to="/login" />
+        }
+       
         let messageDetails = this.state.messageResult.map(function (message, index) {
             var messageContent = "";
             function handleInputChange(event) {               
@@ -105,11 +76,6 @@ class OwnerInbox extends Component {
                 const messageid = target.name;
                 console.log(messageid);
 
-                // var data = {
-                //     traveler: false,
-                //     messageContent: this.state.messageContent,
-                //     PropertyId: propertyId
-                // }
                 console.log('Message Id', messageid);
                 var data = {
                     traveler: false,
@@ -117,13 +83,15 @@ class OwnerInbox extends Component {
                     messageId : messageid
                 }
 
-                axios.post('http://localhost:3001/send-message', data, {
+                axios.post('http://'+rooturl+':3001/send-message', data, {
                     headers: { "Authorization": `Bearer ${token}` }
                 })
                     .then(response => {
 
                         if (response.status === 200) {
                             console.log('Message sent!');
+                            
+                            
                         }
                     });
             }
@@ -131,13 +99,16 @@ class OwnerInbox extends Component {
             return (
                 <div className="container display-messages-container pad-5-pc" key={index}>
                     <div >
-                    <div>
-                        <span className="alert alert-dark" role="alert">{message.Message.traveler}</span>
-                    </div>
-                    
-                        <div className="flt-right">
-                            <span className="alert alert-info" role="alert">{message.Message.owner}</span>
+                        <div>
+                            <p><b>Property Id : #{message.PropertyId}</b></p>
                         </div>
+                        <div>
+                            <span className="alert alert-dark" role="alert">{message.Message.traveler}</span>
+                        </div>
+                        
+                            <div className="flt-right">
+                                <span className="alert alert-info" role="alert">{message.Message.owner}</span>
+                            </div>
                     </div>
 
                     <br /><br />
@@ -176,9 +147,10 @@ class OwnerInbox extends Component {
 
         return (
             <div>
+                {redirectVar}
                 <Header />
                 <div className="container">
-                    Message Details : {messageDetails}
+                    {messageDetails}
                 </div>
             </div>
         );
@@ -186,4 +158,11 @@ class OwnerInbox extends Component {
 
 }
 
-export default OwnerInbox;
+//export default OwnerInbox;
+
+const mapStateToProps = state => ({
+    loginStateStore : state.login
+})
+
+//export default Profile;
+export default connect(mapStateToProps, {})(OwnerInbox);

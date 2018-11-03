@@ -9,7 +9,6 @@ var requireAuth = passport.authenticate('jwt', {session: false});
 //Kafka
 var kafka = require('../kafka/client');
 
-
 //owner dashboard details
 
 router.get('/', requireAuth, function (req, res) {

@@ -11,7 +11,7 @@ export default function (state={}, action){
             console.log('Inside Reducer', action.payload);
             return {
                 ...state,
-                isAuthenticated: action.payload
+                result : action.payload
             }            
         default: 
             return state;

@@ -36,7 +36,6 @@ class Login extends Component {
 
         const { meta: { touched, error } } = field;
         const className = touched && error ? "form-control form-control-lg is-invalid" : "form-control form-control-lg";
-        console.log('filef name', field.placeholder);
         const inputType = field.type;
         const inputPlaceholder = field.placeholder;
         const errorMessageStyling =  touched && error ? "text-danger" : "";
@@ -57,8 +56,7 @@ class Login extends Component {
 
     //
     onSubmit(values) {
-        console.log('inside submit', values);
-        axios.defaults.withCredentials = true;
+       axios.defaults.withCredentials = true;
         var data = {
             Email: values.email,
             Password: values.password
@@ -71,8 +69,11 @@ class Login extends Component {
 
         let redrirectVar = null;        
 
-        if (this.props.loginStateStore.isAuthenticated == true) {
-            redrirectVar = <Redirect to="/home" />
+        if (this.props.loginStateStore.result) {
+            if(this.props.loginStateStore.result.isAuthenticated === true){
+                redrirectVar = <Redirect to="/home" />
+            }
+            
         }
 
         if (this.state.errorRedirect) {
@@ -90,7 +91,6 @@ class Login extends Component {
         }
 
         let formErrorPanel = null;
-        console.log('FormvalidationFailur', this.state.formValidationFailure);
         if (this.state.formValidationFailure) {
             formErrorPanel = <div>
                 <div className="alert alert-danger" role="alert">
@@ -182,7 +182,6 @@ const mapStateToProps = state => ({
 });
 
 function validate(values) {
-    console.log('inside vaidate');
     const errors = {};
     if (!values.email) {
         errors.email = "Enter E-mail";

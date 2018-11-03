@@ -3,6 +3,7 @@ import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import Header from '../Header/Header';
 import axios from 'axios';
+import {rooturl} from '../../config/settings';
 
 import { getProfileDetails, updateProfileDetails } from '../../actions/profileActions';
 import { connect } from 'react-redux';
@@ -49,7 +50,7 @@ class Profile extends Component {
             var data = new FormData();
             data.append('photos', profilePhoto);
             axios.defaults.withCredentials = true;
-            axios.post('http://localhost:3001/upload-file', data)
+            axios.post('http://'+rooturl+':3001/upload-file', data)
                 .then(response => {
                     if (response.status === 200) {
                         console.log('Profile Photo Name: ', profilePhoto.name);
@@ -103,7 +104,12 @@ class Profile extends Component {
     render() {
 
         let redrirectVar = null;
-        if (!cookie.load('cookie')) {
+        if(this.props.loginStateStore.result){
+            if(!this.props.loginStateStore.result.isAuthenticated === true){
+                redrirectVar = <Redirect to="/login" />
+            }
+        }
+        else{
             redrirectVar = <Redirect to="/login" />
         }
 

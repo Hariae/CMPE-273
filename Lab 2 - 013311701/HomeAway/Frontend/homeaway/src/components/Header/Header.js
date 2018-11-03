@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import cookie from 'react-cookies';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import {rooturl} from '../../config/settings';
 
 class Header extends Component {
 
@@ -15,7 +17,7 @@ class Header extends Component {
     handleLogout = () => {
 
         axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3001/logout')
+        axios.post('http://'+rooturl+':3001/logout')
             .then(response => {
                 if (response.status === 200) {
                     console.log('User logged out!');
@@ -29,49 +31,69 @@ class Header extends Component {
         let ownerContent = null;
         let travelerContent = null;
         let ownerListPropertyTab = null;
+        let ownerInboxContent = null;
+        let travelerInboxContent = null;
 
-        if(cookie.load('Accounttype') >= 2){
-            ownerContent = <Link to="/owner-dashboard" className="dropdown-item blue-text" >Owner Dashboard</Link>
-            ownerListPropertyTab = <span><a href="/add-property" className="btn btn-lg lyp-btn">List your property</a></span>
+        //if(cookie.load('Accounttype') >= 2){
+        if(this.props.loginStateStore.result){
+            if(this.props.loginStateStore.result.Accounttype >= 2){            
+                ownerContent = <Link to="/owner-dashboard" className="dropdown-item blue-text" >Owner Dashboard</Link>
+                ownerListPropertyTab = <span><Link to="/add-property" className="btn btn-lg lyp-btn">List your property</Link></span>
+                ownerInboxContent = <Link to="/owner-inbox" className="dropdown-item blue-text">Owner Inbox</Link>
+            }
         }
 
-        if(cookie.load('Accounttype') == 1 || cookie.load('Accounttype') == 3){
-            travelerContent = <a className="dropdown-item blue-text" href="/my-trips">My Trips</a>
+        if(this.props.loginStateStore.result){
+            if(this.props.loginStateStore.result.Accounttype == 1 || this.props.loginStateStore.result.Accounttype == 3){
+                travelerContent = <Link to="/my-trips" className="dropdown-item blue-text" >My Trips</Link>
+                travelerInboxContent = <Link to="/traveler-inbox" className="dropdown-item blue-text" >Traveler Inbox</Link>
+            }
         }
-
-        let username = cookie.load('cookie');
-        if (cookie.load('cookie')) {
-            loggedInUserContent = <span className="header-bar-tabs">
-                <span className="blue-text">Trip Boards</span>
-                <span>
-                    <a className="btn dropdown-toggle userName-dropdown" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {username}
-                    </a>
-                    {this.props.name}
-
-                    <div className="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                        <Link to="/profile" className="dropdown-item blue-text">Profile</Link>
-                        {travelerContent}
-                        {ownerContent}                        
-                        <a className="dropdown-item blue-text" href="/login" onClick={this.handleLogout}>Logout</a>
-                    </div>                    
+       
+        let username = null;
+        if(this.props.loginStateStore.result){
+            username = this.props.loginStateStore.result.FirstName;
+        }
+        if(this.props.loginStateStore.result){
+            if (this.props.loginStateStore.result.isAuthenticated === true) {
+                loggedInUserContent = <span className="header-bar-tabs">
+                    <span className="blue-text">Trip Boards</span>
+                    <span>
+                        <Link to="#" className="btn dropdown-toggle userName-dropdown" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {username}
+                        </Link>
+                        {this.props.name}
+    
+                        <div className="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <Link to="/profile" className="dropdown-item blue-text">Profile</Link>
+                            {travelerContent}
+                            {travelerInboxContent}
+                            {ownerContent}  
+                            {ownerInboxContent}                                                  
+                            <a className="dropdown-item blue-text" href="/login" onClick={this.handleLogout}>Logout</a>
+                        </div>                    
+                    </span>
+                    {ownerListPropertyTab}                
                 </span>
-                {ownerListPropertyTab}                
-            </span>
-
-
+            }
         }
+        
 
         return (
             <div className="container header-container">
                 <div className="header-bar" >
-                    <a href="/home"><img src={require('../../Static/Images/logo-bceheader.svg')} alt="logo-homeaway" /></a>
+                    <Link to="/home"><img src={require('../../Static/Images/logo-bceheader.svg')} alt="logo-homeaway" /></Link>
                     {loggedInUserContent}
-                    <a href="/home"><img src={require('../../Static/Images/birdhouse-bceheader.svg')} alt="logo" className="flt-right" /></a>
+                    <Link to="/home"><img src={require('../../Static/Images/birdhouse-bceheader.svg')} alt="logo" className="flt-right" /></Link>
                 </div>
             </div>
         )
     }
 }
 
-export default Header;
+const mapStateToProps = state => ({
+    loginStateStore : state.login
+})
+
+//export default Header;
+export default connect(mapStateToProps, {})(Header);

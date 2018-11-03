@@ -3,6 +3,9 @@ import Header from '../Header/Header';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import axios from 'axios';
+import { connect } from 'react-redux';
+import {rooturl} from '../../config/settings';
+
 
 
 class OwnerDashboard extends Component {
@@ -12,29 +15,95 @@ class OwnerDashboard extends Component {
         this.state={
             trips: [],
             tripDetails: [],
-            errorRedirect: false
+            errorRedirect: false,
+            currentPage : 1,
+            loadPage: 0,
+            startIndex : 0,
+            currentPage : 1,
+            pagesPerPage : 5,
+            ownerDashBoardTrips: []
         }
+
+        var tripDetails = [];
 
         //bind
         this.handleSearchChange = this.handleSearchChange.bind(this);
+        this.handlePagination = this.handlePagination.bind(this);
+        this.properyPagination = this.properyPagination.bind(this);
 
+    }
+
+    properyPagination(property){
+
+        var index = this.state.tripDetails.indexOf(property);
+        return index >= this.state.startIndex && index <= (this.state.startIndex + this.state.pagesPerPage - 1)
+
+    }
+
+    
+
+    handlePagination(event){
+
+        var target = event.target;
+        var id = target.id;
+        var flag = true;
+        if(id == "prev"){
+            console.log('SI', this.state.startIndex);
+            if(this.state.startIndex > 0){
+                var startIndex = this.state.startIndex - this.state.pagesPerPage;
+            }
+            else{
+                flag = false;
+            }
+        }        
+        else{
+            var startIndex = this.state.startIndex + this.state.pagesPerPage;
+            if(startIndex > this.state.tripDetails.length){
+                flag = false;
+            }
+        }
+        
+
+        if(flag === true){
+
+        
+        var endIndex = startIndex + this.state.pagesPerPage - 1;
+        var trips =this.state.tripDetails;
+        var tripsResult = this.state.tripDetails.filter(function(property){
+            var index = trips.indexOf(property);
+            return index >= startIndex && index <= endIndex;
+        });
+        console.log('startomdex: ', startIndex);
+        console.log('endomdex: ', endIndex);
+        this.setState({
+            ownerDashBoardTrips : tripsResult,
+            startIndex : startIndex
+        });
+        }
     }
 
     componentWillMount(){
         
         var token = localStorage.getItem("token");
         axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3001/owner-dashboard-details', {
+        axios.get('http://'+rooturl+':3001/owner-dashboard-details', {
             headers: {"Authorization" : `Bearer ${token}`}
         })
             .then(response=>{
                 if (response.status === 200) {
                     console.log("Response : ", response.data);
-                    this.setState({
-                        tripDetails: response.data
+
+                    var trips = response.data;
+                    var tripsResult = trips.filter(function(property){
+                        var index = trips.indexOf(property);
+                        return index >= 0 && index <= 4;
                     });
 
-                    
+                    this.setState({
+                        tripDetails: response.data,
+                        ownerDashBoardTrips : tripsResult
+                        
+                    });                                      
                 }
             }).catch((err) =>{
                 if(err){
@@ -42,39 +111,46 @@ class OwnerDashboard extends Component {
                         errorRedirect: true
                     })
                 }
-            });
+            });            
     }
 
 
     handleSearchChange = (event) => {
 
-        var target = event.target;
-        var name = target.name;
+        var target = event.target;        
         var value = target.value;
 
 
-        // //var value = e.target.value;
-        // //console.log('searchText', value);
-        // this.state.tripDetails = this.state.tripDetails.filter(function(item){
-        //     console.log('Item', item.Headline.includes("2"));
-        //     return item.Headline.includes("2");
-        // });
+        
+        var filteredArray = this.state.tripDetails.filter(function (item){
+            return item.Headline.indexOf(value) != -1;
+        });
 
+        this.setState({
+            tripDetails : filteredArray
+        });
+        console.log('Filtered Array: ', filteredArray);
     }
 
 
     render() {
 
         let redrirectVar = null;
-        if (!cookie.load('cookie')) {
+        if(this.props.loginStateStore.result){
+            if(!this.props.loginStateStore.result.isAuthenticated === true){
+                redrirectVar = <Redirect to="/login" />
+            }
+        }
+        else{
             redrirectVar = <Redirect to="/login" />
         }
+
         if (this.state.errorRedirect === true) {
             redrirectVar = <Redirect to="/error" />
         }
 
-
-        let tripDetails = this.state.tripDetails.map(function (trip, index) {
+        console.log('tripResult', this.state.ownerDashBoardTrips);
+        let tripDetails = this.state.ownerDashBoardTrips.map(function (trip, index) {
 
             var startDate = "";
             var endDate = "";
@@ -126,7 +202,7 @@ class OwnerDashboard extends Component {
                     <div className="center-content owner-dashboard-banner">
                         <h1>Dashboard</h1>
                     </div>
-                    <div class="pad-lft-9-pc">
+                    <div className="pad-lft-9-pc">
                         <div className="form-group row search-tab">                                    
                             <span className="col-lg-8 col-md-12 col-sm-12 col-xs-12 pad-bot-10">
                                 <input type="textbox" className="form-control form-control-lg" name="ownerDashboardSearchText" id = "ownerDashboardSearchText" placeholder="Search" onChange={this.handleSearchChange} ></input>                                        
@@ -136,10 +212,24 @@ class OwnerDashboard extends Component {
                     <div>
                         {tripDetails}
                     </div>
+                    <div className="pagination-container center-content">
+                        <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
+                            <button className="btn btn-primary btn-lg" id="prev" onClick={this.handlePagination}>Prev</button>
+                        </span>
+                        <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
+                            <button className="btn btn-primary btn-lg" id="next" onClick={this.handlePagination} >Next</button>
+                        </span>                        
+                    </div>
                 </div>
             </div>
         )
     }
 }
 
-export default OwnerDashboard;
+
+const mapStateToProps = state => ({
+    loginStateStore : state.login
+})
+
+//export default Header;
+export default connect(mapStateToProps, {})(OwnerDashboard);

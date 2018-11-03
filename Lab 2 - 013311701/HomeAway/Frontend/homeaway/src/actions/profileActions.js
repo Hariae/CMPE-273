@@ -1,5 +1,5 @@
 import axios from "axios";
-import { bindActionCreators } from "C:/Users/User/AppData/Local/Microsoft/TypeScript/3.1/node_modules/redux";
+import {rooturl} from '../config/settings';
 export const GET_PROFILE_DETAILS = "GET_PROFILE_DETAILS";
 export const UPDATE_PROFILE_DETAILS = "UPDATE_PROFILE_DETAILS";
 export const UPDATE_PROFILE_DETAILS_FAILURE = "UPDATE_PROFILE_DETAILS_FAILURE";
@@ -17,7 +17,7 @@ export function getProfileDetails() {
         }
         var token = localStorage.getItem("token");
 
-        await axios.get('http://localhost:3001/profile-details', {
+        await axios.get('http://'+rooturl+':3001/profile-details', {
             headers: {"Authorization" : `Bearer ${token}`}
         })
             .then((response) => {
@@ -25,7 +25,7 @@ export function getProfileDetails() {
                 ProfileImage = response.data.ProfileImage;
             });
         console.log('ProfileImage', ProfileImage);
-        await axios.post('http://localhost:3001/download-file/' + ProfileImage , {
+        await axios.post('http://'+rooturl+':3001/download-file/' + ProfileImage , {
             headers: {"Authorization" : `Bearer ${token}`}
         })
             .then(response => {
@@ -48,7 +48,7 @@ export function updateProfileDetails(data){
         console.log('Inside Update Profile Details');
         var token = localStorage.getItem("token");
         axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3001/update-profile', data , {
+        axios.post('http://'+rooturl+':3001/update-profile', data , {
             headers: {"Authorization" : `Bearer ${token}`}
         })
             .then(response => {

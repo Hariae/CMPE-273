@@ -3,6 +3,7 @@ import Header from '../Header/Header';
 import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import axios from 'axios';
+import {rooturl} from '../../config/settings';
 
 class OwnerPropertyInbox extends Component {
 
@@ -27,7 +28,7 @@ class OwnerPropertyInbox extends Component {
         axios.defaults.withCredentials = true;
         var data = {};
 
-        axios.post('http://localhost:3001/get-messages/', data)
+        axios.post('http://'+rooturl+':3001/get-messages/', data)
             .then(response => {
                 if (response.status === 200) {
                     //console.log(response.data);
@@ -77,7 +78,7 @@ class OwnerPropertyInbox extends Component {
             PropertyId: this.props.match.params.id
         }
 
-        axios.post('http://localhost:3001/send-message', data, {
+        axios.post('http://'+rooturl+':3001/send-message', data, {
             headers: { "Authorization": `Bearer ${token}` }
         })
         .then(response => {

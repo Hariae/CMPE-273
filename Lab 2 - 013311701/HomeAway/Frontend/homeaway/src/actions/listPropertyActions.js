@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {rooturl} from '../config/settings';
 export const PHOTO_HANDLER = "PHOTO_HANDLER";
 export const PHOTO_HANDLER_FAILURE = "PHOTO_HANDLER_FAILURE";
 
@@ -18,7 +19,7 @@ export function photoHandler(photos){
 
         var token = localStorage.getItem("token");
         axios.defaults.withCredentials = true;
-        await axios.post('http://localhost:3001/upload-file', data, {
+        await axios.post('http://'+rooturl+':3001/upload-file', data, {
             headers: {"Authorization" : `Bearer ${token}`}
         })
             .then(response => {
@@ -44,7 +45,7 @@ export function photoHandler(photos){
             axios.defaults.withCredentials = true;
             var imagePreviewArr = [];
             for (var i = 0; i < photos.length; i++) {
-                await axios.post('http://localhost:3001/download-file/' + photos[i].name, {
+                await axios.post('http://'+rooturl+':3001/download-file/' + photos[i].name, {
                     headers: {"Authorization" : `Bearer ${token}`}
                 })
                 .then(response => {

@@ -7,6 +7,7 @@ import { Redirect } from 'react-router';
 import Header from '../Header/Header';
 import axios from 'axios';
 import { connect } from 'react-redux';
+import {rooturl} from '../../config/settings';
 
 class PropertyDisplay extends Component {
 
@@ -43,7 +44,7 @@ class PropertyDisplay extends Component {
             PropertyId: this.props.match.params.id
         }
         console.log('Data: ', data);
-        axios.post('http://localhost:3001/property-details', data, {
+        axios.post('http://'+rooturl+':3001/property-details', data, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(response => {
@@ -56,7 +57,7 @@ class PropertyDisplay extends Component {
                     var imageArr = [];
                     var photoList = this.state.propertyDetails.Photos.split(',');
                     for (let i = 0; i < photoList.length; i++) {
-                        axios.post('http://localhost:3001/download-file/' + photoList[i], {
+                        axios.post('http://'+rooturl+':3001/download-file/' + photoList[i], {
                             headers: { "Authorization": `Bearer ${token}` }
                         })
                             .then(response => {
@@ -109,7 +110,7 @@ class PropertyDisplay extends Component {
         }
 
 
-        axios.post('http://localhost:3001/submit-booking', data, {
+        axios.post('http://'+rooturl+':3001/submit-booking', data, {
             headers: { "Authorization": `Bearer ${token}` }
         })
             .then(response => {
@@ -175,7 +176,7 @@ class PropertyDisplay extends Component {
             OwnerId: this.state.propertyDetails.OwnerId
         }
 
-        axios.post('http://localhost:3001/send-message', data, {
+        axios.post('http://'+rooturl+':3001/send-message', data, {
             headers: { "Authorization": `Bearer ${token}` }
         })
         .then(response => {
@@ -188,9 +189,15 @@ class PropertyDisplay extends Component {
 
     render() {
         let redrirectVar = null;
-        if (!cookie.load('cookie')) {
+        if(this.props.loginStateStore.result){
+            if(!this.props.loginStateStore.result.isAuthenticated === true){
+                redrirectVar = <Redirect to="/login" />
+            }
+        }
+        else{
             redrirectVar = <Redirect to="/login" />
         }
+
         if (this.state.errorRedirect === true) {
             redrirectVar = <Redirect to="/error" />
         }
@@ -410,7 +417,8 @@ class PropertyDisplay extends Component {
 }
 
 const mapStateToProps = state => ({
-    homeStateStore: state.home
+    homeStateStore: state.home,
+    loginStateStore : state.login
 });
 
 //export default PropertyDisplay;

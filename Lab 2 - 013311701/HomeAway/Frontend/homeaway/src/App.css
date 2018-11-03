@@ -517,3 +517,7 @@ textarea{
 .light-blue-bg{
   background-color: lightblue;
 }
+
+.pagination-container{
+  padding: 5%;
+}

@@ -7,6 +7,7 @@ import cookie from 'react-cookies';
 import { Redirect } from 'react-router';
 import Header from '../Header/Header';
 import { Link } from 'react-router-dom';
+import {rooturl} from '../../config/settings';
 
 import { connect } from 'react-redux';
 
@@ -19,50 +20,31 @@ class DisplayProperties extends Component {
             arrivalDate: moment(),
             departureDate: moment(),
             Properties: [],
-            // propertyDetails: {
-            //     LocationDetails: {
-            //         country: "",
-            //         streetAddress: "",
-            //         unitNumber: "",
-            //         city: "",
-            //         state: "",
-            //         zipCode: ""
-            //     },
-            //     Details: {
-            //         headline: "",
-            //         description: "",
-            //         propertyType: "",
-            //         bedrooms: "",
-            //         accomodates: "",
-            //         bathrooms: ""
-            //     },
-            //     Photos: {
-            //         photos: ""
-            //     },
-            //     PricingDetails: {
-            //         availabilityStartDate: "",
-            //         availabilityEndDate: "",
-            //         currency: "",
-            //         baserate: "",
-            //         minStay: ""
-
-            //     }
-            // },
             displayProperty: false,
             propertyId: "",
             Photos: [],
-            errorRedirect: false
+            errorRedirect: false,
+            priceFilter: "",
+            bedroomFilter: "",
+            startDateFilter: moment(),
+            endDateFilter: moment(),
+            startIndex : 0,
+            currentPage : 1,
+            pagesPerPage : 5,
+            PropertiesResult: []
         }
 
         
-
         //Bind
-        this.handleArrivalDateChange = this.handleArrivalDateChange.bind(this);
-        this.handleDepartureDateChange = this.handleDepartureDateChange.bind(this);
+        this.handleFilterStartDateChange = this.handleFilterStartDateChange.bind(this);
+        this.handleFilterEndDateChange = this.handleFilterEndDateChange.bind(this);
+        this.handleFiltering = this.handleFiltering.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
+        this.handlePagination = this.handlePagination.bind(this);
     }
 
 
-
+   
     componentDidMount() {
 
         var data = {
@@ -74,7 +56,7 @@ class DisplayProperties extends Component {
         var token = localStorage.getItem("token");
         
         axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3001/search', data, {
+        axios.post('http://'+rooturl+':3001/search', data, {
             headers: {"Authorization" : `Bearer ${token}`}
         })
             .then(response => {
@@ -85,7 +67,7 @@ class DisplayProperties extends Component {
 
                 var imageArr = [];
                 for (let i = 0; i < this.state.Properties.length; i++) {
-                    axios.post('http://localhost:3001/download-file/' + this.state.Properties[i].Photos.split(',')[0] , {
+                    axios.post('http://'+rooturl+':3001/download-file/' + this.state.Properties[i].Photos.split(',')[0] , {
                         headers: {"Authorization" : `Bearer ${token}`}
                     })
                         .then(response => {
@@ -94,8 +76,16 @@ class DisplayProperties extends Component {
                             imageArr.push(imagePreview);
                             const propertyArr = this.state.Properties.slice();
                             propertyArr[i].Photos = imagePreview;
+
+                            var trips = propertyArr;
+                            var tripsResult = trips.filter(function(property){
+                                var index = trips.indexOf(property);
+                                return index >= 0 && index <= 4;
+                            });
+
                             this.setState({
-                                Properties: propertyArr
+                                Properties: propertyArr,
+                                PropertiesResult: tripsResult                                
                             });
                         }).catch((err) =>{
                             if(err){
@@ -105,6 +95,9 @@ class DisplayProperties extends Component {
                             }
                         });
                 }
+
+
+
             }).catch((err) =>{
                 if(err){
                     this.setState({
@@ -114,23 +107,103 @@ class DisplayProperties extends Component {
             });
     }
 
-    handleArrivalDateChange(date) {
+    handleFilterStartDateChange(date) {
         this.setState({
-            arrivalDate: date
+            startDateFilter: date
         })
     }
 
-    handleDepartureDateChange(date) {
+    handleFilterEndDateChange(date) {
         this.setState({
-            departureDate: date
+            endDateFilter: date
         })
+    }
+
+    handleInputChange(event){
+        const target = event.target;
+        const name = target.name;
+        const value = target.value;
+
+        this.setState({
+            [name]: value
+        });
+    }
+
+    handleFiltering(event){
+        const target = event.target;
+        
+        var priceFilter = this.state.priceFilter;
+        var bedroomFilter = this.state.bedroomFilter;
+        var startDateFilter = this.state.startDateFilter;
+        var endDateFilter = this.state.endDateFilter;
+        
+        var filteredProperty = this.state.Properties.filter(function(property){
+            console.log(property.Baserate.indexOf(priceFilter));
+            const price = priceFilter == "" ? true : property.Baserate.indexOf(priceFilter) != -1;
+            const bedrooms = bedroomFilter == ""? true: property.Bedrooms == bedroomFilter;
+            const startDate = new Date(startDateFilter) >= new Date(property.AvailabilityStartDate);
+            const endDate = new Date(endDateFilter) <= new Date(property.AvailabilityEndDate);           
+            return price && bedrooms && startDate && endDate;
+        });
+
+        console.log('Filtered', filteredProperty);
+
+        this.setState({
+            Properties : filteredProperty
+        })
+
+    }
+
+    handlePagination(event){
+
+        var target = event.target;
+        var id = target.id;
+        var flag = true;
+        if(id == "prev"){
+            console.log('SI', this.state.startIndex);
+            if(this.state.startIndex > 0){
+                var startIndex = this.state.startIndex - this.state.pagesPerPage;
+            }
+            else{
+                flag = false;
+            }
+        }        
+        else{
+            var startIndex = this.state.startIndex + this.state.pagesPerPage;
+            if(startIndex > this.state.Properties.length){
+                flag = false;
+            }
+        }
+        
+
+        if(flag === true){
+
+        
+        var endIndex = startIndex + this.state.pagesPerPage - 1;
+        var trips =this.state.Properties;
+        var tripsResult = this.state.Properties.filter(function(property){
+            var index = trips.indexOf(property);
+            return index >= startIndex && index <= endIndex;
+        });
+        console.log('startomdex: ', startIndex);
+        console.log('endomdex: ', endIndex);
+        this.setState({
+            PropertiesResult : tripsResult,
+            startIndex : startIndex
+        });
+        }
     }
 
 
     render() {
 
         let redrirectVar = null;
-        if (!cookie.load('cookie')) {
+        if(this.props.loginStateStore.result){
+            if(!this.props.loginStateStore.result.isAuthenticated === true){
+                redrirectVar = <Redirect to="/login" />
+            }
+        }
+        else{
             redrirectVar = <Redirect to="/login" />
         }
 
@@ -139,8 +212,8 @@ class DisplayProperties extends Component {
         }
 
 
-
-        let propertyList = this.state.Properties.map(function (property, index) {
+        console.log('FIletered property', this.state.PropertiesResult);
+        let propertyList = this.state.PropertiesResult.map(function (property, index) {
             return (
                 <div className="container display-properties-container" key={index}>
                     <Link to={'/property-display/' + property.PropertyId}>
@@ -175,27 +248,38 @@ class DisplayProperties extends Component {
                 <Header />
 
                 <div className="cotainer">
-                    {redrirectVar}
+                    {redrirectVar}                
                     <div className="form-group row search-tab container search-tab-display-property">
                         <span className="col-lg-4 col-md-12 col-sm-12 col-xs-12 pad-bot-10">
-                            <input type="textbox" className="form-control form-control-lg" placeholder="Search" value={this.props.searchText} onChange={this.props.handleInputChange}></input>
+                            <input type="textbox" className="form-control form-control-lg" placeholder="Price"  name="priceFilter" onChange={this.handleInputChange}></input>
                         </span>
                         <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                            <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.props.startDate} onChange={this.props.handleStartDateChange} />
+                            <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" name="startDateFilter" selected={this.state.startDateFilter} onChange={this.handleFilterStartDateChange} />
                         </span>
                         <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                            <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" selected={this.props.endDate} onChange={this.props.handleEndDateChange} />
+                            <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" name="endDateFilter" selected={this.state.endDateFilter} onChange={this.handleFilterEndDateChange} />
                         </span>
                         <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                            <input type="textbox" className="form-control form-control-lg" placeholder="2 guests" value={this.props.guests} onChange={this.props.handleInputChange}></input>
+                            <input type="textbox" className="form-control form-control-lg" placeholder="2 beds"  name="bedroomFilter" onChange={this.handleInputChange}></input>
                         </span>
                         <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
-                            <a href="/display-properties" className="btn btn-primary btn-lg" style={{ width: "100%" }}>Search</a>
+                            <button  className="btn btn-primary btn-lg" style={{ width: "100%" }} onClick={this.handleFiltering}>Filter</button>
                         </span>
                     </div>
+
                     <div className="property-listing-content">
                         {propertyList}
-                    </div>                    
+                    </div>
+                    
+                    <div className="pagination-container center-content">
+                        <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
+                            <button className="btn btn-primary btn-lg" id="prev" onClick={this.handlePagination}>Prev</button>
+                        </span>
+                        <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
+                            <button className="btn btn-primary btn-lg" id="next" onClick={this.handlePagination} >Next</button>
+                        </span>                        
+                    </div>
+
                     <div className="container center-content pad-top-20-pc">
                         <div>
                             Use of this Web site constitutes acceptance of the HomeAway.com Terms and conditions and Privacy policy.
@@ -212,7 +296,8 @@ class DisplayProperties extends Component {
 
 //
 const mapStateToProps = state => ({
-    homeStateStore : state.home
+    homeStateStore : state.home,
+    loginStateStore : state.login
 })
 
 //export default DisplayProperties;
