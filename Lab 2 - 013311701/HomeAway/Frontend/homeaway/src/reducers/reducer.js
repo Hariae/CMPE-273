@@ -12,8 +12,10 @@ export default function (state={}, action){
             return {
                 ...state,
                 result : action.payload
-            }            
+            }  
         default: 
             return state;
+
+
     }
 }

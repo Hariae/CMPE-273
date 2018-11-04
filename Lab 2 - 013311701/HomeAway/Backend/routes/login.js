@@ -36,16 +36,6 @@ router.post('/', function (req, res) {
         else{
             console.log('Inside results Login');
             if(result){
-                // res.cookie('cookie', result.FirstName, {
-                //     maxAge: 360000,
-                //     httpOnly: false,
-                //     path: '/'
-                // });
-                // res.cookie('Accounttype', result.Accounttype, {
-                //     maxAge: 360000,
-                //     httpOnly: false,
-                //     path: '/'
-                // });
                 req.session.user = result;
 
                 // Create token if the password matched and no error was thrown

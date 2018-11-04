@@ -3,6 +3,7 @@ import {rooturl} from '../config/settings';
 export const GET_PROFILE_DETAILS = "GET_PROFILE_DETAILS";
 export const UPDATE_PROFILE_DETAILS = "UPDATE_PROFILE_DETAILS";
 export const UPDATE_PROFILE_DETAILS_FAILURE = "UPDATE_PROFILE_DETAILS_FAILURE";
+export const GET_PROFILE_DETAILS_FAILURE = "GET_PROFILE_DETAILS_FAILURE";
 
 export function getProfileDetails() {
     return async function (dispatch) {
@@ -16,6 +17,7 @@ export function getProfileDetails() {
             imageData : ""
         }
         var token = localStorage.getItem("token");
+        var errorRedirect = false;
 
         await axios.get('http://'+rooturl+':3001/profile-details', {
             headers: {"Authorization" : `Bearer ${token}`}
@@ -23,6 +25,14 @@ export function getProfileDetails() {
             .then((response) => {
                 result.data = response.data;
                 ProfileImage = response.data.ProfileImage;
+            })
+            .catch((err)=>{
+                errorRedirect = true;
+                dispatch({
+                    type: GET_PROFILE_DETAILS_FAILURE,
+                    payload: errorRedirect
+                }); 
+                 
             });
         console.log('ProfileImage', ProfileImage);
         await axios.post('http://'+rooturl+':3001/download-file/' + ProfileImage , {
@@ -31,6 +41,13 @@ export function getProfileDetails() {
             .then(response => {
                 result.imageData = 'data:image/jpg;base64, ' + response.data;
 
+            }).catch((err)=>{
+                errorRedirect = true;
+                dispatch({
+                    type: GET_PROFILE_DETAILS_FAILURE,
+                    payload: errorRedirect
+                }); 
+                 
             });
         
         

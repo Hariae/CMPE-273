@@ -28,6 +28,9 @@ class DisplayProperties extends Component {
             bedroomFilter: "",
             startDateFilter: moment(),
             endDateFilter: moment(),
+            priceFilterMin: 0,
+            priceFilterMax: 10000,
+            headlineFilter: "",
             startIndex : 0,
             currentPage : 1,
             pagesPerPage : 5,
@@ -132,24 +135,31 @@ class DisplayProperties extends Component {
     handleFiltering(event){
         const target = event.target;
         
-        var priceFilter = this.state.priceFilter;
+        var priceFilterMin = this.state.priceFilterMin;
+        var priceFilterMax = this.state.priceFilterMax;
         var bedroomFilter = this.state.bedroomFilter;
         var startDateFilter = this.state.startDateFilter;
         var endDateFilter = this.state.endDateFilter;
+        var headlineFilter = this.state.headlineFilter;
         
-        var filteredProperty = this.state.Properties.filter(function(property){
-            console.log(property.Baserate.indexOf(priceFilter));
-            const price = priceFilter == "" ? true : property.Baserate.indexOf(priceFilter) != -1;
+        var filteredProperty = this.state.PropertiesResult.filter(function(property){
+            console.log(property.Baserate.slice(1));
+            var price = false;
+            const Baserate = property.Baserate.slice(1);
+            if(Baserate >= priceFilterMin && Baserate <= priceFilterMax){
+                price = true;
+            }
+            const headline = headlineFilter == "" ? true : property.Headline.indexOf(headlineFilter) != -1;
             const bedrooms = bedroomFilter == ""? true: property.Bedrooms == bedroomFilter;
             const startDate = new Date(startDateFilter) >= new Date(property.AvailabilityStartDate);
-            const endDate = new Date(endDateFilter) <= new Date(property.AvailabilityEndDate);           
-            return price && bedrooms && startDate && endDate;
+            const endDate = new Date(endDateFilter) <= new Date(property.AvailabilityEndDate);             
+            return headline && bedrooms && startDate && endDate && price;
         });
 
         console.log('Filtered', filteredProperty);
 
         this.setState({
-            Properties : filteredProperty
+            PropertiesResult : filteredProperty
         })
 
     }
@@ -250,19 +260,25 @@ class DisplayProperties extends Component {
                 <div className="cotainer">
                     {redrirectVar}                
                     <div className="form-group row search-tab container search-tab-display-property">
-                        <span className="col-lg-4 col-md-12 col-sm-12 col-xs-12 pad-bot-10">
-                            <input type="textbox" className="form-control form-control-lg" placeholder="Price"  name="priceFilter" onChange={this.handleInputChange}></input>
+                        <span className="col-lg-4 col-md-4 col-sm-4 col-xs-4 pad-bot-10">
+                            <input type="textbox" className="form-control form-control-lg" placeholder="Headline"  name="headlineFilter" onChange={this.handleInputChange}></input>
                         </span>
-                        <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
+                        <span className="col-lg-4 col-md-4 col-sm-4 col-xs-4 pad-bot-10">
                             <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" name="startDateFilter" selected={this.state.startDateFilter} onChange={this.handleFilterStartDateChange} />
                         </span>
-                        <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
+                        <span className="col-lg-4 col-md-4 col-sm-4 col-xs-4 pad-bot-10">
                             <DatePicker className="form-control form-control-lg" dateFormat="MM/DD/YY" name="endDateFilter" selected={this.state.endDateFilter} onChange={this.handleFilterEndDateChange} />
                         </span>
-                        <span className="col-lg-2 col-md-3 col-sm-4 col-xs-4 pad-bot-10">
-                            <input type="textbox" className="form-control form-control-lg" placeholder="2 beds"  name="bedroomFilter" onChange={this.handleInputChange}></input>
+                        <span className="col-lg-4 col-md-4 col-sm-4 col-xs-4 pad-bot-10">
+                            <input type="number" className="form-control form-control-lg" placeholder="Min Price"  name="priceFilterMin" onChange={this.handleInputChange}></input>
                         </span>
-                        <span className="col-lg-2 col-md-3 col-sm-12 col-xs-12 pad-bot-10">
+                        <span className="col-lg-4 col-md-4 col-sm-4 col-xs-4 pad-bot-10">
+                            <input type="number" className="form-control form-control-lg" placeholder="Max Price"  name="priceFilterMax" onChange={this.handleInputChange}></input>
+                        </span>
+                        <span className="col-lg-4 col-md-4 col-sm-4 col-xs-4 pad-bot-10">
+                            <input type="number" className="form-control form-control-lg" placeholder="bedrooms"  name="bedroomFilter" onChange={this.handleInputChange}></input>
+                        </span>
+                        <span className="col-lg-4 col-md-4 col-sm-4 col-xs-4 pad-bot-10">
                             <button  className="btn btn-primary btn-lg" style={{ width: "100%" }} onClick={this.handleFiltering}>Filter</button>
                         </span>
                     </div>

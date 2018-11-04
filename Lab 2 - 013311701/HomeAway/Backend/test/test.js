@@ -4,7 +4,6 @@ var app = require('../index');
 var chai = require('chai');
 chai.use(require('chai-http'));
 var expect = require('chai').expect;
-var pool = require('../ConnectionPooling.js');
 
 var agent = require('chai').request.agent(app);
 

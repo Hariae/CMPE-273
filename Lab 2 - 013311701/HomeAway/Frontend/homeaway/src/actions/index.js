@@ -2,7 +2,7 @@ import axios from "axios";
 import {rooturl} from '../config/settings';
 export const AUTH_LOGIN = "AUTH_LOGIN";
 export const SIGNUP = "SIGNUP";
-
+export const AUTH_LOGIN_USER_PRESENT = "AUTH_LOGIN_USER_PRESENT";
 
 
 //target action
@@ -26,15 +26,19 @@ export function submitLogin(data) {
                         payload: resultData
                     });
 
-                }
+                }                               
             })
             .catch((err) => {
                 if (err) {
                    // if (err.response.status === 401) {
+                    var resultData = {
+                        isAuthenticated : false
+                    }
+                       console.log(err);
                         console.log('inside res status 401', err);
                         dispatch({
                             type: AUTH_LOGIN,
-                            payload: false
+                            payload: resultData
                         });                        
                     //}
                 }
@@ -52,7 +56,7 @@ export function signup(data) {
         axios.defaults.withCredentials = true;
         axios.post('http://'+rooturl+':3001/signup', data)
             .then(response => {
-
+                console.log('response', response.data);
                 if (response.status === 200) {
                     var result = {
                         isNewUserCreated: true
@@ -63,6 +67,12 @@ export function signup(data) {
                         payload: result
                     });
                 }
+                if(response.status === 210){
+                    console.log('User already present:');
+                    dispatch({
+                        type: AUTH_LOGIN_USER_PRESENT                       
+                    });
+                } 
             })
             .catch((err) => {
                 console.log('Error Occured!');

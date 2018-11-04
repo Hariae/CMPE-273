@@ -1,6 +1,11 @@
 import { SIGNUP } from '../actions/index';
+import {AUTH_LOGIN_USER_PRESENT} from '../actions/index';
 
-export default function (state = {}, action) {
+var initialState = {
+    duplicateUser :false
+}
+
+export default function (state = initialState, action) {
 
     switch (action.type) {
         case SIGNUP:
@@ -9,6 +14,13 @@ export default function (state = {}, action) {
                 ...state,
                 result: action.payload
             }
+        case AUTH_LOGIN_USER_PRESENT:
+            console.log('Inside reducer AUTH_LOGIN_USER_PRESENT');
+            return{
+                ...state,
+                duplicateUser : true
+            }        
+        
         default:
             return state;
     }

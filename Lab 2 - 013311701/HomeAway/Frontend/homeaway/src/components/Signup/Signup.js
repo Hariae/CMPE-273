@@ -67,6 +67,7 @@ class Signup extends Component {
 
     render() {
         let redirectVar = null;
+        let errorPanel  = null;
 
         if (this.props.signupStateStore.result) {
             console.log('Inside props login', this.props.signupStateStore);
@@ -76,7 +77,15 @@ class Signup extends Component {
             if (this.props.signupStateStore.result.errorRedirect === true) {
                 redirectVar = <Redirect to="/error" />
             }
+            
 
+        }
+        if(this.props.signupStateStore.duplicateUser === true){
+            errorPanel = <div>
+            <div className="alert alert-danger" role="alert">
+                <strong>Validation Error!</strong> User Already exists!
+            </div>
+        </div>
         }
         
 
@@ -95,7 +104,7 @@ class Signup extends Component {
                             </div>
 
                             <div className="login-form-container col-lg-6 col-md-6 col-sm-12 offset-lg-3 offset-md-3 border">                                
-
+                                {errorPanel}
                                 <form name="signupForm" onSubmit={handleSubmit(this.onSubmit.bind(this))}>
                                     <Field
                                         name="firstname"

@@ -28,7 +28,7 @@ class OwnerInbox extends Component {
 
 
         };
-        console.log('component did mount');
+        //console.log('component did mount');
         axios.post('http://'+rooturl+':3001/get-messages/', data)
             .then(response => {
                 if (response.status === 200) {

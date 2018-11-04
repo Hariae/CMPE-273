@@ -1,4 +1,4 @@
-import { GET_PROFILE_DETAILS, UPDATE_PROFILE_DETAILS,  UPDATE_PROFILE_DETAILS_FAILURE} from '../actions/profileActions';
+import { GET_PROFILE_DETAILS, UPDATE_PROFILE_DETAILS,  UPDATE_PROFILE_DETAILS_FAILURE, GET_PROFILE_DETAILS_FAILURE} from '../actions/profileActions';
 
 var intialState = {
     errorRedirect : false
@@ -12,6 +12,11 @@ export default function(state = intialState, action){
             return {
                 ...state,
                 result: action.payload
+            }
+        case GET_PROFILE_DETAILS_FAILURE:
+            return {
+                ...state,
+                errorRedirect : action.payload
             }
         case UPDATE_PROFILE_DETAILS:
             console.log('UPDATE PROFILE DETAILS Reducer..');

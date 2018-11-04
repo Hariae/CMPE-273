@@ -25,7 +25,14 @@ function handle_request(message, callback){
 
             if (user) {
                 console.log('User Exists!', user);
-                user.Accounttype = 3;
+                if(message.Accounttype === user.Accounttype){
+                    console.log('Duplicate user');
+                    callback(null, null);
+                }
+                else{
+                    user.Accounttype = 3;
+                }
+                
             }
             else {
 

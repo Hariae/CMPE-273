@@ -81,7 +81,8 @@ class Login extends Component {
         }
 
         let errorPanel = null;
-        if (this.props.loginStateStore.isAuthenticated === false) {
+        if (this.props.loginStateStore.result) {
+        if (this.props.loginStateStore.result.isAuthenticated === false) {
             errorPanel = <div>
                 <div className="alert alert-danger" role="alert">
                     <strong>Validation Error!</strong> Username and Password doesn't match!
@@ -89,6 +90,7 @@ class Login extends Component {
             </div>
 
         }
+    }
 
         let formErrorPanel = null;
         if (this.state.formValidationFailure) {

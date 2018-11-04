@@ -16,16 +16,21 @@ function handle_request(msg, callback){
         }
         else {
 
-            console.log("User details ", user);
-            if (!bcrypt.compareSync(msg.Password, user.Password)) {                
-                console.log('Invalid Credentials!');
-                callback(null, null);                
-            }
-            else {
+            if(user){
+                console.log("User details ", user);
+                if (!bcrypt.compareSync(msg.Password, user.Password)) {                
+                    console.log('Invalid Credentials!');
+                    callback(null, null);                
+                }
+                else {
                 
-                callback(null, user);
+                    callback(null, user);
+                }
             }
-
+            else{
+                callback(null, null);
+            }
+            
 
         }
 

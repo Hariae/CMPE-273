@@ -122,12 +122,12 @@ class OwnerDashboard extends Component {
 
 
         
-        var filteredArray = this.state.tripDetails.filter(function (item){
+        var filteredArray = this.state.ownerDashBoardTrips.filter(function (item){
             return item.Headline.indexOf(value) != -1;
         });
 
         this.setState({
-            tripDetails : filteredArray
+            ownerDashBoardTrips : filteredArray
         });
         console.log('Filtered Array: ', filteredArray);
     }

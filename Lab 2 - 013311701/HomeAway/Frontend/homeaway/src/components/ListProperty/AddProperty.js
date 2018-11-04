@@ -259,10 +259,7 @@ class AddProperty extends Component {
     render() {
 
         let redrirectVar = null;
-        // if (!cookie.load('cookie')) {
-        //     redrirectVar = <Redirect to="/login" />
-        // }
-
+        
         if(this.props.loginStateStore.result){
             if(!this.props.loginStateStore.result.isAuthenticated === true){
                 redrirectVar = <Redirect to="/login" />
@@ -411,13 +408,13 @@ class AddProperty extends Component {
                                             <input type="text" name="propertyType" id="propertyType" className="form-control form-control-lg" placeholder="Property Type" onChange={this.handleInputChange} />
                                         </div>
                                         <div className="form-group">
-                                            <input type="text" name="bedrooms" id="bedrooms" className="form-control form-control-lg" placeholder="Bedrooms" onChange={this.handleInputChange} />
+                                            <input type="number" name="bedrooms" id="bedrooms" className="form-control form-control-lg" placeholder="Bedrooms" onChange={this.handleInputChange} />
                                         </div>
                                         <div className="form-group">
-                                            <input type="text" name="accomodates" id="accomodates" className="form-control form-control-lg" placeholder="Accomodates" onChange={this.handleInputChange} />
+                                            <input type="number" name="accomodates" id="accomodates" className="form-control form-control-lg" placeholder="Accomodates" onChange={this.handleInputChange} />
                                         </div>
                                         <div className="form-group">
-                                            <input type="text" name="bathrooms" id="bathrooms" className="form-control form-control-lg" placeholder="Bathrooms" onChange={this.handleInputChange} />
+                                            <input type="number" name="bathrooms" id="bathrooms" className="form-control form-control-lg" placeholder="Bathrooms" onChange={this.handleInputChange} />
                                         </div>
                                         <div className="form-group details-form-btn flt-right">
                                             <button className="btn btn-primary btn-lg" onClick={this.handlePhotosClick}>Next</button>

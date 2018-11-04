@@ -70,7 +70,7 @@ class MyTrips extends Component {
         });
 
         this.setState({
-            tripDetails : filteredArray
+            ownerDashBoardTrips : filteredArray
         });
         console.log('Filtered Array: ', filteredArray);
     }
