@@ -132,7 +132,7 @@ class OwnerSignup extends Component {
                                     <Field
                                         name="email"
                                         id="email"
-                                        type="text"
+                                        type="email"
                                         placeholder="E-mail"
                                         component={this.renderField} />
                                     <Field

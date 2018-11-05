@@ -21,7 +21,8 @@ class OwnerDashboard extends Component {
             startIndex : 0,
             currentPage : 1,
             pagesPerPage : 5,
-            ownerDashBoardTrips: []
+            ownerDashBoardTrips: [],
+            tripDetailsForFiltering : []
         }
 
         var tripDetails = [];
@@ -101,7 +102,8 @@ class OwnerDashboard extends Component {
 
                     this.setState({
                         tripDetails: response.data,
-                        ownerDashBoardTrips : tripsResult
+                        ownerDashBoardTrips : tripsResult,
+                        tripDetailsForFiltering: response.data
                         
                     });                                      
                 }
@@ -122,12 +124,13 @@ class OwnerDashboard extends Component {
 
 
         
-        var filteredArray = this.state.ownerDashBoardTrips.filter(function (item){
+        var filteredArray = this.state.tripDetails.filter(function (item){
             return item.Headline.indexOf(value) != -1;
         });
 
         this.setState({
-            ownerDashBoardTrips : filteredArray
+            ownerDashBoardTrips: filteredArray,
+            startIndex: 0
         });
         console.log('Filtered Array: ', filteredArray);
     }

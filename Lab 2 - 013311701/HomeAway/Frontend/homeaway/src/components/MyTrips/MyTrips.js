@@ -65,12 +65,13 @@ class MyTrips extends Component {
         var value = target.value;
 
                 
-        var filteredArray = this.state.ownerDashBoardTrips.filter(function (item){
+        var filteredArray = this.state.tripDetails.filter(function (item){
             return item.Headline.indexOf(value) != -1;
         });
 
         this.setState({
-            ownerDashBoardTrips : filteredArray
+            ownerDashBoardTrips : filteredArray,
+            startIndex: 0
         });
         console.log('Filtered Array: ', filteredArray);
     }

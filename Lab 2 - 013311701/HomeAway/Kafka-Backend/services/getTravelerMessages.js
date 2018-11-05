@@ -4,7 +4,7 @@ function handle_request(message, callback) {
     console.log('Inside Kafka Method Get Message. Message ', message);
        
     Model.MessageCollection.find({
-        'TravelerId' : message.session.user.ProfileId
+        'TravelerId' : message.session.user.ProfileId        
     }, (err, result) => {
         if(err){
             console.log('Error in Retrieving message data', err);

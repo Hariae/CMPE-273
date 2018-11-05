@@ -142,7 +142,7 @@ class DisplayProperties extends Component {
         var endDateFilter = this.state.endDateFilter;
         var headlineFilter = this.state.headlineFilter;
         
-        var filteredProperty = this.state.PropertiesResult.filter(function(property){
+        var filteredProperty = this.state.Properties.filter(function(property){
             console.log(property.Baserate.slice(1));
             var price = false;
             const Baserate = property.Baserate.slice(1);
@@ -159,7 +159,8 @@ class DisplayProperties extends Component {
         console.log('Filtered', filteredProperty);
 
         this.setState({
-            PropertiesResult : filteredProperty
+            PropertiesResult : filteredProperty,
+            startIndex: 0
         })
 
     }
@@ -221,8 +222,6 @@ class DisplayProperties extends Component {
             redrirectVar = <Redirect to="/error" />
         }
 
-
-        console.log('FIletered property', this.state.PropertiesResult);
         let propertyList = this.state.PropertiesResult.map(function (property, index) {
             return (
                 <div className="container display-properties-container" key={index}>

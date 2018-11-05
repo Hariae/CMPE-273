@@ -4,7 +4,7 @@ function handle_request(message, callback){
     console.log('Inside Kafka Method trip-details. Message ', message);
     
     Model.Userdetails.findOne({
-        Email: message.session.user.Email
+        Email: message.session.user.Email        
     }, (err, user) => {
         if (err) {
             console.log("Unable to get user details.", err);

@@ -16,7 +16,7 @@ function KafkaRPC(){
 }
 
 KafkaRPC.prototype.makeRequest = function(topic_name, content, callback){
-
+   
     self = this;
     //generate a unique correlation id for this call
     var correlationId = crypto.randomBytes(16).toString('hex');
