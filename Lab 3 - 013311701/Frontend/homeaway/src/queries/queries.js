@@ -31,4 +31,24 @@ query login($Username: String, $Password: String){
         }
     }`
 
-export {login};
+const profile = gql`
+    query profile($Email: String){
+        profile(Email: $Email){
+            Username
+            Email
+            FirstName
+            LastName
+            Aboutme
+            Country
+            City
+            Gender
+            Hometown
+            School
+            Company
+            Language
+            PhoneNumber
+        }
+    }
+`
+
+export {login, profile};

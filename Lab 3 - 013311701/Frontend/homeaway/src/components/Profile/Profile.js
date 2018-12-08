@@ -8,10 +8,12 @@ import {rooturl} from '../../config/settings';
 import { getProfileDetails, updateProfileDetails } from '../../actions/profileActions';
 import { connect } from 'react-redux';
 
+import {graphql} from 'react-apollo';
+import {profile} from '../../queries/queries';
 class Profile extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             errorRedirect: false,
         }
@@ -19,59 +21,37 @@ class Profile extends Component {
         //Bind
         this.handleChange = this.handleChange.bind(this);
         this.saveChanges = this.saveChanges.bind(this);
+        this.loadProfile =this.loadProfile.bind(this);
     }
 
     async componentDidMount() {
-        await this.props.getProfileDetails();
-        console.log('key name', Object.keys(this.props.profileStateStore.result.data))
-        const result = this.props.profileStateStore.result.data;
-        var keyArray = Object.keys(this.props.profileStateStore.result.data);
+        // await this.props.getProfileDetails();
+        // console.log('key name', Object.keys(this.props.profileStateStore.result.data))
+        // const result = this.props.profileStateStore.result.data;
+        // var keyArray = Object.keys(this.props.profileStateStore.result.data);
 
-        for (var i = 0; i < keyArray.length; i++) {
-            var name = keyArray[i];
-            console.log('result[i]', result[name])
-            this.setState({
-                [name]: result[name]
-            });
-        }
-        console.log('state', this.state);
+        // for (var i = 0; i < keyArray.length; i++) {
+        //     var name = keyArray[i];
+        //     console.log('result[i]', result[name])
+        //     this.setState({
+        //         [name]: result[name]
+        //     });
+        // }
+        // console.log('state', this.state);
+
+        console.log('data:', this.props.data);
+
+
     }
-
 
 
     handleChange = (e) => {
         const target = e.target;
         const name = target.name;
         const value = target.value;
-
-        if (name === "ProfileImage") {
-            console.log(target.files);
-            var profilePhoto = target.files[0];
-            var data = new FormData();
-            data.append('photos', profilePhoto);
-            axios.defaults.withCredentials = true;
-            axios.post('http://'+rooturl+':3001/upload-file', data)
-                .then(response => {
-                    if (response.status === 200) {
-                        console.log('Profile Photo Name: ', profilePhoto.name);
-                        this.setState({
-                            ProfileImage: profilePhoto.name
-                        });
-                    }
-                }).catch((err) => {
-                    if (err) {
-                        this.setState({
-                            errorRedirect: true
-                        })
-                    }
-                });
-        }
-        else {
-            this.setState({
+        this.setState({
                 [name]: value
-            });
-        }
-
+        });
     }
 
     saveChanges = (e) => {
@@ -104,26 +84,32 @@ class Profile extends Component {
     render() {
 
         let redrirectVar = null;
-        if(this.props.loginStateStore.result){
-            if(!this.props.loginStateStore.result.isAuthenticated === true){
-                redrirectVar = <Redirect to="/login" />
-            }
-        }
-        else{
+        
+        // if(this.props.loginStateStore.result){
+        //     if(!this.props.loginStateStore.result.isAuthenticated === true){
+        //         redrirectVar = <Redirect to="/login" />
+        //     }
+        // }
+        // else{
+        //     redrirectVar = <Redirect to="/login" />
+        // }
+        console.log('is', localStorage.getItem('isAuthenticated') == true);
+        if(localStorage.getItem('isAuthenticated') == true){
             redrirectVar = <Redirect to="/login" />
         }
 
-        if (this.props.profileStateStore.errorRedirect === true) {
-            redrirectVar = <Redirect to="/error" />
-        }
+        // if (this.props.profileStateStore.errorRedirect === true) {
+        //     redrirectVar = <Redirect to="/error" />
+        // }
 
         //var profileImageData = <img src="https://img.freepik.com/free-icon/user-filled-person-shape_318-74922.jpg?size=338c&ext=jpg" alt="logo" />
         var profileImageData = "";
-        if (this.props.profileStateStore.result) {
-            profileImageData = <img src={this.props.profileStateStore.result.imageData} alt="logo" />
+        profileImageData = <img src="https://cobdoglaps.sa.edu.au/wp-content/uploads/2017/11/placeholder-profile-sq.jpg" alt="logo" />
+        // if (this.props.profileStateStore.result) {
+        //     profileImageData = <img src={this.props.profileStateStore.result.imageData} alt="logo" />
 
-        }
-
+        // }
+       console.log()
 
         return (
             <div>
@@ -131,6 +117,7 @@ class Profile extends Component {
                 <div className="container">
                     {redrirectVar}
                     <div className="center-content profile-heading">
+                        {this.LoadProfileData()}
                         {profileImageData}
                         <h3>{this.state.FirstName} {this.state.LastName}</h3>
                         <p></p>
@@ -203,4 +190,7 @@ const mapStateToProps = state => ({
 })
 
 //export default Profile;
-export default connect(mapStateToProps, { getProfileDetails, updateProfileDetails })(Profile);
+//export default connect(mapStateToProps, { getProfileDetails, updateProfileDetails })(Profile);
+export default graphql(profile, {
+        options : (props) => ({ variables: { Email : "aehari2010@gmail.com" }})
+    })(Profile);

@@ -4,15 +4,32 @@ import { Redirect } from 'react-router';
 import Header from '../Header/Header';
 
 import { connect } from 'react-redux';
-import { signup } from '../../actions/index';
+//import { signup } from '../../actions/index';
 import { Field, reduxForm } from 'redux-form';
+import {signup} from '../../mutations/mutations';
+import { graphql } from 'react-apollo';
+
 class Signup extends Component {
 
     constructor(props) {
-        super(props);       
+        super(props);   
+        this.state={
+            isNewUserCreated : false,
+            isDuplicateUser : false
+        }    
 
         //bind
+        this.submitSignup = this.submitSignup.bind(this);
        
+    }
+
+    handleChange = (e) => {
+        const target = e.target;
+        const name = target.name;
+        const value = target.value;
+        this.setState({
+            [name]: value
+        });
     }
 
 
@@ -64,32 +81,71 @@ class Signup extends Component {
         
     }
 
+    submitSignup = ()=>{
+        
+       // e.preventDefault();
+        this.props.signup({
+            variables: {
+                FirstName: this.state.firstname,
+                LastName: this.state.lastname,
+                Email: this.state.email,
+                Password: this.state.password,
+                Accounttype: 1
+            }
+        }).then((response)=>{
+            console.log('Resposne', response.data);
+            if(response.data.signup.success == true){
+                this.setState({
+                    isNewUserCreated : true
+                });
+            }
+            if(response.data.signup.duplicateUser ==true){
+                this.setState({
+                    isDuplicateUser : true
+                });
+            }
+        });
+    }
+
 
     render() {
         let redirectVar = null;
         let errorPanel  = null;
 
-        if (this.props.signupStateStore.result) {
-            console.log('Inside props login', this.props.signupStateStore);
-            if (this.props.signupStateStore.result.isNewUserCreated === true) {
-                redirectVar = <Redirect to="/login" />
-            }
-            if (this.props.signupStateStore.result.errorRedirect === true) {
-                redirectVar = <Redirect to="/error" />
-            }
-            
+        // if (this.props.signupStateStore.result) {
+        //     console.log('Inside props login', this.props.signupStateStore);
+        //     if (this.props.signupStateStore.result.isNewUserCreated === true) {
+        //         redirectVar = <Redirect to="/login" />
+        //     }
+        //     if (this.props.signupStateStore.result.errorRedirect === true) {
+        //         redirectVar = <Redirect to="/error" />
+        //     }
 
+        if(this.state.isNewUserCreated == true){
+            redirectVar = <Redirect to="/login" />
         }
-        if(this.props.signupStateStore.duplicateUser === true){
+
+        if(this.state.isDuplicateUser == true){
             errorPanel = <div>
             <div className="alert alert-danger" role="alert">
-                <strong>Validation Error!</strong> User Already exists!
-            </div>
-        </div>
+                 <strong>Validation Error!</strong> User Already exists!
+             </div>
+         </div>
         }
         
+            
 
-        const { handleSubmit } = this.props;
+        // }
+        // if(this.props.signupStateStore.duplicateUser === true){
+        //     errorPanel = <div>
+        //     <div className="alert alert-danger" role="alert">
+        //         <strong>Validation Error!</strong> User Already exists!
+        //     </div>
+        // </div>
+        // }
+        
+
+        //const { handleSubmit } = this.props;
 
         return (
             <div>
@@ -105,8 +161,9 @@ class Signup extends Component {
 
                             <div className="login-form-container col-lg-6 col-md-6 col-sm-12 offset-lg-3 offset-md-3 border">                                
                                 {errorPanel}
-                                <form name="signupForm" onSubmit={handleSubmit(this.onSubmit.bind(this))}>
-                                    <Field
+                                {/*  */}
+                                {/* <form name="signupForm" onSubmit={handleSubmit(this.onSubmit.bind(this))}> */}
+                                    {/* <Field
                                         name="firstname"
                                         id="firstname"
                                         type="text"
@@ -129,11 +186,23 @@ class Signup extends Component {
                                         id="password"
                                         type="password"
                                         placeholder="Password"
-                                        component={this.renderField} />
-                                    <div className="form-group login-form-control">
-                                        <button className="btn btn-login col-lg-12 col-md-12 col-sm-12" type="submit">Sign me up </button>
+                                        component={this.renderField} /> */}
+                                    <div className="form-group mt-3">
+                                        <input type="text" name="firstname" id="firstname" className="form-control form-control-lg" placeholder="First Name" onChange={this.handleChange} />
                                     </div>
-                                </form>
+                                    <div className="form-group">
+                                        <input type="text" name="lastname" id="lastname" className="form-control form-control-lg" placeholder="Last name" onChange={this.handleChange} />
+                                    </div>
+                                    <div className="form-group">
+                                        <input type="text" name="email" id="email" className="form-control form-control-lg" placeholder="Email" onChange={this.handleChange} />
+                                    </div>
+                                    <div className="form-group">
+                                        <input type="password" name="password" id="password" className="form-control form-control-lg" placeholder="Password" onChange={this.handleChange} />
+                                    </div>
+                                    <div className="form-group login-form-control">
+                                        <button className="btn btn-login col-lg-12 col-md-12 col-sm-12" type="submit" onClick={this.submitSignup}>Sign me up </button>
+                                    </div>
+                                {/* </form> */}
 
                                 <hr />
                                 <div className="form-group login-form-control">
@@ -180,7 +249,9 @@ function validate(values) {
     return errors;
 }
 
-export default reduxForm({
-    validate,
-    form: "signupForm"
-})(connect(mapStateToProps, { signup })(Signup));
+// export default (graphql(signup, { name: "signup" }))(reduxForm({
+//     validate,
+//     form: "signupForm"
+// }))(connect(mapStateToProps, {})(Signup));
+
+export default graphql(signup, { name: "signup" })(Signup);

@@ -15,7 +15,7 @@ class Header extends Component {
     }
 
     handleLogout = () => {
-
+        localStorage.clear();
         axios.defaults.withCredentials = true;
         axios.post('http://'+rooturl+':3001/logout')
             .then(response => {
@@ -34,28 +34,50 @@ class Header extends Component {
         let ownerInboxContent = null;
         let travelerInboxContent = null;
 
-        //if(cookie.load('Accounttype') >= 2){
-        if(this.props.loginStateStore.result){
-            if(this.props.loginStateStore.result.Accounttype >= 2){            
-                ownerContent = <Link to="/owner-dashboard" className="dropdown-item blue-text" >Owner Dashboard</Link>
-                ownerListPropertyTab = <span><Link to="/add-property" className="btn btn-lg lyp-btn">List your property</Link></span>
-                ownerInboxContent = <Link to="/owner-inbox" className="dropdown-item blue-text">Owner Inbox</Link>
-            }
+        var isOwner = false;
+        var isTraveller = false;
+
+        if(localStorage.getItem('accountType') == 1 || localStorage.getItem('accountType') == 3){
+            isTraveller = true;
         }
 
-        if(this.props.loginStateStore.result){
-            if(this.props.loginStateStore.result.Accounttype == 1 || this.props.loginStateStore.result.Accounttype == 3){
-                travelerContent = <Link to="/my-trips" className="dropdown-item blue-text" >My Trips</Link>
-                travelerInboxContent = <Link to="/traveler-inbox" className="dropdown-item blue-text" >Traveler Inbox</Link>
-            }
+        if(localStorage.getItem('accountType') == 2 || localStorage.getItem('accountType') == 3){
+            isOwner = true;
         }
+
+        console.log(localStorage.getItem('accountType'));
+        console.log(localStorage.getItem('accountType') == 2);
+        console.log(localStorage.getItem('ProfileName'));
+
+
+        //if(cookie.load('Accounttype') >= 2){
+        //if(this.props.loginStateStore.result){
+            //if(this.props.loginStateStore.result.Accounttype >= 2){            
+                if(isOwner){   
+                    ownerContent = <Link to="/owner-dashboard" className="dropdown-item blue-text" >Owner Dashboard</Link>
+                    ownerListPropertyTab = <span><Link to="/add-property" className="btn btn-lg lyp-btn">List your property</Link></span>
+                    ownerInboxContent = <Link to="/owner-inbox" className="dropdown-item blue-text">Owner Inbox</Link>
+                }
+            //}
+        //}
+
+        //if(this.props.loginStateStore.result){
+            //if(this.props.loginStateStore.result.Accounttype == 1 || this.props.loginStateStore.result.Accounttype == 3){
+                if(isTraveller){   
+                    travelerContent = <Link to="/my-trips" className="dropdown-item blue-text" >My Trips</Link>
+                    travelerInboxContent = <Link to="/traveler-inbox" className="dropdown-item blue-text" >Traveler Inbox</Link>
+                }
+            //}
+        //}
        
         let username = null;
-        if(this.props.loginStateStore.result){
-            username = this.props.loginStateStore.result.FirstName;
-        }
-        if(this.props.loginStateStore.result){
-            if (this.props.loginStateStore.result.isAuthenticated === true) {
+        // if(this.props.loginStateStore.result){
+        //     username = this.props.loginStateStore.result.FirstName;
+        // }
+        username = localStorage.getItem('ProfileName');
+        //if(this.props.loginStateStore.result){
+           // if (this.props.loginStateStore.result.isAuthenticated === true) {
+            if(isOwner || isTraveller){
                 loggedInUserContent = <span className="header-bar-tabs">
                     <span className="blue-text">Trip Boards</span>
                     <span>
@@ -75,7 +97,7 @@ class Header extends Component {
                     </span>
                     {ownerListPropertyTab}                
                 </span>
-            }
+            //}
         }
         
 

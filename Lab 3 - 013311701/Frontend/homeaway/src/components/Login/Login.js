@@ -28,7 +28,8 @@ class Login extends Component {
             formValidationFailure: false,
             isValidationFailure: true,
             errorRedirect: false,
-            isAuthenticated : false
+            isAuthenticated : false,
+            validationFailure: false
 
         }
 
@@ -105,8 +106,18 @@ class Login extends Component {
             console.log('Response', response.data);
             console.log('UserData', response.data.login.userData);
             if(response.data.login.result == true){
+                
+                localStorage.setItem("ProfileName",response.data.login.userData.FirstName);
+                localStorage.setItem('accountType', response.data.login.userData.Accounttype);
+                localStorage.setItem("isAuthenticated", true);
+
                 this.setState({
                     isAuthenticated:true
+                });
+            }
+            else{
+                this.setState({
+                    validationFailure:true
                 });
             }
         });
@@ -135,14 +146,15 @@ class Login extends Component {
 
         let errorPanel = null;
     //     if (this.props.loginStateStore.result) {
-    //     if (this.props.loginStateStore.result.isAuthenticated === false) {
-    //         errorPanel = <div>
-    //             <div className="alert alert-danger" role="alert">
-    //                 <strong>Validation Error!</strong> Username and Password doesn't match!
-    //             </div>
-    //         </div>
+    //    if (this.props.loginStateStore.result.isAuthenticated === false) {
+        if (this.state.validationFailure === true) {
+            errorPanel = <div>
+                <div className="alert alert-danger" role="alert">
+                    <strong>Validation Error!</strong> Username and Password doesn't match!
+                </div>
+            </div>
 
-    //     }
+        }
     // }
 
         let formErrorPanel = null;

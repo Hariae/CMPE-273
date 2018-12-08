@@ -79,7 +79,7 @@ class Main extends Component{
         
 
         return(
-            <ApolloProvider client={client}>
+            
             <div>
                 {/** Render Different Components based on ROute*/}
                 <Route exact render = {()=>{
@@ -126,7 +126,7 @@ class Main extends Component{
                 <Route path="/traveler-inbox" component={TravelerInbox} />
                 <Route path='/error' component={Error} />
             </div>
-            </ApolloProvider>
+           
         )
     }
 
