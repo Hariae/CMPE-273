@@ -21,7 +21,7 @@ class Profile extends Component {
         //Bind
         this.handleChange = this.handleChange.bind(this);
         this.saveChanges = this.saveChanges.bind(this);
-        this.loadProfile =this.loadProfile.bind(this);
+        //this.loadProfile =this.loadProfile.bind(this);
     }
 
     async componentDidMount() {
@@ -93,7 +93,7 @@ class Profile extends Component {
         // else{
         //     redrirectVar = <Redirect to="/login" />
         // }
-        console.log('is', localStorage.getItem('isAuthenticated') == true);
+        console.log(localStorage.getItem("isAuthenticated"));
         if(localStorage.getItem('isAuthenticated') == true){
             redrirectVar = <Redirect to="/login" />
         }
@@ -109,76 +109,88 @@ class Profile extends Component {
         //     profileImageData = <img src={this.props.profileStateStore.result.imageData} alt="logo" />
 
         // }
-       console.log()
+       console.log('profile data', this.props.data.profile);
+       var profilePageContent = null;
+
+       if(this.props.data.profile){
+           console.log('inside');
+           profilePageContent =  <div>
+           {/* {this.LoadProfileData()} */}
+           
+           <div className="center-content profile-heading">
+               
+               {profileImageData}
+               <h3>{this.props.data.profile.FirstName} {this.props.data.profile.LastName}</h3>
+               <p></p>
+           </div>
+           <div className="container profile-content">
+               <div className="row">
+                   <div className="col-8 border">
+                       <div className="headline-text">
+                           <h4><strong>Profile Information</strong></h4>
+                       </div>
+                       <div className="profile-form-content">
+                           <div className="form-group">
+                               <input type="text" name="FirstName" id="firstname" className="form-control form-control-lg" placeholder="First name" onChange={this.handleChange} value={this.props.data.profile.FirstName} />
+                           </div>
+                           <div className="form-group">
+                               <input type="text" name="LastName" id="lastname" className="form-control form-control-lg" placeholder="Last name" onChange={this.handleChange} value={this.props.data.profile.LastName} />
+                           </div>
+                           <div className="form-group">
+                               <input type="text" name="Email" id="email" className="form-control form-control-lg" placeholder="Email address" onChange={this.handleChange} value={this.props.data.profile.Email} />
+                           </div>
+                           <div className="form-group">
+                               <input type="text" name="PhoneNumber" id="phonenumber" className="form-control form-control-lg" placeholder="Phone Number" onChange={this.handleChange} value={this.props.data.profile.PhoneNumber} />
+                           </div>
+                           <div className="form-group">
+                               <textarea type="text" name="Aboutme" id="aboutme" className="form-control form-control-lg" placeholder="About me" onChange={this.handleChange} value={this.props.data.profile.Aboutme} />
+                           </div>
+                           <div className="form-group">
+                               <input type="text" name="Country" id="country" className="form-control form-control-lg" placeholder="Country" onChange={this.handleChange} value={this.props.data.profile.Country} />
+                           </div>
+                           <div className="form-group">
+                               <input type="text" name="City" id="city" className="form-control form-control-lg" placeholder="City" onChange={this.handleChange} value={this.props.data.profile.City} />
+                           </div>
+                           <div className="form-group">
+                               <input type="text" name="Gender" id="gender" className="form-control form-control-lg" placeholder="Gender" onChange={this.handleChange} value={this.props.data.profile.Gender} />
+                           </div>
+                           <div className="form-group">
+                               <input type="text" name="Company" id="company" className="form-control form-control-lg" placeholder="Company" onChange={this.handleChange} value={this.props.data.profile.Company} />
+                           </div>
+                           <div className="form-group">
+                               <input type="text" name="School" id="school" className="form-control form-control-lg" placeholder="School" onChange={this.handleChange} value={this.props.data.profile.School} />
+                           </div>
+                           <div className="form-group">
+                               <input type="text" name="Hometown" id="hometown" className="form-control form-control-lg" placeholder="Hometown" onChange={this.handleChange} value={this.props.data.profile.Hometown} />
+                           </div>
+                           <div className="form-group">
+                               <input type="text" name="Language" id="language" className="form-control form-control-lg" placeholder="Language" onChange={this.handleChange} value={this.props.data.profile.Language} />
+                           </div>
+                           <div className="form-group">
+                               <label htmlFor="ProfileImage"><strong>Profile Image : </strong></label><br />
+                               <input type="file" name="ProfileImage" id="ProfileImage" className="btn btn-lg photo-upload-btn" onChange={this.handleChange} className="btn btn-lg photo-upload-btn" />
+                           </div>
+                           <div className="form-group">
+                               <button className="btn btn-lg btn-primary" onClick={this.saveChanges}>Save Changes</button>
+                           </div>
+                       </div>
+
+                   </div>
+               </div>
+
+           </div>
+       
+           </div>
+       }
 
         return (
             <div>
                 <Header />
                 <div className="container">
                     {redrirectVar}
-                    <div className="center-content profile-heading">
-                        {this.LoadProfileData()}
-                        {profileImageData}
-                        <h3>{this.state.FirstName} {this.state.LastName}</h3>
-                        <p></p>
+                    {profilePageContent}
+                   
                     </div>
-                    <div className="container profile-content">
-                        <div className="row">
-                            <div className="col-8 border">
-                                <div className="headline-text">
-                                    <h4><strong>Profile Information</strong></h4>
-                                </div>
-                                <div className="profile-form-content">
-                                    <div className="form-group">
-                                        <input type="text" name="FirstName" id="firstname" className="form-control form-control-lg" placeholder="First name" onChange={this.handleChange} value={this.state.FirstName} />
-                                    </div>
-                                    <div className="form-group">
-                                        <input type="text" name="LastName" id="lastname" className="form-control form-control-lg" placeholder="Last name" onChange={this.handleChange} value={this.state.LastName} />
-                                    </div>
-                                    <div className="form-group">
-                                        <input type="text" name="Email" id="email" className="form-control form-control-lg" placeholder="Email address" onChange={this.handleChange} value={this.state.Email} />
-                                    </div>
-                                    <div className="form-group">
-                                        <input type="text" name="PhoneNumber" id="phonenumber" className="form-control form-control-lg" placeholder="Phone Number" onChange={this.handleChange} value={this.state.PhoneNumber} />
-                                    </div>
-                                    <div className="form-group">
-                                        <textarea type="text" name="Aboutme" id="aboutme" className="form-control form-control-lg" placeholder="About me" onChange={this.handleChange} value={this.state.Aboutme} />
-                                    </div>
-                                    <div className="form-group">
-                                        <input type="text" name="Country" id="country" className="form-control form-control-lg" placeholder="Country" onChange={this.handleChange} value={this.state.Country} />
-                                    </div>
-                                    <div className="form-group">
-                                        <input type="text" name="City" id="city" className="form-control form-control-lg" placeholder="City" onChange={this.handleChange} value={this.state.City} />
-                                    </div>
-                                    <div className="form-group">
-                                        <input type="text" name="Gender" id="gender" className="form-control form-control-lg" placeholder="Gender" onChange={this.handleChange} value={this.state.Gender} />
-                                    </div>
-                                    <div className="form-group">
-                                        <input type="text" name="Company" id="company" className="form-control form-control-lg" placeholder="Company" onChange={this.handleChange} value={this.state.Company} />
-                                    </div>
-                                    <div className="form-group">
-                                        <input type="text" name="School" id="school" className="form-control form-control-lg" placeholder="School" onChange={this.handleChange} value={this.state.School} />
-                                    </div>
-                                    <div className="form-group">
-                                        <input type="text" name="Hometown" id="hometown" className="form-control form-control-lg" placeholder="Hometown" onChange={this.handleChange} value={this.state.Hometown} />
-                                    </div>
-                                    <div className="form-group">
-                                        <input type="text" name="Language" id="language" className="form-control form-control-lg" placeholder="Language" onChange={this.handleChange} value={this.state.Language} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="ProfileImage"><strong>Profile Image : </strong></label><br />
-                                        <input type="file" name="ProfileImage" id="ProfileImage" className="btn btn-lg photo-upload-btn" onChange={this.handleChange} className="btn btn-lg photo-upload-btn" />
-                                    </div>
-                                    <div className="form-group">
-                                        <button className="btn btn-lg btn-primary" onClick={this.saveChanges}>Save Changes</button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
             </div>
         )
     }
