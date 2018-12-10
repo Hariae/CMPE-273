@@ -5,6 +5,9 @@ import { Redirect } from 'react-router';
 import axios from 'axios';
 import { connect } from 'react-redux';
 import {rooturl} from '../../config/settings';
+import {graphql} from 'react-apollo';
+import {postedProperties} from '../../queries/queries';
+
 
 
 
@@ -85,35 +88,35 @@ class OwnerDashboard extends Component {
 
     componentWillMount(){
         
-        var token = localStorage.getItem("token");
-        axios.defaults.withCredentials = true;
-        axios.get('http://'+rooturl+':3001/owner-dashboard-details', {
-            headers: {"Authorization" : `Bearer ${token}`}
-        })
-            .then(response=>{
-                if (response.status === 200) {
-                    console.log("Response : ", response.data);
+        // var token = localStorage.getItem("token");
+        // axios.defaults.withCredentials = true;
+        // axios.get('http://'+rooturl+':3001/owner-dashboard-details', {
+        //     headers: {"Authorization" : `Bearer ${token}`}
+        // })
+        //     .then(response=>{
+        //         if (response.status === 200) {
+        //             console.log("Response : ", response.data);
 
-                    var trips = response.data;
-                    var tripsResult = trips.filter(function(property){
-                        var index = trips.indexOf(property);
-                        return index >= 0 && index <= 4;
-                    });
+        //             var trips = response.data;
+        //             var tripsResult = trips.filter(function(property){
+        //                 var index = trips.indexOf(property);
+        //                 return index >= 0 && index <= 4;
+        //             });
 
-                    this.setState({
-                        tripDetails: response.data,
-                        ownerDashBoardTrips : tripsResult,
-                        tripDetailsForFiltering: response.data
+        //             this.setState({
+        //                 tripDetails: response.data,
+        //                 ownerDashBoardTrips : tripsResult,
+        //                 tripDetailsForFiltering: response.data
                         
-                    });                                      
-                }
-            }).catch((err) =>{
-                if(err){
-                    this.setState({
-                        errorRedirect: true
-                    })
-                }
-            });            
+        //             });                                      
+        //         }
+        //     }).catch((err) =>{
+        //         if(err){
+        //             this.setState({
+        //                 errorRedirect: true
+        //             })
+        //         }
+        //     });            
     }
 
 
@@ -139,63 +142,66 @@ class OwnerDashboard extends Component {
     render() {
 
         let redrirectVar = null;
-        if(this.props.loginStateStore.result){
-            if(!this.props.loginStateStore.result.isAuthenticated === true){
-                redrirectVar = <Redirect to="/login" />
-            }
-        }
-        else{
-            redrirectVar = <Redirect to="/login" />
-        }
+        // if(this.props.loginStateStore.result){
+        //     if(!this.props.loginStateStore.result.isAuthenticated === true){
+        //         redrirectVar = <Redirect to="/login" />
+        //     }
+        // }
+        // else{
+        //     redrirectVar = <Redirect to="/login" />
+        // }
 
-        if (this.state.errorRedirect === true) {
-            redrirectVar = <Redirect to="/error" />
-        }
+        // if (this.state.errorRedirect === true) {
+        //     redrirectVar = <Redirect to="/error" />
+        // }
 
         console.log('tripResult', this.state.ownerDashBoardTrips);
-        let tripDetails = this.state.ownerDashBoardTrips.map(function (trip, index) {
+        console.log('owner dahs', this.props.data.postedProperties);
+        var tripDetails = null;
 
-            var startDate = "";
-            var endDate = "";
-            
-            var date = new Date(trip.AvailabilityStartDate);
-            var locale = "en-us";
-            var month = date.toLocaleString(locale, { month: "short" });
-            var day = date.getDate();
-            startDate = month + " - " + day;
-            //console.log(startDate);
-            
-            //End date
-            date = new Date(trip.AvailabilityEndDate);
-            month = date.toLocaleString(locale, { month: "short" });
-            day = date.getDate();
-            endDate = month + " - " + day;
-            //console.log(endDate);
+        if(this.props.data.postedProperties){
+            tripDetails = this.props.data.postedProperties.postedProperties.map(function (trip, index) {
 
-            return (
-                <div className="container trip-details-container" key={index}>
-                    <div className="trip-details-content border">
-                        <div className="trip-main-details blue-text">
-                            <h2><strong>{trip.Headline}</strong></h2>
-                            <div>Property Type : {trip.PropertyType}</div>
-                            <div>{trip.Bedrooms} BR</div>
-                            <div>{trip.Bathrooms} BA</div>
-                            <div>Sleeps {trip.Accomodates}</div>
-                            <div>Availability State Date: {startDate}</div>
-                            <div>Availability End Date: {endDate}</div>                            
-                        </div>
-                        
-                        <div className="pricing-content">
-                            <h3><strong>Price : {trip.Baserate} / night</strong></h3>
+                var startDate = "";
+                var endDate = "";
+                
+                var date = new Date(trip.AvailabilityStartDate);
+                var locale = "en-us";
+                var month = date.toLocaleString(locale, { month: "short" });
+                var day = date.getDate();
+                startDate = month + " - " + day;
+                //console.log(startDate);
+                
+                //End date
+                date = new Date(trip.AvailabilityEndDate);
+                month = date.toLocaleString(locale, { month: "short" });
+                day = date.getDate();
+                endDate = month + " - " + day;
+                //console.log(endDate);
+    
+                return (
+                    <div className="container trip-details-container" key={index}>
+                        <div className="trip-details-content border">
+                            <div className="trip-main-details blue-text">
+                                <h2><strong>{trip.Headline}</strong></h2>
+                                <div>Property Type : {trip.PropertyType}</div>
+                                <div>Availability State Date: {startDate}</div>
+                                <div>Availability End Date: {endDate}</div>                            
+                            </div>
+                            
+                            <div className="pricing-content">
+                                <h3><strong>Price : {trip.Baserate} / night</strong></h3>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )
-        })
-
-
-
-
+                )
+            })
+    
+    
+    
+    
+        }
+        
 
         return (
             <div>
@@ -235,4 +241,11 @@ const mapStateToProps = state => ({
 })
 
 //export default Header;
-export default connect(mapStateToProps, {})(OwnerDashboard);
+//export default connect(mapStateToProps, {})(OwnerDashboard);
+const OwnerDashboardPage =connect(mapStateToProps, {})(OwnerDashboard);
+
+export default graphql(postedProperties, {
+    options : (props) =>({
+        variables : {Email: "aehari2010@gmail.com"}
+    })
+})(OwnerDashboardPage);

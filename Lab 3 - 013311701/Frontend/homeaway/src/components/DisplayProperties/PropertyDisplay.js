@@ -9,6 +9,10 @@ import axios from 'axios';
 import { connect } from 'react-redux';
 import {rooturl} from '../../config/settings';
 
+import { graphql,compose } from 'react-apollo';
+import {property} from '../../queries/queries';
+import {bookProperty} from '../../mutations/mutations';
+
 class PropertyDisplay extends Component {
 
     constructor(props) {
@@ -37,96 +41,117 @@ class PropertyDisplay extends Component {
     }
 
     componentDidMount() {
-        var token = localStorage.getItem("token");
-        axios.defaults.withCredentials = true;
+        // var token = localStorage.getItem("token");
+        // axios.defaults.withCredentials = true;
 
-        var data = {
-            PropertyId: this.props.match.params.id
-        }
-        console.log('Data: ', data);
-        axios.post('http://'+rooturl+':3001/property-details', data, {
-            headers: { "Authorization": `Bearer ${token}` }
-        })
-            .then(response => {
-                if (response.status === 200) {
-                    console.log('Result: ', response.data);
-                    this.setState({
-                        propertyDetails: response.data[0]
-                    });
+        // var data = {
+        //     PropertyId: this.props.match.params.id
+        // }
+        // console.log('Data: ', data);
+        // axios.post('http://'+rooturl+':3001/property-details', data, {
+        //     headers: { "Authorization": `Bearer ${token}` }
+        // })
+        //     .then(response => {
+        //         if (response.status === 200) {
+        //             console.log('Result: ', response.data);
+        //             this.setState({
+        //                 propertyDetails: response.data[0]
+        //             });
 
-                    var imageArr = [];
-                    var photoList = this.state.propertyDetails.Photos.split(',');
-                    for (let i = 0; i < photoList.length; i++) {
-                        axios.post('http://'+rooturl+':3001/download-file/' + photoList[i], {
-                            headers: { "Authorization": `Bearer ${token}` }
-                        })
-                            .then(response => {
-                                //console.log("Imgae Res : ", response);
-                                let imagePreview = 'data:image/jpg;base64, ' + response.data;
-                                imageArr.push(imagePreview);
-                                const photoArr = this.state.photos.slice();
-                                photoArr[i] = imagePreview;
-                                this.setState({
-                                    photos: photoArr
-                                });
+        //             var imageArr = [];
+        //             var photoList = this.state.propertyDetails.Photos.split(',');
+        //             for (let i = 0; i < photoList.length; i++) {
+        //                 axios.post('http://'+rooturl+':3001/download-file/' + photoList[i], {
+        //                     headers: { "Authorization": `Bearer ${token}` }
+        //                 })
+        //                     .then(response => {
+        //                         //console.log("Imgae Res : ", response);
+        //                         let imagePreview = 'data:image/jpg;base64, ' + response.data;
+        //                         imageArr.push(imagePreview);
+        //                         const photoArr = this.state.photos.slice();
+        //                         photoArr[i] = imagePreview;
+        //                         this.setState({
+        //                             photos: photoArr
+        //                         });
 
-                                console.log('PhotoArr: ', photoArr);
-                                console.log('Photo State: ', this.state.photos);
-                            }).catch((err) => {
-                                if (err) {
-                                    this.setState({
-                                        errorRedirect: true
-                                    });
-                                    console.log(err);
-                                }
-                            });
-                    }
+        //                         console.log('PhotoArr: ', photoArr);
+        //                         console.log('Photo State: ', this.state.photos);
+        //                     }).catch((err) => {
+        //                         if (err) {
+        //                             this.setState({
+        //                                 errorRedirect: true
+        //                             });
+        //                             console.log(err);
+        //                         }
+        //                     });
+        //             }
 
 
-                }
-            }).catch((err) => {
-                if (err) {
-                    this.setState({
-                        errorRedirect: true
-                    });
-                    console.log(err);
-                }
-            });
+        //         }
+        //     }).catch((err) => {
+        //         if (err) {
+        //             this.setState({
+        //                 errorRedirect: true
+        //             });
+        //             console.log(err);
+        //         }
+        //     });
     }
 
     submitBooking = (e) => {
 
-        axios.defaults.withCredentials = true;
-        var token = localStorage.getItem("token");
-
-        var data = {
-            PropertyId: this.props.match.params.id,
-            Bookingstartdate: this.props.homeStateStore.result.startDate,
-            Bookingenddate: this.props.homeStateStore.result.endDate,
-            Guests: this.props.homeStateStore.result.guests,
-            TotalCost: e.target.value,
-            Ownername: this.state.propertyDetails.Ownername,
-            PropertyDetails: this.state.propertyDetails
-        }
 
 
-        axios.post('http://'+rooturl+':3001/submit-booking', data, {
-            headers: { "Authorization": `Bearer ${token}` }
-        })
-            .then(response => {
-                if (response.status === 200) {
-                    console.log('Booking Successful!');
-                    this.setState({
-                        redirectToHome: true
-                    });
-                }
-            }).catch((err) => {
-                if (err) {
-                    this.setState({
-                        errorRedirect: true
-                    });
-                }
-            });
+        this.props.bookProperty({
+            variables : {
+                PropertyId: this.props.match.params.id,
+                Ownername: this.props.data.property.Ownername,
+                Headline : this.props.data.property.Headline,
+                PropertyType:this.props.data.property.PropertyType,
+                PropertyBedrooms:this.props.data.property.Bedrooms,
+                PropertyBathrooms:this.props.data.property.Bathrooms,
+                PropertyAccomodates:this.props.data.property.Accomodates,
+                PropertyBookingStartDate:localStorage.getItem('startDate'),
+                PropertyBookingEndDate:localStorage.getItem('endDate'),
+                PropertyTotalCost:e.target.value,
+                Email: localStorage.getItem('Email'),
+                FirstName: localStorage.getItem('ProfileName')
+            }
+
+        }).then((response)=>{
+            console.log('Response', response.data);
+        });
+        // axios.defaults.withCredentials = true;
+        // var token = localStorage.getItem("token");
+
+        // var data = {
+        //     PropertyId: this.props.match.params.id,
+        //     Bookingstartdate: this.props.homeStateStore.result.startDate,
+        //     Bookingenddate: this.props.homeStateStore.result.endDate,
+        //     Guests: this.props.homeStateStore.result.guests,
+        //     TotalCost: e.target.value,
+        //     Ownername: this.state.propertyDetails.Ownername,
+        //     PropertyDetails: this.state.propertyDetails
+        // }
+
+
+        // axios.post('http://'+rooturl+':3001/submit-booking', data, {
+        //     headers: { "Authorization": `Bearer ${token}` }
+        // })
+        //     .then(response => {
+        //         if (response.status === 200) {
+        //             console.log('Booking Successful!');
+        //             this.setState({
+        //                 redirectToHome: true
+        //             });
+        //         }
+        //     }).catch((err) => {
+        //         if (err) {
+        //             this.setState({
+        //                 errorRedirect: true
+        //             });
+        //         }
+        //     });
 
     }
 
@@ -189,23 +214,23 @@ class PropertyDisplay extends Component {
 
     render() {
         let redrirectVar = null;
-        if(this.props.loginStateStore.result){
-            if(!this.props.loginStateStore.result.isAuthenticated === true){
-                redrirectVar = <Redirect to="/login" />
-            }
-        }
-        else{
-            redrirectVar = <Redirect to="/login" />
-        }
+        // if(this.props.loginStateStore.result){
+        //     if(!this.props.loginStateStore.result.isAuthenticated === true){
+        //         redrirectVar = <Redirect to="/login" />
+        //     }
+        // }
+        // else{
+        //     redrirectVar = <Redirect to="/login" />
+        // }
 
-        if (this.state.errorRedirect === true) {
-            redrirectVar = <Redirect to="/error" />
-        }
+        // if (this.state.errorRedirect === true) {
+        //     redrirectVar = <Redirect to="/error" />
+        // }
 
-        if (this.state.redirectToHome === true) {
-            redrirectVar = <Redirect to="/home" />
-        }
-
+        // if (this.state.redirectToHome === true) {
+        //     redrirectVar = <Redirect to="/home" />
+        // }
+        console.log('property details', this.props.data.property);
         var totalCost = 0;
 
         if (this.state.propertyDetails.Baserate && this.props.homeStateStore.result) {
@@ -238,8 +263,9 @@ class PropertyDisplay extends Component {
         //var startDate = this.state.propertyDetails.AvailabilityStartDate;
         var startDate = "";
         var endDate = "";
-        if (this.props.homeStateStore.result) {
-            var date = new Date(this.props.homeStateStore.result.startDate);
+        //if (this.props.homeStateStore.result) {
+            //var date = new Date(this.props.homeStateStore.result.startDate);
+            var date = new Date(localStorage.getItem('startDate'));
             var locale = "en-us";
             var month = date.toLocaleString(locale, { month: "short" });
             var day = date.getDate();
@@ -247,12 +273,152 @@ class PropertyDisplay extends Component {
             console.log(startDate);
 
             //End date
-            date = new Date(this.props.homeStateStore.result.endDate);
+            //date = new Date(this.props.homeStateStore.result.endDate);
+            date = new Date(localStorage.getItem('endDate'));
             month = date.toLocaleString(locale, { month: "short" });
             day = date.getDate();
             endDate = month + " - " + day;
             console.log(endDate);
+        //}
+        var propertyDetailsContent = null;
+        if(this.props.data.property != null){
+
+            propertyDetailsContent = <div className=" container property-display-content border">
+            <div className="row">
+                {/* <div className="property-display-img-content col-6">
+                    <div id="myCarousel" className="carousel slide" data-ride="carousel">
+
+
+                        <ul className="carousel-indicators">
+                            {carousalIndicator}
+                        </ul>
+
+                        <div className="carousel-inner">
+                            {carousalBlock}
+                        </div>
+
+                        <a className="carousel-control-prev" href="#myCarousel" data-slide="prev">
+                            <span className="carousel-control-prev-icon"></span>
+                        </a>
+                        <a className="carousel-control-next" href="#myCarousel" data-slide="next">
+                            <span className="carousel-control-next-icon"></span>
+                        </a>
+                    </div>
+                </div> */}
+                <div className="property-display-pricing-content col-5 border">
+                    <div className="display-price">
+                        <h4><strong>{this.props.data.property.Baserate}</strong></h4><span> per night</span>
+                    </div>
+                    <div>
+                        <table className="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <td><div>Arrive</div><div className="blue-text">{startDate}</div></td>
+                                    <td><div>Depart</div><div className="blue-text">{endDate}</div></td>
+                                </tr>
+                                <tr>
+                                    <td colSpan="2"><div>Guests</div><div className="blue-text">{this.props.homeStateStore.result ? this.props.homeStateStore.result.guests : "2"} guests</div></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div>
+                            <span className="pull-left">Total</span>
+                            <span className="flt-right">${totalCost}</span>
+                        </div>
+                        <div className="center-content">
+                            <button className="btn btn-lg btn-primary book-btn" onClick={this.submitBooking} value={this.props.data.property.Baserate}>Book now</button>
+                        </div>
+                        <hr />
+                        <div className="center-content">
+                            <label htmlFor="ownername">Property Owner: </label>
+                            <span id="ownername"><strong> {this.props.data.property.Ownername}</strong></span>
+                        </div>
+                        <div>
+                            <div className="center-content">
+                                <button type="button" className="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Message Owner</button>
+                            </div>
+                            <div className="modal fade" id="myModal" role="dialog">
+                                <div className="modal-dialog">
+                                    <div className="modal-content">
+                                        <div className="modal-header">
+                                        <h4 className="modal-title">Ask Manager a Question</h4>
+                                            <button type="button" className="close" data-dismiss="modal">&times;</button>                                                    
+                                        </div>
+                                        <div className="modal-body">
+                                            <p></p>
+                                            <div className="form-group">
+                                                <textarea type="text" name="messageContent" id="messageContent" className="form-control form-control-lg" placeholder="Type your message here" onChange={this.handleInputChange}/>
+                                            </div>
+                                        </div>
+                                        <div className="modal-footer">
+                                            <button type="button" className="btn btn-success" data-dismiss="modal" onClick={this.sendMessage}>Send</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+
+                    </div>
+                </div>
+            </div>
+            <div className="row">
+                <div className="property-display-details-content col-6">
+                    <div className="details-content-headline-text"><h4><strong>{this.props.data.property.Headline}</strong></h4></div>
+                    <div>
+                        <p>{this.props.data.property.StreetAddress}, {this.props.data.property.City} {this.props.data.property.State}</p>
+                    </div>
+                    <div className="details-table">
+                        <table className="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Details</th>
+                                    <th scope="col">Information</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">1</th>
+                                    <td>Property type</td>
+                                    <td>{this.props.data.property.PropertyType}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">2</th>
+                                    <td>Bedrooms</td>
+                                    <td>{this.props.data.property.Bedrooms}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">3</th>
+                                    <td>Sleeps</td>
+                                    <td>{this.props.data.property.Accomodates}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">4</th>
+                                    <td>Bathrooms</td>
+                                    <td>{this.props.data.property.Bathrooms}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">5</th>
+                                    <td>Min Stay</td>
+                                    <td>{this.props.data.property.MinStay} nights</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="property-description-content">
+                        <h3><strong>{this.props.data.property.Bedrooms} bedroom {this.props.data.property.Bathrooms} bath</strong></h3>
+                        <div className="desc-content">
+                            {this.props.data.property.Description}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         }
+
 
 
         return (
@@ -277,141 +443,8 @@ class PropertyDisplay extends Component {
                         <a href="/display-properties" className="btn btn-primry btn-lg" style={{ width: "100%" }}>Search</a>
                     </span>
                 </div>
-                <div className=" container property-display-content border">
-                    <div className="row">
-                        <div className="property-display-img-content col-6">
-                            <div id="myCarousel" className="carousel slide" data-ride="carousel">
-
-
-                                <ul className="carousel-indicators">
-                                    {carousalIndicator}
-                                </ul>
-
-                                <div className="carousel-inner">
-                                    {carousalBlock}
-                                </div>
-
-                                <a className="carousel-control-prev" href="#myCarousel" data-slide="prev">
-                                    <span className="carousel-control-prev-icon"></span>
-                                </a>
-                                <a className="carousel-control-next" href="#myCarousel" data-slide="next">
-                                    <span className="carousel-control-next-icon"></span>
-                                </a>
-                            </div>
-                        </div>
-                        <div className="property-display-pricing-content col-5 border">
-                            <div className="display-price">
-                                <h4><strong>{this.state.propertyDetails.Baserate}</strong></h4><span> per night</span>
-                            </div>
-                            <div>
-                                <table className="table table-bordered">
-                                    <tbody>
-                                        <tr>
-                                            <td><div>Arrive</div><div className="blue-text">{startDate}</div></td>
-                                            <td><div>Depart</div><div className="blue-text">{endDate}</div></td>
-                                        </tr>
-                                        <tr>
-                                            <td colSpan="2"><div>Guests</div><div className="blue-text">{this.props.homeStateStore.result ? this.props.homeStateStore.result.guests : "2"} guests</div></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <div>
-                                    <span className="pull-left">Total</span>
-                                    <span className="flt-right">${totalCost}</span>
-                                </div>
-                                <div className="center-content">
-                                    <button className="btn btn-lg btn-primary book-btn" onClick={this.submitBooking} value={totalCost}>Book now</button>
-                                </div>
-                                <hr />
-                                <div className="center-content">
-                                    <label htmlFor="ownername">Property Owner: </label>
-                                    <span id="ownername"><strong> {this.state.propertyDetails.Ownername}</strong></span>
-                                </div>
-                                <div>
-                                    <div className="center-content">
-                                        <button type="button" className="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Message Owner</button>
-                                    </div>
-                                    <div className="modal fade" id="myModal" role="dialog">
-                                        <div className="modal-dialog">
-                                            <div className="modal-content">
-                                                <div className="modal-header">
-                                                <h4 className="modal-title">Ask Manager a Question</h4>
-                                                    <button type="button" className="close" data-dismiss="modal">&times;</button>                                                    
-                                                </div>
-                                                <div className="modal-body">
-                                                    <p></p>
-                                                    <div className="form-group">
-                                                        <textarea type="text" name="messageContent" id="messageContent" className="form-control form-control-lg" placeholder="Type your message here" onChange={this.handleInputChange}/>
-                                                    </div>
-                                                </div>
-                                                <div className="modal-footer">
-                                                    <button type="button" className="btn btn-success" data-dismiss="modal" onClick={this.sendMessage}>Send</button>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="property-display-details-content col-6">
-                            <div className="details-content-headline-text"><h4><strong>{this.state.propertyDetails.Headline}</strong></h4></div>
-                            <div>
-                                <p>{this.state.propertyDetails.StreetAddress}, {this.state.propertyDetails.City} {this.state.propertyDetails.State}</p>
-                            </div>
-                            <div className="details-table">
-                                <table className="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">#</th>
-                                            <th scope="col">Details</th>
-                                            <th scope="col">Information</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <th scope="row">1</th>
-                                            <td>Property type</td>
-                                            <td>{this.state.propertyDetails.PropertyType}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">2</th>
-                                            <td>Bedrooms</td>
-                                            <td>{this.state.propertyDetails.Bedrooms}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">3</th>
-                                            <td>Sleeps</td>
-                                            <td>{this.state.propertyDetails.Accomodates}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">4</th>
-                                            <td>Bathrooms</td>
-                                            <td>{this.state.propertyDetails.Bathrooms}</td>
-                                        </tr>
-                                        <tr>
-                                            <th scope="row">5</th>
-                                            <td>Min Stay</td>
-                                            <td>{this.state.propertyDetails.MinStay} nights</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div className="property-description-content">
-                                <h3><strong>{this.state.propertyDetails.Bedrooms} bedroom {this.state.propertyDetails.Bathrooms} bath</strong></h3>
-                                <div className="desc-content">
-                                    {this.state.propertyDetails.Description}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                {propertyDetailsContent}
                 </div>
-            </div>
         )
     }
 }
@@ -422,5 +455,15 @@ const mapStateToProps = state => ({
 });
 
 //export default PropertyDisplay;
+//export default connect(mapStateToProps)(PropertyDisplay);
+// export default compose(
+//     graphql(getAuthorsQuery, { name: "getAuthorsQuery" }),
+//     graphql(addBookMutation, { name: "addBookMutation" })
+// )(AddBook);
 
-export default connect(mapStateToProps)(PropertyDisplay);
+
+const PropertyDisplayPage = connect(mapStateToProps)(PropertyDisplay);
+export default compose (
+    graphql(property, {options : (props) => ({ variables : {propertyId: props.match.params.id}})}),
+    graphql(bookProperty, {name: "bookProperty"})
+)(PropertyDisplayPage);

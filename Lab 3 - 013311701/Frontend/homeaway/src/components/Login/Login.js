@@ -101,6 +101,7 @@ class Login extends Component {
                 localStorage.setItem("ProfileName",response.data.login.userData.FirstName);
                 localStorage.setItem('accountType', response.data.login.userData.Accounttype);
                 localStorage.setItem("isAuthenticated", true);
+                localStorage.setItem("Email", response.data.login.userData.Email);
 
                 this.setState({
                     isAuthenticated:true

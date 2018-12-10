@@ -119,6 +119,56 @@ const searchResult = new GraphQLObjectType({
     })
 });
 
+const bookPropertyResult = new GraphQLObjectType({
+    name : 'bookPropertyResult',
+    fields: ()=>({
+        success : {type: GraphQLBoolean}
+    })
+});
+
+const tripDetails = new GraphQLObjectType({
+    name: 'tripDetailResult',
+    fields: ()=>({
+        PropertyId: {type: GraphQLString},
+        Bookingstartdate: {type: GraphQLString},
+        Bookingenddate: {type: GraphQLString},
+        TotalCost: {type: GraphQLString},
+        Ownername: {type: GraphQLString},
+        Travelername:{type: GraphQLString},
+        Headline: {type: GraphQLString},
+        PropertyType: {type: GraphQLString},
+        PropertyBedrooms: {type: GraphQLInt},
+        PropertyBathrooms:{type: GraphQLInt},
+        PropertyAccomodates: {type: GraphQLInt}
+    })
+});
+
+const tripDetailsResult = new GraphQLObjectType({
+    name: 'tripDetailsResult',
+    fields: ()=>({
+        trips : {type: new GraphQLList(tripDetails)}
+    })
+})
+
+const postedProperty = new GraphQLObjectType({
+    name:'postedProperty',
+    fields: ()=>({
+        PropertyId :{type: GraphQLString},
+        AvailabilityStartDate:{type: GraphQLString},
+        AvailabilityEndDate:{type: GraphQLString},
+        Baserate:{type: GraphQLString},
+        Headline:{type: GraphQLString},
+        PropertyType:{type: GraphQLString}
+    })
+});
+
+const postedPropertyDetails = new GraphQLObjectType({
+    name:'postedPropertyDetails',
+    fields:()=>({
+        postedProperties: {type: new GraphQLList(postedProperty)}
+    })
+});
+
 
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
@@ -236,9 +286,90 @@ const RootQuery = new GraphQLObjectType({
                 return resultData;
 
             }
+        },
+        property:{
+           type: Property,
+           args : {
+               propertyId : {type: GraphQLString}
+           },
+           async resolve(parent, args){
+               console.log(args);
+               var propertyResult = {};
+               await Model.PropertyDetails.find({
+                   "PropertyId" : args.propertyId
+               }, (err, result)=>{
+                    if(err){
+
+                    }
+                    else{
+                        console.log('Result ', result);
+                        propertyResult = result[0];
+                    }
+               });
+               return propertyResult;
+           }
+        },
+        tripDetails:{
+            type: tripDetailsResult,
+            args:{
+                Email:{type: GraphQLString}
+            },
+            async resolve(parent, args){
+                console.log(args);
+                var tripDetails = [];
+                await Model.Userdetails.findOne({
+                    "Email" : args.Email
+                }, (err, result)=>{
+                    if(err){
+
+                    }
+                    else{
+                        console.log('result', result);
+                        tripDetails = result.Tripdetails.concat();
+                    }
+                });
+
+                var tripsResult = {
+                    trips : tripDetails
+                }
+
+                return tripsResult;
+
+            }
+
+
+        },
+        postedProperties: {
+            type: postedPropertyDetails,
+            args:{
+                Email: {type: GraphQLString}
+            },
+            async resolve(parent, args){
+                console.log(args);
+                var postedProperties = [];
+                await Model.Userdetails.findOne({
+                    "Email" : args.Email
+                }, (err, result)=>{
+                    if(err){
+
+                    }
+                    else{
+                        console.log('result', result);
+                        postedProperties = result.PropertyDetails.concat();
+                    }
+                });
+                var postedPropertyDetails = {
+                    postedProperties : postedProperties
+                }
+                return postedPropertyDetails;
+            }
+
+            
         }
     })
 });
+
+
 
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
@@ -333,6 +464,72 @@ const Mutation = new GraphQLObjectType({
                         }
                     });
                 });
+            }
+        },
+        bookProperty: {
+            type: bookPropertyResult,
+            args: {
+                PropertyId: {type: GraphQLString},
+                Ownername: {type: GraphQLString},
+                Headline : {type: GraphQLString},
+                PropertyType:{type: GraphQLString},
+                PropertyBedrooms:{type: GraphQLInt},
+                PropertyBathrooms:{type: GraphQLInt},
+                PropertyAccomodates:{type: GraphQLInt},
+                PropertyBookingStartDate:{type: GraphQLString},
+                PropertyBookingEndDate:{type: GraphQLString},
+                PropertyTotalCost:{type: GraphQLString},
+                Email: {type: GraphQLString},
+                FirstName: {type: GraphQLString}
+            },
+            resolve: (parent, args) => {
+                console.log(args);
+                //var success = true;
+                Model.Userdetails.findOne({
+                    Email: args.Email
+                }, function (err, user) {
+                    if (err) {
+                        console.log("Unable to get user details.", err);
+                        //callback(err, null);
+                    }
+                    else {
+            
+                        var propertyDetails = {};
+                        propertyDetails.PropertyId = args.PropertyId;
+                        propertyDetails.Bookingstartdate = args.PropertyBookingStartDate;
+                        propertyDetails.Bookingenddate = args.PropertyBookingEndDate;
+                        //propertyDetails.Guests = message.body.Guests;
+                        propertyDetails.TotalCost = args.PropertyTotalCost;
+                        propertyDetails.Ownername = args.Ownername;
+                        propertyDetails.Travelername = args.FirstName;
+                        //propertyDetails.TravelerId = userSession.ProfileId;
+                        propertyDetails.Headline = args.Headline;
+                        propertyDetails.PropertyType = args.PropertyType;
+                        propertyDetails.PropertyBedrooms = args.PropertyBedrooms;
+                        propertyDetails.PropertyBathrooms = args.PropertyBathrooms;
+                        propertyDetails.PropertyAccomodates = args.PropertyAccomodates;
+
+            
+                        user.Tripdetails = user.Tripdetails || [];
+                        user.Tripdetails.push(propertyDetails);
+                        user.save().then((doc) => {
+                            console.log('Booking details saved to user details', doc);
+                            //callback(null, doc);
+
+                        }, (err) => {
+                            console.log("Unable to save booking details.", err);
+                            //callback(err, null);
+                        });
+            
+                    }
+                });
+
+                var bookingResult = {
+                    success : true
+                }
+
+                return bookingResult;
+
             }
         }
     })
