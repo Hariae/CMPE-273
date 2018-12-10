@@ -12,7 +12,8 @@ const {
     GraphQLInt,
     GraphQLList,
     GraphQLNonNull,
-    GraphQLBoolean
+    GraphQLBoolean,
+    GraphQLDate
 } = graphql;
 
 
@@ -68,6 +69,33 @@ const ProfileType = new GraphQLObjectType({
     })
 });
 
+const Property = new GraphQLObjectType({
+    name : 'Property',
+    fields : ()=>({
+        PropertyId : {type: GraphQLString},
+    Headline : {type: GraphQLString},
+    Description : {type: GraphQLString},
+    Country : {type: GraphQLString},
+    StreetAddress :{type: GraphQLString},
+    City : {type: GraphQLString},
+    State : {type: GraphQLString},
+    ZipCode : {type: GraphQLString},
+    PropertyType :{type: GraphQLString},
+    Bedrooms : {type:GraphQLInt},
+    Accomodates :{type:GraphQLInt},
+    Bathrooms: {type:GraphQLInt},
+    Photos : {type: GraphQLString},
+    Currency : {type: GraphQLString},
+    Baserate : {type: GraphQLString},
+    AvailabilityStartDate:{type: GraphQLString} ,
+    AvailabilityEndDate: {type: GraphQLString},
+    MinStay : {type:GraphQLInt},
+    Ownername : {type: GraphQLString},
+    OwnerId : {type: GraphQLString}
+    
+})
+});
+
 const loginResult = new GraphQLObjectType({
     name: 'loginResult',
     fields: () => ({
@@ -81,6 +109,13 @@ const signupResult = new GraphQLObjectType({
     fields: () => ({
         success: { type: GraphQLBoolean },
         duplicateUser: { type: GraphQLBoolean }
+    })
+});
+
+const searchResult = new GraphQLObjectType({
+    name: 'searchResult',
+    fields: ()=>({
+        properties : {type: new GraphQLList(Property)}
     })
 });
 
@@ -168,9 +203,40 @@ const RootQuery = new GraphQLObjectType({
 
                 return profileData;
             }
+        },
+        search:{
+            type: searchResult,
+            args: {
+                searchText : {type: GraphQLString},
+                startDate : {type: GraphQLString},
+                endDate: {type: GraphQLString}
+            },
+            async resolve(parent, args){
+                console.log(args);
+
+                var propertyData = [];
+                await Model.PropertyDetails.find({
+                    "City" : args.searchText
+                }, (err, result)=>{
+                    if(err){
+
+                    }
+                    else{
+                        console.log('props list ', result);
+                        propertyData = result.concat();
+                        console.log('propserties', propertyData);
+                    }
+                    
+                });
+
+                var resultData = {
+                    properties : propertyData
+                }
+
+                return resultData;
+
+            }
         }
-
-
     })
 });
 

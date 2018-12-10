@@ -87,15 +87,6 @@ class Login extends Component {
     submitLoginData = () =>{
         axios.defaults.withCredentials = true;
        
-        // this.props.submitLogin({
-        //     variables: {
-        //         Username: this.state.email,
-        //         Password: this.state.password,
-        //     },
-        //     //refetchQueries: [{ query: getBooksQuery }]
-        // });
-        //this.props.submitLogin(data);
-        //this.props.login(jsondata);
         this.props.client.query({
             query : login,
             variables: {

@@ -1,13 +1,5 @@
 import {gql} from 'apollo-boost';
 
-// const submitLogin = gql`
-//     query Login(Username: String, Password: String){
-//         login(Username: "aehari2010@gmail.com", Password: "Password"){
-//             result
-//         }
-//     }`
-
-
 const login = gql`
 query login($Username: String, $Password: String){
         login(Username: $Username, Password: $Password){
@@ -51,4 +43,33 @@ const profile = gql`
     }
 `
 
-export {login, profile};
+const search = gql`
+    query search($searchText: String, $startDate: String, $endDate: String){
+        search(searchText: $searchText, startDate: $startDate, endDate: $endDate){
+            properties {
+                PropertyId
+                Headline
+                Description
+                Country
+                StreetAddress
+                City
+                State
+                ZipCode
+                PropertyType
+                Bedrooms
+                Accomodates
+                Bathrooms
+                Photos
+                Currency
+                Baserate
+                AvailabilityStartDate
+                AvailabilityEndDate
+                MinStay
+                Ownername
+                OwnerId
+              }
+        }
+    }
+`
+
+export {login, profile, search};

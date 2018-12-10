@@ -58,6 +58,13 @@ class Home extends Component {
             endDate : this.state.searchEndDate,
             guests: this.state.guests
         }
+
+        localStorage.setItem('searchText', this.state.searchText);
+        localStorage.setItem('startDate', this.state.searchStartDate);
+        localStorage.setItem('endDate', this.state.searchEndDate);
+        localStorage.setItem('guests', this.state.guests);
+
+
         this.props.saveSearchDetailsToStore(data);
     }
 
