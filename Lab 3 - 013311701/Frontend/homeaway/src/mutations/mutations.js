@@ -18,4 +18,12 @@ const bookProperty = gql`
     
 `
 
-export {signup, bookProperty};
+const updateProfile = gql`
+    mutation updateProfile($FirstName: String, $LastName: String, $Email: String, $PhoneNumber: String, $Aboutme: String, $Country: String, $City: String, $Gender:String, $School: String, $Hometown: String, $Language: String, $Company: String){
+        updateProfile(FirstName:$FirstName,LastName:$LastName, Email:$Email, PhoneNumber:$PhoneNumber, Aboutme: $Aboutme, Country:$Country, City: $City, Gender: $Gender, School:$School, Hometwon: $Hometown, Language: $Language, Company: $Company){
+            success
+        }
+    }
+`
+
+export {signup, bookProperty, updateProfile};

@@ -8,8 +8,9 @@ import {rooturl} from '../../config/settings';
 import { getProfileDetails, updateProfileDetails } from '../../actions/profileActions';
 import { connect } from 'react-redux';
 
-import {graphql} from 'react-apollo';
+import {graphql, compose} from 'react-apollo';
 import {profile} from '../../queries/queries';
+import {updateProfile} from '../../mutations/mutations';
 class Profile extends Component {
 
     constructor(props) {
@@ -58,27 +59,43 @@ class Profile extends Component {
         e.preventDefault();
 
 
-        const data = {
-            FirstName: this.state.FirstName,
-            LastName: this.state.LastName,
-            Email: this.state.Email,
-            PhoneNumber: this.state.PhoneNumber,
-            Aboutme: this.state.Aboutme,
-            Country: this.state.Country,
-            City: this.state.City,
-            Gender: this.state.Gender,
-            School: this.state.School,
-            Hometown: this.state.Hometown,
-            Language: this.state.Language,
-            Company: this.state.Company,
-            ProfileImage: this.state.ProfileImage
+        // const data = {
+        //     FirstName: this.state.FirstName,
+        //     LastName: this.state.LastName,
+        //     Email: this.state.Email,
+        //     PhoneNumber: this.state.PhoneNumber,
+        //     Aboutme: this.state.Aboutme,
+        //     Country: this.state.Country,
+        //     City: this.state.City,
+        //     Gender: this.state.Gender,
+        //     School: this.state.School,
+        //     Hometown: this.state.Hometown,
+        //     Language: this.state.Language,
+        //     Company: this.state.Company,
+        //     ProfileImage: this.state.ProfileImage
 
 
-        }
+        // }
 
-        console.log('Data: ', data);
+        // console.log('Data: ', data);
 
-        this.props.updateProfileDetails(data);
+        //this.props.updateProfileDetails(data);
+        this.props.updateProfile({
+            variables:{
+                FirstName: this.state.FirstName,
+                LastName: this.state.LastName,
+                Email: this.state.Email,
+                PhoneNumber: this.state.PhoneNumber,
+                Aboutme: this.state.Aboutme,
+                Country: this.state.Country,
+                City: this.state.City,
+                Gender: this.state.Gender,
+                School: this.state.School,
+                Hometown: this.state.Hometown,
+                Language: this.state.Language,
+                Company: this.state.Company
+            }
+        })
     }
 
     render() {
@@ -203,6 +220,14 @@ const mapStateToProps = state => ({
 
 //export default Profile;
 //export default connect(mapStateToProps, { getProfileDetails, updateProfileDetails })(Profile);
-export default graphql(profile, {
+
+
+export default compose(
+    graphql(profile, {
         options : (props) => ({ variables: { Email : "aehari2010@gmail.com" }})
-    })(Profile);
+    }),
+    graphql(updateProfile, {name:"updateProfile"})
+)(Profile);
+// export default graphql(profile, {
+//         options : (props) => ({ variables: { Email : "aehari2010@gmail.com" }})
+//     })(Profile);

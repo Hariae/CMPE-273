@@ -369,7 +369,12 @@ const RootQuery = new GraphQLObjectType({
     })
 });
 
-
+const updateProfileResult = new GraphQLObjectType({
+    name: 'updateProfileResult',
+    fields:()=>({
+        success: {type:GraphQLBoolean}
+    })
+})
 
 const Mutation = new GraphQLObjectType({
     name: 'Mutation',
@@ -530,6 +535,26 @@ const Mutation = new GraphQLObjectType({
 
                 return bookingResult;
 
+            }
+        },
+        updateProfile: {
+            type: updateProfileResult,
+            args:{
+                FirstName:{type: GraphQLString},
+                LastName: {type: GraphQLString},
+                Email:{type: GraphQLString},
+                PhoneNumber:{type: GraphQLString},
+                Aboutme:{type: GraphQLString},
+                Country:{type: GraphQLString},
+                City:{type: GraphQLString},
+                Gender:{type: GraphQLString},
+                School:{type: GraphQLString},
+                Hometown:{type: GraphQLString},
+                Language:{type: GraphQLString},
+                Company:{type: GraphQLString}
+            },
+            resolve(parent,args){
+                console.log(args);
             }
         }
     })
