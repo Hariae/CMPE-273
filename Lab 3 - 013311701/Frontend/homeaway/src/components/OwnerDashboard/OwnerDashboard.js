@@ -246,6 +246,6 @@ const OwnerDashboardPage =connect(mapStateToProps, {})(OwnerDashboard);
 
 export default graphql(postedProperties, {
     options : (props) =>({
-        variables : {Email: "aehari2010@gmail.com"}
+        variables : {Email:localStorage.getItem("Email")}
     })
 })(OwnerDashboardPage);

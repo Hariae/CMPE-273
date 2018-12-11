@@ -20,7 +20,7 @@ const bookProperty = gql`
 
 const updateProfile = gql`
     mutation updateProfile($FirstName: String, $LastName: String, $Email: String, $PhoneNumber: String, $Aboutme: String, $Country: String, $City: String, $Gender:String, $School: String, $Hometown: String, $Language: String, $Company: String){
-        updateProfile(FirstName:$FirstName,LastName:$LastName, Email:$Email, PhoneNumber:$PhoneNumber, Aboutme: $Aboutme, Country:$Country, City: $City, Gender: $Gender, School:$School, Hometwon: $Hometown, Language: $Language, Company: $Company){
+        updateProfile(FirstName:$FirstName,LastName:$LastName, Email:$Email, PhoneNumber:$PhoneNumber, Aboutme: $Aboutme, Country:$Country, City: $City, Gender: $Gender, School:$School, Hometown: $Hometown, Language: $Language, Company: $Company){
             success
         }
     }

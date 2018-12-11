@@ -218,11 +218,15 @@ const mapStateToProps = state => ({
     loginStateStore : state.login
 })
 
+
+
+
+
 //export default Header;
 //export default connect(mapStateToProps, {})(MyTrips);
 const MyTripsPage = connect(mapStateToProps, {})(MyTrips);
 export default graphql(tripDetails, {
     options : (props)=>({
-        variables: {Email : "aehari2010@gmail.com"}
+        variables: {Email : localStorage.getItem('Email')}
     })
 })(MyTripsPage);

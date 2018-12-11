@@ -324,7 +324,7 @@ const RootQuery = new GraphQLObjectType({
 
                     }
                     else{
-                        console.log('result', result);
+                        console.log('result', result.Tripdetails);
                         tripDetails = result.Tripdetails.concat();
                     }
                 });
@@ -354,7 +354,7 @@ const RootQuery = new GraphQLObjectType({
 
                     }
                     else{
-                        console.log('result', result);
+                        console.log('result', result.PropertyDetails);
                         postedProperties = result.PropertyDetails.concat();
                     }
                 });
