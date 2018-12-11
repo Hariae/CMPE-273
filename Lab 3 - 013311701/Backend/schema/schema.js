@@ -553,8 +553,49 @@ const Mutation = new GraphQLObjectType({
                 Language:{type: GraphQLString},
                 Company:{type: GraphQLString}
             },
-            resolve(parent,args){
+           async resolve(parent,args){
                 console.log(args);
+                await Model.Userdetails.findOne({
+                    'Email': args.Email
+                }, (err, user) => {
+            
+                    if (err) {
+                        console.log("Unable to fetch user details.", err);
+                        callback(err, null);
+                    }
+                    else {
+                        console.log('Userdetails', user);
+            
+                        user.FirstName = args.FirstName;
+                        user.LastName = args.LastName;
+                        user.Email = args.Email;
+                        user.Aboutme = args.Aboutme;
+                        user.Country = args.Country;
+                        user.City = args.City;
+                        user.Gender = args.Gender;
+                        user.Hometown = args.Hometown;
+                        user.School = args.School;
+                        user.Company = args.Company;
+                        user.Language = args.Language;
+                        user.PhoneNumber = args.PhoneNumber;
+            
+                        user.save().then((doc) => {
+            
+                            console.log("User details saved successfully.", doc);
+                            //callback(null, doc);
+            
+                        }, (err) => {
+                            console.log("Unable to save user details.", err);
+                            callback(err, null);
+                        });
+                    }
+                });
+
+                var resultData = {
+                    success: true
+                }
+
+                return resultData;
             }
         }
     })
