@@ -2,7 +2,7 @@ const graphql = require('graphql');
 //const _ = require('lodash');
 var Model = require('../DatabaseConnection');
 var bcrypt = require('bcrypt-nodejs');
-var signup = require('../routes/signup');
+
 
 const {
     GraphQLObjectType,
